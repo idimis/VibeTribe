@@ -12,7 +12,7 @@ const moreEventsData = [
 ];
 
 const MoreEventsSection: React.FC = () => {
-  // Slice the data to only include the first 8 events
+  
   const displayedEvents = moreEventsData.slice(0, 8); 
 
   return (

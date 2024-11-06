@@ -5,11 +5,8 @@ import Carousel from '@/components/Carousel';
 import CategoryIcon from '@/components/CategoryIcon';
 import EventSection from '@/components/EventSection';
 import MoreEvents from '@/components/MoreEvents';
+import WhereToNext from '@/components/WheretoNext';
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 7c9d7c114e0fdaffb548777845e00e515459f78b
 const Page: React.FC = () => {
   return (
     <div>
@@ -17,6 +14,7 @@ const Page: React.FC = () => {
       <Carousel />
       <CategoryIcon />
       <EventSection />
+      <WhereToNext />
       <MoreEvents />
       <Footer />
     </div>

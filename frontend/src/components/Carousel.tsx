@@ -1,12 +1,16 @@
-'use client';  
+'use client';
 
-import Image from 'next/image';
+import Image, { StaticImageData } from 'next/image';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useSwipeable } from 'react-swipeable';
+import party1Image from '@/public/party1.jpg';
+import party2Image from '@/public/party2.jpg';
+import party3Image from '@/public/party3.jpg';
+import party4Image from '@/public/party4.jpg';
 
 interface Slide {
   id: number;
-  src: string;
+  src: StaticImageData | string;
   caption: string;
   description: string;
 }
@@ -14,25 +18,25 @@ interface Slide {
 const slides: Slide[] = [
   {
     id: 1,
-    src: '/party1.jpg',
+    src: party1Image,
     caption: 'Party Time!',
     description: `Join us for an unforgettable night filled with fun and excitement.`,
   },
   {
     id: 2,
-    src: '/party2.jpg',
+    src: party2Image,
     caption: 'Dancing Under the Stars',
     description: `Get ready to dance the night away with great music and friends.`,
   },
   {
     id: 3,
-    src: '/party3.jpg',
+    src: party3Image,
     caption: 'Good Vibes Only',
     description: `Experience the magic of a night full of laughter and joy.`,
   },
   {
     id: 4,
-    src: '/party4.jpg',
+    src: party4Image,
     caption: 'Celebrate with Us',
     description: `Let’s make memories together that will last a lifetime.`,
   },
@@ -64,7 +68,7 @@ export default function Component() {
       setCurrentSlide((prevSlide) => (prevSlide + 1) % slides.length);
     }, 5000);
 
-    return () => clearInterval(intervalId); 
+    return () => clearInterval(intervalId);
   }, []);
 
   useEffect(() => {
@@ -83,7 +87,7 @@ export default function Component() {
 
   return (
     <div className="relative h-[80vh] w-full overflow-hidden" {...swipeHandlers}>
-      <div className="mx-auto max-w-[1440px] h-full" ref={slideRef}>
+      <div className="mx-auto w-full h-full" ref={slideRef}>
         <div
           className="flex h-full transition-transform duration-1000 ease-in-out"
           style={{ transform: `translateX(-${currentSlide * 100}%)` }}
@@ -108,12 +112,13 @@ export default function Component() {
                   ))}
                 </div>
               </div>
-              <div className="w-full md:w-1/2 relative h-[40vh] md:h-auto">
+              <div className="w-full md:w-1/2 relative h-[40vh] md:h-full">
                 <Image
                   src={src}
                   alt={caption}
                   layout="fill"
-                  className="object-cover rounded-md"
+                  objectFit="cover"
+                  className="rounded-md"
                 />
               </div>
             </div>

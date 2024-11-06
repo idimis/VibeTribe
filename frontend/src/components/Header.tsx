@@ -4,14 +4,14 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import logoImage from '@/public/logo2.png';
+import party1Image from '@/public/party1.jpg';
+import party2Image from '@/public/party2.jpg';
+import party3Image from '@/public/party3.jpg';
+import party4Image from '@/public/party4.jpg';
 
-<<<<<<< HEAD
+
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
-=======
-const Header = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
->>>>>>> 7c9d7c114e0fdaffb548777845e00e515459f78b
 
   const toggleMenu = () => {
     setIsMenuOpen((prev) => !prev);
@@ -54,11 +54,7 @@ const Header = () => {
           <Link href="/create-event" className="mx-2 text-black hover:underline hidden md:block">
             Create Event
           </Link>
-<<<<<<< HEAD
           <Link href="/find-my-tickets" className="mx-2 text-black hover:underline hidden md:block">
-=======
-          <Link href="/my-tickets" className="mx-2 text-black hover:underline hidden md:block">
->>>>>>> 7c9d7c114e0fdaffb548777845e00e515459f78b
             Find My Tickets
           </Link>
 
@@ -66,11 +62,7 @@ const Header = () => {
           <Link href="/create-event" className="mx-2 text-black hover:underline md:hidden">
             Create Event
           </Link>
-<<<<<<< HEAD
           <Link href="/find-my-tickets" className="mx-2 text-black hover:underline md:hidden">
-=======
-          <Link href="/my-tickets" className="mx-2 text-black hover:underline md:hidden">
->>>>>>> 7c9d7c114e0fdaffb548777845e00e515459f78b
             Find My Tickets
           </Link>
 
@@ -103,11 +95,7 @@ const Header = () => {
             <Link href="/create-event" className="py-2 text-black hover:underline">
               Create Event
             </Link>
-<<<<<<< HEAD
             <Link href="/find-my-tickets" className="py-2 text-black hover:underline">
-=======
-            <Link href="/my-tickets" className="py-2 text-black hover:underline">
->>>>>>> 7c9d7c114e0fdaffb548777845e00e515459f78b
               Find My Tickets
             </Link>
             <Link href="/login" className="py-2 text-black hover:underline">
