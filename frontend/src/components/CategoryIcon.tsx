@@ -1,3 +1,5 @@
+"use client";
+
 import Link from 'next/link';
 import Image, { StaticImageData } from 'next/image';
 
@@ -30,7 +32,7 @@ const CategorySection: React.FC = () => {
             key={category.slug}
             className="flex flex-col items-center cursor-pointer mb-4 w-1/2 md:w-1/5"
           >
-            <div className="w-20 h-20 md:w-24 md:h-24 bg-gray-200 rounded-full flex items-center justify-center mb-2">
+            <div className="w-20 h-20 md:w-24 md:h-24 border-2 border-gray-200 bg-transparent rounded-full flex items-center justify-center mb-2">
               <Image
                 src={category.icon}
                 alt={category.name}

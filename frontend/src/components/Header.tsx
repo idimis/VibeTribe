@@ -4,10 +4,6 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import logoImage from '@/public/logo2.png';
-import party1Image from '@/public/party1.jpg';
-import party2Image from '@/public/party2.jpg';
-import party3Image from '@/public/party3.jpg';
-import party4Image from '@/public/party4.jpg';
 
 
 const Header: React.FC = () => {
@@ -44,7 +40,7 @@ const Header: React.FC = () => {
             placeholder="Choose location..." 
             className="border border-gray-300 rounded-l p-2 w-1/3 mx-2 focus:outline-none"
           />
-          <button className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 flex items-center justify-center">
+          <button className="bg-purple-400 text-white p-2 rounded-full hover:bg-gray-400 flex items-center justify-center">
             🔍
           </button>
         </div>

@@ -107,7 +107,7 @@ export default function Component() {
                       key={barIndex}
                       onClick={() => setCurrentSlide(barIndex)}
                       className={`cursor-pointer h-1 transition-all duration-500 
-                        ${barIndex === currentSlide ? 'bg-red-600 w-8' : 'bg-gray-400 w-4'}`}
+                        ${barIndex === currentSlide ? 'bg-purple-400 w-8' : 'bg-gray-400 w-4'}`}
                     />
                   ))}
                 </div>
