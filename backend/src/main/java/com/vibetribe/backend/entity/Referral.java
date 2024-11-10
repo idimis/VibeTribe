@@ -1,38 +1,36 @@
 package com.vibetribe.backend.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "referral", schema = "vibetribe")
-@Data
+@Table(name = "referrals")
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Referral {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "referral_id_gen")
-    @SequenceGenerator(name = "referral_id_gen", sequenceName = "referral_id_seq", schema = "vibetribe", allocationSize = 1)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "referral_code")
     private String referralCode;
 
-    @Column(name = "referrer_id")
-    private Integer referrerId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "referrer_id")
+    private User referrer;
 
-    @Column(name = "referred_id")
-    private Integer referredId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "referred_id")
+    private User referred;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 }
-

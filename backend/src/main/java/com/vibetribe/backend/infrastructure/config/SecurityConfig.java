@@ -6,7 +6,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
-import com.vibetribe.backend.usecase.auth.GetUserAuthDetailsUsecase;
+import com.vibetribe.backend.infrastructure.user.auth.service.GetUserAuthDetailsUsecase;
 import lombok.extern.java.Log;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,7 +33,7 @@ public class SecurityConfig {
     private final RsaKeyConfigProperties rsaKeyConfigProperties;
 //    private final JwtConfigProperties jwtConfigProperties;
 
-    public SecurityConfig(GetUserAuthDetailsUsecase getUserAuthDetailsUsecase ,RsaKeyConfigProperties rsaKeyConfigProperties, PasswordEncoder passwordEncoder) {
+    public SecurityConfig(GetUserAuthDetailsUsecase getUserAuthDetailsUsecase , RsaKeyConfigProperties rsaKeyConfigProperties, PasswordEncoder passwordEncoder) {
         this.getUserAuthDetailsUsecase = getUserAuthDetailsUsecase;
         this.passwordEncoder = passwordEncoder;
         this.rsaKeyConfigProperties = rsaKeyConfigProperties;
@@ -54,8 +54,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
                         // public endpoint
-                    .requestMatchers("/api/v1/user").permitAll()
-                    .requestMatchers("/api/v1/auth/login").permitAll()
+                        .requestMatchers("/api/v1/signup").permitAll()
+                        .requestMatchers("/api/v1/login").permitAll()
                         // private endpoint
                         .anyRequest().authenticated()
                 );

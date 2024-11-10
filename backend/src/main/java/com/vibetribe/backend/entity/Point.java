@@ -1,40 +1,36 @@
 package com.vibetribe.backend.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "point", schema = "vibetribe")
-@Data
+@Table(name = "points")
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Point {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "point_id_gen")
-    @SequenceGenerator(name = "point_id_gen", sequenceName = "point_id_seq", schema = "vibetribe", allocationSize = 1)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "points_id_gen")
+    @SequenceGenerator(name = "points_id_gen", sequenceName = "points_id_seq", schema = "vibetribe", allocationSize = 1)
+    private Long id;
 
-    @NotNull
-    @Column(name = "user_id", nullable = false)
-    private Integer userId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "customer_id", nullable = false)
+    private User customer;
 
-    @Column(name = "points")
     private Integer points;
 
     @Column(name = "expires_at")
     private LocalDateTime expiresAt;
 
-    @NotNull
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 }
+

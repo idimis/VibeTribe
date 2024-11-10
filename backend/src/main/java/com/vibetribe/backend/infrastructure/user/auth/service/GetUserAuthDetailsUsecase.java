@@ -1,4 +1,4 @@
-package com.vibetribe.backend.usecase.auth;
+package com.vibetribe.backend.infrastructure.user.auth.service;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 

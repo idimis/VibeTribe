@@ -1,82 +1,107 @@
 package com.vibetribe.backend.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
+import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
-@Getter
-@Setter
 @Entity
 @Table(name = "user", schema = "vibetribe")
+@Getter
+@Setter
+@NoArgsConstructor
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_id_gen")
     @SequenceGenerator(name = "user_id_gen", sequenceName = "user_id_seq", schema = "vibetribe", allocationSize = 1)
-    @Column(name = "id", nullable = false)
     private Long id;
 
-    @Size(max = 100)
-    @NotNull
-    @Column(name = "name", nullable = false)
+    @NotBlank(message = "Name is mandatory")
+    @Size(max = 100, message = "Name can have at most 100 characters")
+    @Column(nullable = false, length = 100)
     private String name;
 
-    @Size(max = 100)
-    @NotNull
-    @Column(name = "email", nullable = false)
+    @NotBlank(message = "Email is mandatory")
+    @Email(message = "Email should be valid")
+    @Column(nullable = false, unique = true, length = 100)
     private String email;
 
-    @Size(max = 60)
-    @NotNull
-    @Column(name = "password", nullable = false)
+    @NotBlank(message = "Password is mandatory")
+    @Size(min = 6, message = "Password must be at least 6 characters")
+    @Column(nullable = false)
     private String password;
 
-    @Size(max = 255)
     @Column(name = "photo_profile_url")
-    private String photoProfileURL;
+    private String photoProfileUrl;
 
-    @Size(max = 255)
-    @Column(name = "referral_code")
+    @Column(name = "referral_code", unique = true)
     private String referralCode;
 
-    @Column(name = "points_balance")
-    private Long pointsBalance;
+    @Column(name = "points_balance", nullable = false)
+    private Integer pointsBalance = 0;
 
-    @ColumnDefault("false")
-    @Column(name = "is_organizer")
-    private Boolean isOrganizer;
+    @NotBlank(message = "Role is mandatory")
+    @Column(name = "role",nullable = false)
+    private String role; // 'customer' or 'organizer'
 
-    @NotNull
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "created_at", nullable = false)
-    private OffsetDateTime createdAt;
+    private String website;
 
-    @NotNull
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "updated_at", nullable = false)
-    private OffsetDateTime updatedAt;
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
+    private String address;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @Column(name = "deleted_at")
-    private OffsetDateTime deletedAt;
+    private LocalDateTime deletedAt;
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = OffsetDateTime.now();
-        updatedAt = OffsetDateTime.now();
+    // Relationships
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private Set<Point> points = new HashSet<>();
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private Set<Transaction> transactions = new HashSet<>();
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private Set<Review> reviews = new HashSet<>();
+
+    @OneToMany(mappedBy = "organizer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private Set<Event> organizedEvents = new HashSet<>();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+        User user = (User) o;
+        return email.equals(user.email);
     }
 
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = OffsetDateTime.now();
-    }
-
-    @PreRemove
-    protected void onRemove() {
-        deletedAt = OffsetDateTime.now();
+    @Override
+    public int hashCode() {
+        return Objects.hash(email);
     }
 }
+

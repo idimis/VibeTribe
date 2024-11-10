@@ -1,10 +1,10 @@
-package com.vibetribe.backend.usecase.auth.impl;
+package com.vibetribe.backend.infrastructure.user.auth.service.impl;
 
 import com.vibetribe.backend.common.exceptions.DataNotFoundException;
 import com.vibetribe.backend.entity.User;
-import com.vibetribe.backend.infrastructure.user.dto.UserAuth;
+import com.vibetribe.backend.infrastructure.user.auth.dto.UserAuth;
 import com.vibetribe.backend.infrastructure.user.repository.UserRepository;
-import com.vibetribe.backend.usecase.auth.GetUserAuthDetailsUsecase;
+import com.vibetribe.backend.infrastructure.user.auth.service.GetUserAuthDetailsUsecase;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;

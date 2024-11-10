@@ -1,12 +1,12 @@
-package com.vibetribe.backend.usecase.auth.impl;
+package com.vibetribe.backend.infrastructure.user.auth.service.impl;
 
 import com.vibetribe.backend.common.exceptions.DataNotFoundException;
-import com.vibetribe.backend.infrastructure.user.dto.LoginRequestDTO;
-import com.vibetribe.backend.infrastructure.user.dto.LoginResponseDTO;
-import com.vibetribe.backend.infrastructure.user.dto.UserAuth;
-import com.vibetribe.backend.infrastructure.user.repository.UserRepository;
 import com.vibetribe.backend.infrastructure.security.TokenService;
-import com.vibetribe.backend.usecase.auth.LoginUsecase;
+import com.vibetribe.backend.infrastructure.user.auth.dto.LoginRequestDTO;
+import com.vibetribe.backend.infrastructure.user.auth.dto.LoginResponseDTO;
+import com.vibetribe.backend.infrastructure.user.auth.dto.UserAuth;
+import com.vibetribe.backend.infrastructure.user.repository.UserRepository;
+import com.vibetribe.backend.infrastructure.user.auth.service.LoginUsecase;
 import lombok.extern.java.Log;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

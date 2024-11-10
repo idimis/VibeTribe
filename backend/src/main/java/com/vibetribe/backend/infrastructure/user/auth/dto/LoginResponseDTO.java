@@ -1,4 +1,4 @@
-package com.vibetribe.backend.infrastructure.user.dto;
+package com.vibetribe.backend.infrastructure.user.auth.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
