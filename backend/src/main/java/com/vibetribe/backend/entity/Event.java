@@ -56,8 +56,13 @@ public class Event {
     private LocalTime timeEnd;
 
     @NotBlank(message = "Location is mandatory")
-    @Column(nullable = false)
+    @Column(name = "location", nullable = false)
     private String location;
+
+    @NotBlank(message = "Location is mandatory")
+    @Column(name = "location_details", nullable = false)
+    private String locationDetails;
+
 
     @NotBlank(message = "Category is mandatory")
     @Column(nullable = false)

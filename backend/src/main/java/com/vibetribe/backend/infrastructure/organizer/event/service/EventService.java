@@ -32,6 +32,7 @@ public class EventService {
         event.setTimeStart(request.getTimeStart());
         event.setTimeEnd(request.getTimeEnd());
         event.setLocation(request.getLocation());
+        event.setLocationDetails(request.getLocationDetails());
         event.setCategory(request.getCategory());
         event.setFee(request.getFee());
         event.setAvailableSeats(request.getAvailableSeats());

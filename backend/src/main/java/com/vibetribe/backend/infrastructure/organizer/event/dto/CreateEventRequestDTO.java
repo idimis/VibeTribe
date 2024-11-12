@@ -36,6 +36,9 @@ public class CreateEventRequestDTO {
     @NotBlank(message = "Location is mandatory")
     private String location;
 
+    @NotBlank(message = "Location is mandatory")
+    private String locationDetails;
+
     @NotBlank(message = "Category is mandatory")
     private String category;
 
