@@ -25,6 +25,7 @@ CREATE TABLE event (
   time_start TIME NOT NULL,
   time_end TIME NOT NULL,
   location VARCHAR NOT NULL,
+  location_details VARCHAR NOT NULL,
   category VARCHAR NOT NULL,
   fee NUMERIC(15, 2) NOT NULL,
   available_seats INTEGER NOT NULL,
