@@ -41,7 +41,7 @@ const EventSection: React.FC = () => {
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {events.map((event) => (
-          <Link key={event.id} href={`/events/${event.id}`}>
+          <Link key={event.id} href={`/event/${event.id}`}>
             <div
               className="event-card bg-white border rounded-lg p-4 shadow-md transition-transform hover:scale-105"
               style={{ minHeight: "150px", maxHeight: "200px" }}

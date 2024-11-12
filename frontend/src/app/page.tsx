@@ -10,6 +10,7 @@ import MoreEvents from '@/components/MoreEvents';
 import WhereToNext from '@/components/WheretoNext';
 import Link from 'next/link'; 
 import { useRouter } from 'next/router';
+import PromotionSection from '@/components/PromotionSection';
 
 const Page: React.FC = () => {
   return (
@@ -18,7 +19,7 @@ const Page: React.FC = () => {
       <Carousel />
       <CategoryIcon />
 
-      
+      <PromotionSection />
       <EventSection />
 
       

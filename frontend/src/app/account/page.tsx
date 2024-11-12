@@ -52,13 +52,13 @@ const CreateAccountPage: React.FC = () => {
           <div className="flex justify-center space-x-4 mb-6">
             <button
               onClick={() => handleRoleSelect('customer')}
-              className="py-3 px-6 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition duration-200"
+              className="py-3 px-6 border-2 border-black text-black font-semibold rounded-lg hover:bg-blue-500 transition hover:text-white duration-200"
             >
               As Customer
             </button>
             <button
               onClick={() => handleRoleSelect('organizer')}
-              className="py-3 px-6 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition duration-200"
+              className="py-3 px-6 border-2 border-black text-black font-semibold rounded-lg hover:bg-blue-500 transition hover:text-white duration-200"
             >
               As Organizer
             </button>
