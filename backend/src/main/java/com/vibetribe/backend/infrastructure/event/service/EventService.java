@@ -1,12 +1,14 @@
-package com.vibetribe.backend.infrastructure.organizer.event.service;
+package com.vibetribe.backend.infrastructure.event.service;
 
 import com.vibetribe.backend.entity.Event;
 import com.vibetribe.backend.entity.User;
-import com.vibetribe.backend.infrastructure.organizer.event.dto.CreateEventRequestDTO;
-import com.vibetribe.backend.infrastructure.organizer.event.repository.EventRepository;
+import com.vibetribe.backend.infrastructure.event.dto.CreateEventRequestDTO;
+import com.vibetribe.backend.infrastructure.event.repository.EventRepository;
 import com.vibetribe.backend.infrastructure.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class EventService {
@@ -39,5 +41,8 @@ public class EventService {
         event.setOrganizer(organizer);
 
         return eventRepository.save(event);
+    }
+    public List<Event> getEventsByLocation(String location) {
+        return eventRepository.findByLocation(location);
     }
 }

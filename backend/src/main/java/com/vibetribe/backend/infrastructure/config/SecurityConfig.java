@@ -8,7 +8,6 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.vibetribe.backend.infrastructure.security.JwtAuthenticationFilter;
 import com.vibetribe.backend.infrastructure.user.auth.service.GetUserAuthDetailsUsecase;
-import com.vibetribe.backend.infrastructure.user.repository.UserRepository;
 import lombok.extern.java.Log;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +19,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -65,6 +63,7 @@ public class SecurityConfig {
                         // public endpoint
                         .requestMatchers("/api/v1/signup").permitAll()
                         .requestMatchers("/api/v1/login").permitAll()
+                        .requestMatchers("/api/v1/events/by-location").permitAll()
                         // private endpoint
                         .anyRequest().authenticated()
                 )

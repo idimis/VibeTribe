@@ -1,4 +1,4 @@
-package com.vibetribe.backend.infrastructure.organizer.event.dto;
+package com.vibetribe.backend.infrastructure.event.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
