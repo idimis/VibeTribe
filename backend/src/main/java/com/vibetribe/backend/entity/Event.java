@@ -1,5 +1,6 @@
 package com.vibetribe.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -17,18 +18,20 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "events")
+@Table(name = "event", schema = "vibetribe")
 @Getter
 @Setter
 @NoArgsConstructor
 public class Event {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "event_id_gen")
+    @SequenceGenerator(name = "event_id_gen", sequenceName = "event_id_seq", schema = "vibetribe", allocationSize = 1)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "organizer_id", nullable = false)
+    @JsonIgnore
     private User organizer;
 
     @NotBlank(message = "Image URL is mandatory")

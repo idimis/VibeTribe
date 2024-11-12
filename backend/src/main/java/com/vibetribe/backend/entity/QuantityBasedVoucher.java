@@ -6,14 +6,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "quantity_based_vouchers")
+@Table(name = "quantity_based_voucher", schema = "vibetribe")
 @Getter
 @Setter
 @NoArgsConstructor
 public class QuantityBasedVoucher {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "quantity_based_voucher_id_gen")
+    @SequenceGenerator(name = "quantity_based_voucher_id_gen", sequenceName = "quantity_based_voucher_id_seq", schema = "vibetribe", allocationSize = 1)
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)

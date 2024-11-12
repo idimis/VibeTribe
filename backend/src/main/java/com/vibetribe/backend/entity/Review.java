@@ -9,14 +9,15 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "reviews")
+@Table(name = "review", schema = "vibetribe")
 @Getter
 @Setter
 @NoArgsConstructor
 public class Review {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "review_id_gen")
+    @SequenceGenerator(name = "review_id_gen", sequenceName = "review_id_seq", schema = "vibetribe", allocationSize = 1)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

@@ -9,14 +9,15 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "referrals")
+@Table(name = "referral", schema = "vibetribe")
 @Getter
 @Setter
 @NoArgsConstructor
 public class Referral {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "referral_id_gen")
+    @SequenceGenerator(name = "referral_id_gen", sequenceName = "referral_id_seq", schema = "vibetribe", allocationSize = 1)
     private Long id;
 
     @Column(name = "referral_code")

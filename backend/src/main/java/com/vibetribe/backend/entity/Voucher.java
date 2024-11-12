@@ -11,14 +11,15 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "vouchers")
+@Table(name = "voucher", schema = "vibetribe")
 @Getter
 @Setter
 @NoArgsConstructor
 public class Voucher {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "voucher_id_gen")
+    @SequenceGenerator(name = "voucher_id_gen", sequenceName = "voucher_id_seq", schema = "vibetribe", allocationSize = 1)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
