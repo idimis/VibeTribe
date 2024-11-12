@@ -64,6 +64,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/signup").permitAll()
                         .requestMatchers("/api/v1/login").permitAll()
                         .requestMatchers("/api/v1/events/by-location").permitAll()
+                        .requestMatchers("/api/v1/events/all").permitAll()
                         // private endpoint
                         .anyRequest().authenticated()
                 )

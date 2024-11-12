@@ -6,6 +6,8 @@ import com.vibetribe.backend.infrastructure.event.dto.CreateEventRequestDTO;
 import com.vibetribe.backend.infrastructure.event.repository.EventRepository;
 import com.vibetribe.backend.infrastructure.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -42,7 +44,12 @@ public class EventService {
 
         return eventRepository.save(event);
     }
+
     public List<Event> getEventsByLocation(String location) {
         return eventRepository.findByLocation(location);
+    }
+
+    public Page<Event> getAllEvents(Pageable pageable) {
+        return eventRepository.findAll(pageable);
     }
 }

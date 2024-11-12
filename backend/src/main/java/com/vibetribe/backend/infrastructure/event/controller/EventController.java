@@ -7,6 +7,9 @@ import com.vibetribe.backend.infrastructure.event.service.EventService;
 import com.vibetribe.backend.infrastructure.security.Claims;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +32,12 @@ public class EventController {
         Long organizerId = Claims.getUserIdFromJwt();
         Event event = eventService.createEvent(request, organizerId);
         return ApiResponse.successfulResponse("Create new event success", event);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse<Page<Event>>> getAllEvents(@PageableDefault(size = 10) Pageable pageable) {
+        Page<Event> events = eventService.getAllEvents(pageable);
+        return ApiResponse.successfulResponse("Get all events success", events);
     }
 
     @GetMapping("/by-location")
