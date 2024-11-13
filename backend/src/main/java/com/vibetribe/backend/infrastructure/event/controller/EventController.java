@@ -1,6 +1,8 @@
 package com.vibetribe.backend.infrastructure.event.controller;
 
 import com.vibetribe.backend.common.response.ApiResponse;
+import com.vibetribe.backend.common.response.PaginatedResponse;
+import com.vibetribe.backend.common.util.PaginationUtil;
 import com.vibetribe.backend.entity.Event;
 import com.vibetribe.backend.infrastructure.event.dto.CreateEventRequestDTO;
 import com.vibetribe.backend.infrastructure.event.service.EventService;
@@ -13,8 +15,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/events")
@@ -34,15 +34,23 @@ public class EventController {
         return ApiResponse.successfulResponse("Create new event success", event);
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<ApiResponse<Page<Event>>> getAllEvents(@PageableDefault(size = 10) Pageable pageable) {
-        Page<Event> events = eventService.getAllEvents(pageable);
-        return ApiResponse.successfulResponse("Get all events success", events);
-    }
+    @GetMapping
+    public ResponseEntity<?> getEvents(@RequestParam(required = false) String location, @PageableDefault(size = 10) Pageable pageable) {
+        Page<Event> events;
 
-    @GetMapping("/by-location")
-    public ResponseEntity<ApiResponse<List<Event>>> getEventsByLocation(@RequestParam String location) {
-        List<Event> events = eventService.getEventsByLocation(location);
-        return ApiResponse.successfulResponse("Get events by location success", events);
+        if (location != null) {
+            events = eventService.getEventsByLocation(pageable, location);
+
+            if (events.isEmpty()) {
+                return ApiResponse.failedResponse("No events found in this location");
+            }
+
+            PaginatedResponse<Event> paginatedEventsByLocation = PaginationUtil.toPaginatedResponse(events);
+            return ApiResponse.successfulResponse("Get events by location success", paginatedEventsByLocation);
+        }
+
+        events = eventService.getAllEvents(pageable);
+        PaginatedResponse<Event> paginatedAllEvents = PaginationUtil.toPaginatedResponse(events);
+        return ApiResponse.successfulResponse("Get all events success", paginatedAllEvents);
     }
 }

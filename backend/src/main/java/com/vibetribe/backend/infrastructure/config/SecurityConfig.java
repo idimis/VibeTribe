@@ -32,19 +32,15 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final JwtDecoder jwtDecoder;
-//    private final AuthenticationManager authenticationManager;
     private final GetUserAuthDetailsUsecase getUserAuthDetailsUsecase;
     private final PasswordEncoder passwordEncoder;
     private final RsaKeyConfigProperties rsaKeyConfigProperties;
-//    private final JwtConfigProperties jwtConfigProperties;
 
     public SecurityConfig(@Lazy AuthenticationManager authenticationManager, JwtDecoder jwtDecoder, GetUserAuthDetailsUsecase getUserAuthDetailsUsecase , RsaKeyConfigProperties rsaKeyConfigProperties, PasswordEncoder passwordEncoder) {
         this.jwtDecoder = jwtDecoder;
         this.getUserAuthDetailsUsecase = getUserAuthDetailsUsecase;
         this.passwordEncoder = passwordEncoder;
         this.rsaKeyConfigProperties = rsaKeyConfigProperties;
-//        this.authenticationManager = authenticationManager;
-//        this.jwtConfigProperties = jwtConfigProperties;
     }
 
     @Bean
@@ -63,8 +59,7 @@ public class SecurityConfig {
                         // public endpoint
                         .requestMatchers("/api/v1/signup").permitAll()
                         .requestMatchers("/api/v1/login").permitAll()
-                        .requestMatchers("/api/v1/events/by-location").permitAll()
-                        .requestMatchers("/api/v1/events/all").permitAll()
+                        .requestMatchers("/api/v1/events").permitAll()
                         // private endpoint
                         .anyRequest().authenticated()
                 )

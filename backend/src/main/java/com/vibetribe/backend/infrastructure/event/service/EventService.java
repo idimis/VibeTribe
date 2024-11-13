@@ -10,8 +10,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class EventService {
 
@@ -45,8 +43,8 @@ public class EventService {
         return eventRepository.save(event);
     }
 
-    public List<Event> getEventsByLocation(String location) {
-        return eventRepository.findByLocation(location);
+    public Page<Event> getEventsByLocation(Pageable pageable, String location) {
+        return eventRepository.findByLocation(pageable, location);
     }
 
     public Page<Event> getAllEvents(Pageable pageable) {
