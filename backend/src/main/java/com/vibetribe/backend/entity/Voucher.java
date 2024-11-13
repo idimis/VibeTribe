@@ -1,5 +1,6 @@
 package com.vibetribe.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,7 @@ public class Voucher {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "event_id", nullable = false)
+    @JsonBackReference
     private Event event;
 
     @Column(name = "voucher_code", unique = true)

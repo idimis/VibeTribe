@@ -13,8 +13,7 @@ import lombok.Setter;
 public class QuantityBasedVoucher {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "quantity_based_voucher_id_gen")
-    @SequenceGenerator(name = "quantity_based_voucher_id_gen", sequenceName = "quantity_based_voucher_id_seq", schema = "vibetribe", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
