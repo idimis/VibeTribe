@@ -28,6 +28,11 @@ public class Voucher {
     @JsonBackReference
     private Event event;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @JsonBackReference
+    private User user;
+
     @Column(name = "voucher_code", unique = true)
     private String voucherCode;
 

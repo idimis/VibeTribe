@@ -1,13 +1,13 @@
 package com.vibetribe.backend.infrastructure.user.service;
 
-import com.vibetribe.backend.common.util.RandomStringGenerator;
+import com.vibetribe.backend.common.util.ReferralCodeGenerator;
 import com.vibetribe.backend.entity.User;
 import com.vibetribe.backend.infrastructure.user.dto.CreateUserRequestDTO;
 import com.vibetribe.backend.infrastructure.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
 public class UserService {
@@ -39,7 +39,8 @@ public class UserService {
         user.setEmail(createUserRequestDTO.getEmail());
         user.setPassword(passwordEncoder.encode(createUserRequestDTO.getPassword()));
         user.setRole(createUserRequestDTO.getRole());
-        user.setReferralCode(RandomStringGenerator.generateRandomString(6));
+        user.setReferralCode(ReferralCodeGenerator.generateReferralCode(createUserRequestDTO.getEmail()));
+
 
         // Set the photo profile URL or default if not provided
         user.setPhotoProfileUrl(createUserRequestDTO.getPhotoProfileUrl() != null ?

@@ -91,6 +91,10 @@ public class User {
     @ToString.Exclude
     private Set<Event> organizedEvents = new HashSet<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private Set<Voucher> personalVouchers = new HashSet<>();
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
