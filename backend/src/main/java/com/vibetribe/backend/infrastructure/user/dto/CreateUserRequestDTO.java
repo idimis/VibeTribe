@@ -31,6 +31,9 @@ public class CreateUserRequestDTO {
     @Size(max = 250, message = "Photo profile URL can have at most 250 characters")
     private String photoProfileUrl;
 
+    @Size(max = 20, message = "Referral code can have at most 20 characters")
+    private String referralCode;
+
     // Optional fields for organizers
     @Size(max = 100, message = "Website can have at most 100 characters")
     private String website;

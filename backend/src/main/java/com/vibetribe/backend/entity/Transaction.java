@@ -10,14 +10,15 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "transactions")
+@Table(name = "transaction", schema = "vibetribe")
 @Getter
 @Setter
 @NoArgsConstructor
 public class Transaction {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "transaction_id_gen")
+    @SequenceGenerator(name = "transaction_id_gen", sequenceName = "transaction_id_seq", schema = "vibetribe", allocationSize = 1)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

@@ -1,5 +1,7 @@
 package com.vibetribe.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -17,18 +19,20 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "events")
+@Table(name = "event", schema = "vibetribe")
 @Getter
 @Setter
 @NoArgsConstructor
 public class Event {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "event_id_gen")
+    @SequenceGenerator(name = "event_id_gen", sequenceName = "event_id_seq", schema = "vibetribe", allocationSize = 1)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "organizer_id", nullable = false)
+    @JsonIgnore
     private User organizer;
 
     @NotBlank(message = "Image URL is mandatory")
@@ -53,8 +57,13 @@ public class Event {
     private LocalTime timeEnd;
 
     @NotBlank(message = "Location is mandatory")
-    @Column(nullable = false)
+    @Column(name = "location", nullable = false)
     private String location;
+
+    @NotBlank(message = "Location is mandatory")
+    @Column(name = "location_details", nullable = false)
+    private String locationDetails;
+
 
     @NotBlank(message = "Category is mandatory")
     @Column(nullable = false)
@@ -88,5 +97,6 @@ public class Event {
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @ToString.Exclude
+    @JsonManagedReference
     private Set<Voucher> vouchers = new HashSet<>();
 }

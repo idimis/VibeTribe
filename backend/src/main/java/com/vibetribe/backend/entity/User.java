@@ -1,5 +1,6 @@
 package com.vibetribe.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -77,6 +78,7 @@ public class User {
     // Relationships
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @ToString.Exclude
+    @JsonManagedReference
     private Set<Point> points = new HashSet<>();
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -90,6 +92,19 @@ public class User {
     @OneToMany(mappedBy = "organizer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @ToString.Exclude
     private Set<Event> organizedEvents = new HashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private Set<Voucher> personalVouchers = new HashSet<>();
+
+    public void addPoints(int points, LocalDateTime expirationDate) {
+        Point point = new Point();
+        point.setCustomer(this);
+        point.setPoints(points);
+        point.setExpiresAt(expirationDate);
+        this.points.add(point);
+        this.pointsBalance += points;
+    }
 
     @Override
     public boolean equals(Object o) {

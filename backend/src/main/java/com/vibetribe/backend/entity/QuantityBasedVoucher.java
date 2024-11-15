@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "quantity_based_vouchers")
+@Table(name = "quantity_based_voucher", schema = "vibetribe")
 @Getter
 @Setter
 @NoArgsConstructor
