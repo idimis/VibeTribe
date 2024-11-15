@@ -35,22 +35,26 @@ public class EventController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getEvents(@RequestParam(required = false) String location, @PageableDefault(size = 10) Pageable pageable) {
+    public ResponseEntity<?> getEvents(@RequestParam(required = false) String location,
+                                       @RequestParam(required = false) String category,
+                                       @PageableDefault(size = 10) Pageable pageable) {
         Page<Event> events;
 
-        if (location != null) {
+        if (location != null && category != null) {
+            events = eventService.getEventsByLocationAndCategory(pageable, location, category);
+        } else if (location != null) {
             events = eventService.getEventsByLocation(pageable, location);
-
-            if (events.isEmpty()) {
-                return ApiResponse.failedResponse("No events found in this location");
-            }
-
-            PaginatedResponse<Event> paginatedEventsByLocation = PaginationUtil.toPaginatedResponse(events);
-            return ApiResponse.successfulResponse("Get events by location success", paginatedEventsByLocation);
+        } else if (category != null) {
+            events = eventService.getEventsByCategory(pageable, category);
+        } else {
+            events = eventService.getAllEvents(pageable);
         }
 
-        events = eventService.getAllEvents(pageable);
+        if (events.isEmpty()) {
+            return ApiResponse.failedResponse("No events found");
+        }
+
         PaginatedResponse<Event> paginatedAllEvents = PaginationUtil.toPaginatedResponse(events);
-        return ApiResponse.successfulResponse("Get all events success", paginatedAllEvents);
+        return ApiResponse.successfulResponse("Get events success", paginatedAllEvents);
     }
 }

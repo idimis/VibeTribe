@@ -23,13 +23,13 @@ public class Voucher {
     @SequenceGenerator(name = "voucher_id_gen", sequenceName = "voucher_id_seq", schema = "vibetribe", allocationSize = 1)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "event_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_id")
     @JsonBackReference
     private Event event;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "customer_id")
     @JsonBackReference
     private User user;
 

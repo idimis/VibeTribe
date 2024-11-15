@@ -43,11 +43,19 @@ public class EventService {
         return eventRepository.save(event);
     }
 
+    public Page<Event> getAllEvents(Pageable pageable) {
+        return eventRepository.findAll(pageable);
+    }
+
     public Page<Event> getEventsByLocation(Pageable pageable, String location) {
         return eventRepository.findByLocation(pageable, location);
     }
 
-    public Page<Event> getAllEvents(Pageable pageable) {
-        return eventRepository.findAll(pageable);
+    public Page<Event> getEventsByCategory(Pageable pageable, String category) {
+        return eventRepository.findByCategory(pageable, category);
+    }
+
+    public Page<Event> getEventsByLocationAndCategory(Pageable pageable, String location, String category) {
+        return eventRepository.findByLocationAndCategory(pageable, location, category);
     }
 }
