@@ -84,6 +84,7 @@ CREATE TABLE voucher (
   voucher_value NUMERIC(15, 2),
   description TEXT,
   voucher_type VARCHAR,
+  expires_at DATE,
   created_at TIMESTAMP,
   updated_at TIMESTAMP,
   FOREIGN KEY (event_id) REFERENCES event(id),
