@@ -78,14 +78,16 @@ CREATE TABLE referral (
 
 CREATE TABLE voucher (
   id SERIAL PRIMARY KEY,
-  event_id INTEGER NOT NULL,
+  event_id INTEGER,
+  customer_id INTEGER,
   voucher_code VARCHAR UNIQUE,
   voucher_value NUMERIC(15, 2),
   description TEXT,
   voucher_type VARCHAR,
   created_at TIMESTAMP,
   updated_at TIMESTAMP,
-  FOREIGN KEY (event_id) REFERENCES event(id)
+  FOREIGN KEY (event_id) REFERENCES event(id),
+  FOREIGN KEY (customer_id) REFERENCES "user"(id)
 );
 
 CREATE TABLE quantity_based_voucher (
