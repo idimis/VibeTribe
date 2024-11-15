@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Footer from '@/components/Footer';
 import Image from 'next/image';
 import GoogleIcon from '@/public/icons/google.png';
@@ -12,45 +12,46 @@ const Signup: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState<'customer' | 'organizer'>('customer');
+  const [website, setWebsite] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [address, setAddress] = useState('');
+
+  useEffect(() => {
+    setEmail('');
+    setPassword('');
+    setRole('customer');
+    setWebsite('');
+    setPhoneNumber('');
+    setAddress('');
+  }, []);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
       const response = await fetch('http://localhost:8080/api/v1/signup', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, email, password }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password, role, website, phoneNumber, address }),
       });
 
-      // Check if the response was successful
       if (!response.ok) {
-        throw new Error('Signup failed');
+        const errorDetails = await response.text();
+        console.error('Signup failed:', errorDetails);
+        throw new Error(`Signup failed: ${errorDetails}`);
       }
 
-      // Check if the response is JSON
       const contentType = response.headers.get('Content-Type');
       if (contentType && contentType.includes('application/json')) {
         const data = await response.json();
-        console.log('Signup successful:', data);
-
-        // Save user data in localStorage
         localStorage.setItem('user', JSON.stringify(data));
-        
-        // Redirect to the user's profile page (can be customized)
-        window.location.href = '/user/profile';  // Redirect to profile page
+        window.location.href = '/login';
       } else {
         throw new Error('Server did not return JSON');
       }
-    } catch (error: unknown) {
+    } catch (error) {
       console.error('Error during signup:', error);
-      if (error instanceof Error) {
-        alert(error.message || 'An error occurred during signup');
-      } else {
-        alert('An unexpected error occurred');
-      }
+      alert(error instanceof Error ? error.message : 'An unexpected error occurred');
     }
   };
 
@@ -71,7 +72,6 @@ const Signup: React.FC = () => {
           <Image src={Logo} alt="Logo" width={120} height={120} className="mb-4" />
           <h1 className="text-4xl font-bold text-purple-600 mb-4 text-center">Create an Account</h1>
 
-          {/* Signup Form */}
           <form onSubmit={handleSignup} className="w-full max-w-xs">
             <input
               type="text"
@@ -97,6 +97,58 @@ const Signup: React.FC = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+
+            <div className="flex justify-between mb-4">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="role"
+                  value="customer"
+                  checked={role === 'customer'}
+                  onChange={() => setRole('customer')}
+                  className="mr-2"
+                />
+                Customer
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="role"
+                  value="organizer"
+                  checked={role === 'organizer'}
+                  onChange={() => setRole('organizer')}
+                  className="mr-2"
+                />
+                Organizer
+              </label>
+            </div>
+
+            {role === 'organizer' && (
+              <>
+                <input
+                  type="text"
+                  placeholder="Website"
+                  className="border border-gray-300 rounded-lg p-2 w-full mb-4"
+                  value={website}
+                  onChange={(e) => setWebsite(e.target.value)}
+                />
+                <input
+                  type="text"
+                  placeholder="Phone Number"
+                  className="border border-gray-300 rounded-lg p-2 w-full mb-4"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                />
+                <input
+                  type="text"
+                  placeholder="Address"
+                  className="border border-gray-300 rounded-lg p-2 w-full mb-4"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                />
+              </>
+            )}
+
             <button
               type="submit"
               className="bg-blue-600 text-white font-semibold py-2 px-4 rounded-full hover:bg-blue-800 transition duration-300 w-full mb-4"

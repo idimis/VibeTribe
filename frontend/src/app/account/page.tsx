@@ -36,9 +36,9 @@ const CreateAccountPage: React.FC = () => {
     
     // Redirect based on the selected role
     if (role === 'organizer') {
-      router.push('/organizer/profile'); // Redirect to organizer profile
+      router.push('/organizer/profile'); 
     } else {
-      router.push('/user/profile'); // Redirect to customer profile
+      router.push('/user/profile');
     }
   };
 

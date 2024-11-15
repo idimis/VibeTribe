@@ -6,24 +6,29 @@ import { useRouter } from 'next/navigation';
 const EditUserProfilePage: React.FC = () => {
   const router = useRouter();
 
- // Define the user profile state, initialized with example data or fetched data
-const [user, setUser] = useState({
-    name: 'John Doe',
-    dob: '1990-01-01',
-    email: 'johndoe@example.com',
-    phone: '+628123456789',
+  // Define the user profile state, initialized with example data or fetched data
+  const [user, setUser] = useState({
+    name: '',
+    dob: '',
+    email: '',
+    phone: '',
     events: [
       { name: 'Tech Conference 2024', role: 'Speaker', date: '2024-12-10', status: 'Confirmed' },
       { name: 'Community Meetup', role: 'Participant', date: '2024-11-20', status: 'Pending' },
     ],
   });
 
+  // Load user data from local storage or backend
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
-        setUser({ ...user, ...parsedUser, events: parsedUser.events || [] });
+        setUser({
+          ...user,
+          ...parsedUser,
+          events: parsedUser.events || [],
+        });
       } catch (error) {
         console.error("Error parsing user data:", error);
       }
@@ -44,8 +49,9 @@ const [user, setUser] = useState({
     setUser((prevUser) => ({ ...prevUser, events: updatedEvents }));
   };
 
-  // Save profile to local storage or backend (for simplicity, using local storage)
-  const handleSaveProfile = () => {
+  // Save profile to local storage or backend
+  const handleSaveProfile = async () => {
+    // Here, you could replace localStorage with an API call to save the data on the backend
     localStorage.setItem('user', JSON.stringify(user));
     alert("Profile updated successfully!");
     router.push('/user/profile'); // Redirect to the profile page

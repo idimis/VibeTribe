@@ -1,4 +1,4 @@
-"use client";
+"use client"; 
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -9,6 +9,7 @@ const UserProfilePage: React.FC = () => {
     dob: '1990-01-01',
     email: 'johndoe@example.com',
     phone: '+628123456789',
+    address: 'Sample Address',
     events: [
       {
         name: 'Tech Conference 2024',
@@ -27,12 +28,12 @@ const UserProfilePage: React.FC = () => {
 
   const router = useRouter();
 
+
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
-        
         setUser({
           ...parsedUser,
           events: parsedUser.events || [],
@@ -40,8 +41,33 @@ const UserProfilePage: React.FC = () => {
       } catch (error) {
         console.error("Error parsing user data:", error);
       }
+    } else {
+      
+      fetchUserFromBackend();
     }
   }, []);
+
+  const fetchUserFromBackend = async () => {
+    try {
+      const response = await fetch('/api/user/profile', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await response.json();
+      if (data && data.user) {
+        setUser(data.user);
+        localStorage.setItem('user', JSON.stringify(data.user));
+      }
+    } catch (error) {
+      console.error("Error fetching user data from backend:", error);
+    }
+  };
+
+  const handleEditProfile = () => {
+    router.push('/user/edit');
+  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
@@ -70,14 +96,16 @@ const UserProfilePage: React.FC = () => {
           </div>
 
           <div>
+            <p className="font-semibold text-lg text-gray-700">Address:</p>
+            <p className="text-gray-600">{user.address}</p>
+          </div>
+
+          <div>
             <p className="font-semibold text-lg text-gray-700">Upcoming Events:</p>
             <div className="space-y-4">
               {user.events && user.events.length > 0 ? (
                 user.events.map((event, index) => (
-                  <div
-                    key={index}
-                    className="border-t border-gray-300 pt-4"
-                  >
+                  <div key={index} className="border-t border-gray-300 pt-4">
                     <p className="font-semibold text-md text-gray-700">{event.name}</p>
                     <p className="text-gray-600">Role: {event.role}</p>
                     <p className="text-gray-600">Date: {event.date}</p>
@@ -98,7 +126,7 @@ const UserProfilePage: React.FC = () => {
 
           <div className="text-center">
             <button
-              onClick={() => router.push('/user/edit')}
+              onClick={handleEditProfile}
               className="w-full py-3 bg-blue-600 text-white text-lg font-semibold rounded-lg hover:bg-blue-700 transition duration-200"
             >
               Edit Profile

@@ -1,32 +1,30 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  reactStrictMode: true,  // Aktifkan mode ketat React
-  swcMinify: true,        // Gunakan SWC untuk minifikasi (lebih cepat dan efisien)
-  pageExtensions: ['tsx', 'ts', 'jsx', 'js'], // Tentukan ekstensi halaman yang digunakan
+  reactStrictMode: true,  // Enable React Strict Mode for catching potential issues
+  pageExtensions: ['tsx', 'ts', 'jsx', 'js'], // Specify file extensions for pages
   env: {
-    // Contoh environment variable, Anda bisa menambahkannya sesuai kebutuhan
-    CUSTOM_API_URL: process.env.CUSTOM_API_URL || 'http://localhost:3000/api', // API URL sebagai default
+    CUSTOM_API_URL: process.env.CUSTOM_API_URL || 'http://localhost:3000/api', // Default API URL
   },
   compiler: {
-    styledComponents: true, // Aktifkan styled-components untuk SSR dengan lebih baik
+    styledComponents: true, // Enable styled-components SSR support
   },
   images: {
-    domains: ['example.com'], // Jika menggunakan gambar dari domain eksternal
+    domains: ['example.com'], // External image domains
   },
   async redirects() {
     return [
       {
-        source: '/old-route',  // Pengalihan URL lama ke URL baru
+        source: '/old-route',  // Redirect from old route to new route
         destination: '/new-route',
-        permanent: true,  // Pengalihan permanen (HTTP 301)
+        permanent: true,  // Permanent redirect (HTTP 301)
       },
     ];
   },
   async rewrites() {
     return [
       {
-        source: '/api/:path*',  // Contoh untuk menulis ulang URL API
+        source: '/api/:path*',  // Rewriting API URLs to external endpoints
         destination: 'https://external-api.com/:path*',
       },
     ];
@@ -34,20 +32,20 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/:path*',  // Menambahkan header untuk semua request
+        source: '/:path*',  // Add headers for all requests
         headers: [
           {
             key: 'X-Content-Type-Options',
-            value: 'nosniff',  // Header untuk keamanan
+            value: 'nosniff',  // Security header
           },
         ],
       },
     ];
   },
   webpack(config, { isServer }) {
-    // Kustomisasi webpack jika perlu
+    // Customize webpack configuration if necessary
     if (!isServer) {
-      config.resolve.fallback = { fs: false }; // Menangani fallback jika menggunakan 'fs' di browser
+      config.resolve.fallback = { fs: false }; // Handle 'fs' module in the browser
     }
     return config;
   },

@@ -26,15 +26,25 @@ const Login: React.FC = () => {
       const data = await response.json();
 
       if (response.ok) {
+        const { token, role } = data;
+        
         if (rememberMe) {
-          localStorage.setItem('token', data.token);  
+          localStorage.setItem('token', token);  
         } else {
-          sessionStorage.setItem('token', data.token);  
+          sessionStorage.setItem('token', token);  
         }
         
-        console.log('Login successful. Redirecting to dashboard...');
-       
-        window.location.href = '/user/dashboard';
+        console.log('Login successful. Redirecting based on role...');
+
+        
+        if (role === 'organizer') {
+          window.location.href = '/dashboard/organizer';
+        } else if (role === 'customer') {
+          window.location.href = '/';
+        } else {
+          console.warn('Unknown role. Redirecting to default homepage.');
+          window.location.href = '/dashboard/customer';
+        }
       } else {
         alert(data.message || 'Login failed');
       }

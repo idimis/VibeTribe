@@ -4,8 +4,8 @@ import React from 'react';
 import Header from '@/components/Header'; 
 import Footer from '@/components/Footer';
 import Carousel from '@/components/Carousel'; 
-import CategoryIcon from '@/components/CategoryIcon';
-import EventSection from '@/components/EventSection';
+import EventCategory from '@/components/EventCategory';
+import EventNearby from '@/components/EventNearby';
 import MoreEvents from '@/components/MoreEvents';
 import WhereToNext from '@/components/WheretoNext';
 import Link from 'next/link'; 
@@ -17,12 +17,9 @@ const Page: React.FC = () => {
     <div>
       <Header />
       <Carousel />
-      <CategoryIcon />
-
+      <EventCategory />
       <PromotionSection />
-      <EventSection />
-
-      
+      <EventNearby />
       <WhereToNext />
       <MoreEvents />
 

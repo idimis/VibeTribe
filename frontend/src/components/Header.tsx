@@ -1,108 +1,86 @@
-"use client";  
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import logoImage from '@/public/logo2.png';
 
-
 const Header: React.FC = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const [username, setUsername] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null); // State for user role
 
-  const toggleMenu = () => {
-    setIsMenuOpen((prev) => !prev);
+  useEffect(() => {
+    // Simulate fetching user data from backend or storage
+    const storedUsername = localStorage.getItem('username') || sessionStorage.getItem('username');
+    const storedRole = localStorage.getItem('role') || sessionStorage.getItem('role'); // Fetch role from storage
+    setUsername(storedUsername);
+    setRole(storedRole); // Set user role
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    localStorage.removeItem('role');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('username');
+    sessionStorage.removeItem('role');
+    setUsername(null);
+    setRole(null);
+    window.location.href = '/login';
   };
 
   return (
     <header className="bg-white text-black shadow">
       <div className="max-w-[1440px] mx-auto flex items-center justify-between p-5">
-        
-        {/* Logo - hidden on mobile */}
-        <div className="flex items-center md:flex">
-          <Image 
-            src={logoImage} 
-            alt="Logo Brand"  
+        <div className="flex items-center">
+          <Image
+            src={logoImage}
+            alt="Logo Brand"
             width={200}
             height={200}
-            className="object-contain w-[100px] h-[auto] md:w-[150px]" 
+            className="object-contain w-[100px] h-[auto] md:w-[150px]"
           />
         </div>
 
-        {/* Search Bar and Location Selector - hidden on mobile */}
-        <div className="hidden md:flex items-center flex-grow mx-5">
-          <input 
-            type="text" 
-            placeholder="Search events..." 
-            className="border border-gray-300 rounded-l p-2 w-1/2 focus:outline-none"
-          />
-          <input 
-            type="text" 
-            placeholder="Choose location..." 
-            className="border border-gray-300 rounded-l p-2 w-1/3 mx-2 focus:outline-none"
-          />
-          <button className="bg-purple-400 text-white p-2 rounded-full hover:bg-gray-400 flex items-center justify-center">
-            🔍
-          </button>
-        </div>
-
-        {/* Links always visible, including on mobile */}
         <div className="flex items-center mx-5">
-          <Link href="/create-event" className="mx-2 text-black hover:underline hidden md:block">
-            Create Event
-          </Link>
-          <Link href="/find-my-tickets" className="mx-2 text-black hover:underline hidden md:block">
-            Find My Tickets
-          </Link>
-
-          {/* Always visible on mobile */}
-          <Link href="/create-event" className="mx-2 text-black hover:underline md:hidden">
-            Create Event
-          </Link>
-          <Link href="/find-my-tickets" className="mx-2 text-black hover:underline md:hidden">
-            Find My Tickets
-          </Link>
-
-          <Link href="/login" className="mx-2 text-black hover:underline hidden md:block">
-            Log In
-          </Link>
-          <Link href="/signup" className="mx-2 text-black hover:underline hidden md:block">
-            Sign Up
-          </Link>
-
-          {/* Burger Button - visible only on mobile */}
-          <div className="md:hidden flex items-center">
-            <button 
-              onClick={toggleMenu} 
-              className="p-2 focus:outline-none"
-            >
-              {/* Burger Icon */}
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" />
-              </svg>
-            </button>
-          </div>
+          {username ? (
+            <div className="flex items-center">
+              <span className="mx-2 text-purple-600 font-semibold hidden md:block">
+                Halo, {username}!
+              </span>
+              {role === 'customer' && (
+                <Link href="/find-ticket" className="mx-2 text-black hover:underline hidden md:block">
+                  Find My Ticket
+                </Link>
+              )}
+              {role === 'organizer' && (
+                <Link href="/create-event" className="mx-2 text-black hover:underline hidden md:block">
+                  Create Event
+                </Link>
+              )}
+              <button
+                onClick={handleLogout}
+                className="bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-700 transition duration-300 ml-2"
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <>
+              <Link href="/create-event" className="mx-2 text-black hover:underline hidden md:block">
+                Create Event
+              </Link>
+              <Link href="/find-ticket" className="mx-2 text-black hover:underline hidden md:block">
+                Find My Ticket
+              </Link>
+              <Link href="/login" className="mx-2 text-black hover:underline hidden md:block">
+                Log In
+              </Link>
+              <Link href="/signup" className="mx-2 text-black hover:underline hidden md:block">
+                Sign Up
+              </Link>
+            </>
+          )}
         </div>
       </div>
-
-      {/* Dropdown Menu for Mobile */}
-      {isMenuOpen && (
-        <div className="md:hidden bg-white shadow-md">
-          <div className="flex flex-col items-center p-4">
-            <Link href="/create-event" className="py-2 text-black hover:underline">
-              Create Event
-            </Link>
-            <Link href="/find-my-tickets" className="py-2 text-black hover:underline">
-              Find My Tickets
-            </Link>
-            <Link href="/login" className="py-2 text-black hover:underline">
-              Log In
-            </Link>
-            <Link href="/signup" className="py-2 text-black hover:underline">
-              Sign Up
-            </Link>
-          </div>
-        </div>
-      )}
     </header>
   );
 };
