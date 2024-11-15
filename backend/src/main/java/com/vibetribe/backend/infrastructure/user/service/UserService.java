@@ -14,26 +14,39 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ReferralService referralService;
 
-    // Default profile icon URL from an open-source website
     private static final String DEFAULT_PROFILE_ICON_URL = "https://img.icons8.com/?size=100&id=tZuAOUGm9AuS&format=png&color=000000";
 
-
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ReferralService referralService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.referralService = referralService;
     }
 
     @Transactional
     public User createUser(CreateUserRequestDTO createUserRequestDTO) {
-        // Validate the role
-        if (!createUserRequestDTO.getRole().equalsIgnoreCase("customer") &&
-                !createUserRequestDTO.getRole().equalsIgnoreCase("organizer")) {
-            throw new IllegalArgumentException("Invalid role specified");
+        validateRole(createUserRequestDTO.getRole());
+
+        User user = mapToUserEntity(createUserRequestDTO);
+        User savedUser = userRepository.save(user);
+
+        // Handle referral code if provided
+        if (createUserRequestDTO.getReferralCode() != null) {
+            referralService.handleReferral(createUserRequestDTO.getReferralCode(), savedUser);
         }
 
-        // Map DTO to Entity
+        return savedUser;
+    }
+
+    private void validateRole(String role) {
+        if (!role.equalsIgnoreCase("customer") && !role.equalsIgnoreCase("organizer")) {
+            throw new IllegalArgumentException("Invalid role specified");
+        }
+    }
+
+    private User mapToUserEntity(CreateUserRequestDTO createUserRequestDTO) {
         User user = new User();
         user.setName(createUserRequestDTO.getName());
         user.setEmail(createUserRequestDTO.getEmail());
@@ -41,12 +54,11 @@ public class UserService {
         user.setRole(createUserRequestDTO.getRole());
         user.setReferralCode(ReferralCodeGenerator.generateReferralCode(createUserRequestDTO.getEmail()));
 
-
-        // Set the photo profile URL or default if not provided
+        // Set default profile icon if not provided
         user.setPhotoProfileUrl(createUserRequestDTO.getPhotoProfileUrl() != null ?
                 createUserRequestDTO.getPhotoProfileUrl() : DEFAULT_PROFILE_ICON_URL);
 
-        // Set optional fields for organizers
+        // Set additional fields for organizer
         if ("organizer".equalsIgnoreCase(createUserRequestDTO.getRole())) {
             user.setReferralCode(null);
             user.setWebsite(createUserRequestDTO.getWebsite());
@@ -54,12 +66,10 @@ public class UserService {
             user.setAddress(createUserRequestDTO.getAddress());
         }
 
-        // Save the user entity
-        return userRepository.save(user);
+        return user;
     }
 
     public User getUserById(Long id) {
         return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
     }
 }
-

@@ -25,7 +25,7 @@ public class VoucherController {
     @PostMapping("/create")
     public ResponseEntity<?> createVoucher(@Valid @RequestBody CreateVoucherRequestDTO request) {
         Long organizerId = Claims.getUserIdFromJwt();
-        Voucher voucher = voucherService.createVoucher(request, organizerId);
+        Voucher voucher = voucherService.createEventVoucher(request, organizerId);
         return ApiResponse.successfulResponse("Create new voucher success", voucher);
     }
 }

@@ -45,6 +45,9 @@ public class Voucher {
     @Column(name = "voucher_type")
     private String voucherType;
 
+    @Column(name = "expires_at")
+    private LocalDateTime expiresAt;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

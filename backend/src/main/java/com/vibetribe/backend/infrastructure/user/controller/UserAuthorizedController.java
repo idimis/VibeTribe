@@ -1,5 +1,6 @@
 package com.vibetribe.backend.infrastructure.user.controller;
 
+import com.vibetribe.backend.common.response.ApiResponse;
 import com.vibetribe.backend.entity.User;
 import com.vibetribe.backend.infrastructure.user.service.UserService;
 import com.vibetribe.backend.infrastructure.security.Claims;
@@ -21,9 +22,9 @@ public class UserAuthorizedController {
     }
 
     @GetMapping("/details")
-    public ResponseEntity<User> getUserDetails() {
+    public ResponseEntity<?> getUserDetails() {
         Long userId = Claims.getUserIdFromJwt();
         User user = userService.getUserById(userId);
-        return ResponseEntity.ok(user);
+        return ApiResponse.successfulResponse("Get user details success", user);
     }
 }

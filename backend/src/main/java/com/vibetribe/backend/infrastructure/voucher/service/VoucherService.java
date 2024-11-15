@@ -1,14 +1,15 @@
 package com.vibetribe.backend.infrastructure.voucher.service;
 
-import com.vibetribe.backend.entity.DateRangeBasedVoucher;
-import com.vibetribe.backend.entity.Event;
-import com.vibetribe.backend.entity.QuantityBasedVoucher;
-import com.vibetribe.backend.entity.Voucher;
+import com.vibetribe.backend.common.util.VoucherCodeGenerator;
+import com.vibetribe.backend.entity.*;
 import com.vibetribe.backend.infrastructure.event.repository.EventRepository;
 import com.vibetribe.backend.infrastructure.voucher.dto.CreateVoucherRequestDTO;
 import com.vibetribe.backend.infrastructure.voucher.repository.VoucherRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Service
 public class VoucherService {
@@ -21,7 +22,7 @@ public class VoucherService {
         this.eventRepository = eventRepository;
     }
 
-    public Voucher createVoucher(CreateVoucherRequestDTO request, Long organizerId) {
+    public Voucher createEventVoucher(CreateVoucherRequestDTO request, Long organizerId) {
         Event event = eventRepository.findByIdAndOrganizerId(request.getEventId(), organizerId)
                 .orElseThrow(() -> new IllegalArgumentException("Event not found or not owned by organizer"));
 
@@ -50,5 +51,17 @@ public class VoucherService {
         }
 
         return voucher;
+    }
+
+    public void createIndividualVoucher(User user, int discountPercentage) {
+        Voucher voucher = new Voucher();
+        voucher.setUser(user);
+        voucher.setVoucherCode(VoucherCodeGenerator.generateVoucherCode());
+        voucher.setVoucherValue(BigDecimal.valueOf(discountPercentage));
+        voucher.setVoucherType("DISCOUNT");
+        voucher.setDescription("10% discount voucher for using referral code");
+        voucher.setExpiresAt(LocalDateTime.now().plusMonths(3));
+
+        voucherRepository.save(voucher);
     }
 }
