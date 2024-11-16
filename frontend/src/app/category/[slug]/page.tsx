@@ -1,4 +1,5 @@
-// CategoryPage.tsx
+// CategoryPage.tsx (Server-side rendering)
+
 import React from "react";
 import { notFound } from "next/navigation";
 import EventCard from "@/components/EventCard";
@@ -18,13 +19,8 @@ const fetchEventsByCategory = async (category: string): Promise<Event[]> => {
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080"; 
   const encodedCategory = encodeURIComponent(category);
 
-  console.log(`Base URL: ${baseUrl}`);
-  console.log(`Encoded Category: ${encodedCategory}`);
-
   const res = await fetch(`${baseUrl}/api/v1/events?category=${encodedCategory}`);
   const data = await res.json();
-
-  console.log("API Response:", data);
 
   if (!res.ok) throw new Error(`Failed to fetch events: ${data.message || "Unknown error"}`);
   return data.data.content; // Assuming 'content' contains the event list
@@ -42,9 +38,6 @@ const CategoryPage = async ({ params }: { params: { slug: string } }) => {
   };
 
   const categoryName = slugToCategoryMap[slug];
-
-  console.log(`Slug: ${slug}`);
-  console.log(`Category Name: ${categoryName}`);
 
   if (!categoryName) {
     console.error(`Invalid slug: ${slug}`);

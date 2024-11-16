@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Link from "next/link"; 
+import Link from "next/link";
 
 interface Event {
   id: number;
@@ -13,20 +13,44 @@ interface Event {
 
 const MoreEventsSection: React.FC = () => {
   const [events, setEvents] = useState<Event[]>([]);
+  const [userLocation, setUserLocation] = useState<string>("");
+
+  // Function to get user's location (e.g., Bandung)
+  const getUserLocation = () => {
+    // Replace this with a real geolocation API or logic
+    return "Bandung"; // Hardcoded for example
+  };
+
+  useEffect(() => {
+    // Fetch user's geolocation
+    const location = getUserLocation();
+    setUserLocation(location);
+  }, []);
 
   useEffect(() => {
     const fetchEvents = async () => {
-      const response = await fetch("http://localhost:8080/api/v1/events");
-      const data = await response.json();
-      setEvents(data.data.content);  
+      try {
+        
+        const response = await fetch(
+          `http://localhost:8080/api/v1/events?excludeLocation=Bandung`
+        );
+        const data = await response.json();
+        setEvents(data.data.content); 
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      }
     };
 
-    fetchEvents();
-  }, []);
+    if (userLocation) {
+      fetchEvents();
+    }
+  }, [userLocation]);
 
   return (
     <section className="more-events-section p-6 max-w-[1440px] mx-auto w-full">
-      <h2 className="text-2xl font-bold mb-4 text-center text-purple-600">More Events Around Indonesia</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center text-purple-600">
+        More Events Around Indonesia
+      </h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {events.map((event) => (
           <Link key={event.id} href={`/events/${event.id}`}>
@@ -36,6 +60,8 @@ const MoreEventsSection: React.FC = () => {
             >
               <h3 className="font-bold">{event.title}</h3>
               <p>{event.date}</p>
+              <p className="text-sm text-gray-500">{event.location}</p>
+              
             </div>
           </Link>
         ))}

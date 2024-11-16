@@ -5,6 +5,12 @@ import logoImage from '@/public/logo2.png';
 import { FaSearch, FaMapMarkerAlt } from 'react-icons/fa';
 import { debounce } from 'lodash';
 
+interface Event {
+  id: string;
+  title: string;
+  location: string;
+}
+
 const Header: React.FC = () => {
   const [username, setUsername] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -12,6 +18,8 @@ const Header: React.FC = () => {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>('');
   const [location, setLocation] = useState<string>(''); 
   const [cities, setCities] = useState<string[]>([]);
+  const [searchResults, setSearchResults] = useState<Event[]>([]);
+  const [isSearchVisible, setIsSearchVisible] = useState<boolean>(false);
 
   useEffect(() => {
     const storedUsername = localStorage.getItem('username') || sessionStorage.getItem('username');
@@ -19,7 +27,6 @@ const Header: React.FC = () => {
     setUsername(storedUsername);
     setRole(storedRole);
 
-    
     setCities([
       "Jakarta", "Surabaya", "Bandung", "Bali", "Yogyakarta", "Medan", "Makassar", "Semarang", "Malang"
     ]);
@@ -27,15 +34,18 @@ const Header: React.FC = () => {
 
   const handleSearch = debounce((query: string) => {
     setDebouncedSearchQuery(query);
-    
-    console.log('Searching for:', query);
-    fetch(`/api/v1/events?search=${query}`)
-      .then(response => response.json())
-      .then(data => {
-        console.log('Search Results:', data);
-       
-      })
-      .catch(error => console.error('Error fetching events:', error));
+
+    if (query.trim()) {
+      fetch(`/api/v1/events?search=${query}`)
+        .then((response) => response.json())
+        .then((data) => {
+          setSearchResults(data);  // Simpan hasil pencarian
+          setIsSearchVisible(true); // Tampilkan hasil pencarian
+        })
+        .catch((error) => console.error('Error fetching events:', error));
+    } else {
+      setIsSearchVisible(false);  // Sembunyikan hasil jika pencarian kosong
+    }
   }, 500);
 
   const handleLogout = () => {
@@ -80,8 +90,8 @@ const Header: React.FC = () => {
           </select>
         </div>
 
-            {/* Search Bar */}  
-        <div className="flex items-center space-x-4 md:space-x-6 ">
+        {/* Search Bar */}
+        <div className="flex items-center space-x-4 md:space-x-6">
           <div className="relative hidden md:flex items-center border border-gray-300 rounded-full px-3 py-1">
             <input
               type="text"
@@ -90,12 +100,28 @@ const Header: React.FC = () => {
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
-                handleSearch(e.target.value); 
+                handleSearch(e.target.value);
               }}
             />
             <button className="absolute right-2 top-1/2 transform -translate-y-1/2">
               <FaSearch className="text-gray-600" />
             </button>
+
+            {/* Popup dengan hasil pencarian */}
+            {isSearchVisible && searchResults.length > 0 && (
+              <div className="absolute z-10 bg-white border border-gray-300 rounded-md w-60 mt-2 shadow-lg max-h-64 overflow-y-auto">
+                <ul>
+                  {searchResults.map((event) => (
+                    <li key={event.id} className="p-2 hover:bg-gray-100 cursor-pointer">
+                      <div className="flex flex-col">
+                        <h3 className="font-semibold">{event.title}</h3>
+                        <p className="text-sm">{event.location}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
 
           {/* User Profile and Links */}

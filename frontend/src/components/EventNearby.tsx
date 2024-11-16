@@ -12,9 +12,12 @@ const EventSection: React.FC = () => {
     const fetchEvents = async () => {
       setLoading(true);
       try {
-        const response = await fetch("http://localhost:8080/api/v1/events"); // Ubah URL ini
+        const response = await fetch(
+          `http://localhost:8080/api/v1/events?location=Bandung`
+        );
         const data = await response.json();
-        setEvents(data.data.content); // Ambil content dari response
+        console.log(data); 
+        setEvents(data.data.content); 
       } catch (error) {
         console.error("Error fetching events:", error);
       } finally {
@@ -25,7 +28,8 @@ const EventSection: React.FC = () => {
     fetchEvents();
 
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
+      navigator.geolocation.getCurrentPosition(() => {
+        
         setLocation("Bandung");
       });
     } else {
@@ -33,27 +37,11 @@ const EventSection: React.FC = () => {
     }
   }, [location]);
 
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const searchTerm = event.target.value.toLowerCase();
-    setEvents((prevEvents) =>
-      prevEvents.filter((ev: any) =>
-        ev.title.toLowerCase().includes(searchTerm)
-      )
-    );
-  };
-
   return (
     <section className="event-section p-6 max-w-[1440px] mx-auto">
-      <h2 className="text-2xl font-bold mb-4 text-center text-purple-600">Events in {location}</h2>
-
-      <div className="search-bar mb-4">
-        <input
-          type="text"
-          placeholder={`Search events in ${location}`}
-          className="border rounded-md p-2 w-full"
-          onChange={handleSearch}
-        />
-      </div>
+      <h2 className="text-2xl font-bold mb-4 text-center text-purple-600">
+        Nearby Events in {location}
+      </h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {loading ? (
@@ -76,6 +64,9 @@ const EventSection: React.FC = () => {
               >
                 <h3 className="font-bold">{event.title || "Untitled Event"}</h3>
                 <p>{event.date || "No Date Available"}</p>
+            
+                <p className="text-sm text-gray-500">{event.locationDetails || "No Address Available"}</p>
+                <p className="text-sm text-gray-500">{event.timeStart || "No Time Available"}</p>
               </div>
             </Link>
           ))
