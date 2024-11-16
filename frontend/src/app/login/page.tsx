@@ -12,6 +12,7 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
+  
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +44,7 @@ const Login: React.FC = () => {
           window.location.href = '/';
         } else {
           console.warn('Unknown role. Redirecting to default homepage.');
-          window.location.href = '/dashboard/customer';
+          window.location.href = '/';
         }
       } else {
         alert(data.message || 'Login failed');
