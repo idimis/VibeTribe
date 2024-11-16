@@ -51,7 +51,7 @@ public class UserService {
         user.setName(createUserRequestDTO.getName());
         user.setEmail(createUserRequestDTO.getEmail());
         user.setPassword(passwordEncoder.encode(createUserRequestDTO.getPassword()));
-        user.setRole(createUserRequestDTO.getRole());
+        user.setRole(createUserRequestDTO.getRole().toUpperCase());
         user.setReferralCode(ReferralCodeGenerator.generateReferralCode(createUserRequestDTO.getEmail()));
 
         // Set default profile icon if not provided

@@ -26,7 +26,7 @@ public class EventController {
         this.eventService = eventService;
     }
 
-    @PreAuthorize("hasRole('organizer')")
+    @PreAuthorize("hasRole('ORGANIZER')")
     @PostMapping("/create")
     public ResponseEntity<?> createEvent(@Valid @RequestBody CreateEventRequestDTO request) {
         Long organizerId = Claims.getUserIdFromJwt();

@@ -21,7 +21,7 @@ public class VoucherController {
         this.voucherService = voucherService;
     }
 
-    @PreAuthorize("hasRole('organizer')")
+    @PreAuthorize("hasRole('ORGANIZER')")
     @PostMapping("/create")
     public ResponseEntity<?> createVoucher(@Valid @RequestBody CreateVoucherRequestDTO request) {
         Long organizerId = Claims.getUserIdFromJwt();
