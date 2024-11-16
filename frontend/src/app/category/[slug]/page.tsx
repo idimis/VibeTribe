@@ -1,14 +1,17 @@
+// CategoryPage.tsx
 import React from "react";
 import { notFound } from "next/navigation";
 import EventCard from "@/components/EventCard";
 
 interface Event {
   id: number;
-  image_url: string;
+  image_url: string; 
   title: string;
   date: string;
   location: string;
   category: string;
+  description: string;
+  fee: number;
 }
 
 const fetchEventsByCategory = async (category: string): Promise<Event[]> => {
@@ -24,7 +27,7 @@ const fetchEventsByCategory = async (category: string): Promise<Event[]> => {
   console.log("API Response:", data);
 
   if (!res.ok) throw new Error(`Failed to fetch events: ${data.message || "Unknown error"}`);
-  return data;
+  return data.data.content; // Assuming 'content' contains the event list
 };
 
 const CategoryPage = async ({ params }: { params: { slug: string } }) => {

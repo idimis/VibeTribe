@@ -12,9 +12,9 @@ const EventSection: React.FC = () => {
     const fetchEvents = async () => {
       setLoading(true);
       try {
-        const response = await fetch("http://localhost:8080/api/v1/event");
+        const response = await fetch("http://localhost:8080/api/v1/events"); // Ubah URL ini
         const data = await response.json();
-        setEvents(data); 
+        setEvents(data.data.content); // Ambil content dari response
       } catch (error) {
         console.error("Error fetching events:", error);
       } finally {

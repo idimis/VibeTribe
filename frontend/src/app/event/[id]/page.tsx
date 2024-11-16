@@ -1,4 +1,8 @@
-import React from "react";
+
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 
 interface Event {
   id: number;
@@ -6,46 +10,43 @@ interface Event {
   date: string;
   location: string;
   description: string;
+  imageUrl: string;
+  fee: number;
 }
 
-interface EventPageProps {
-  params: { id: string };
-}
+const EventPage: React.FC = () => {
+  const [event, setEvent] = useState<Event | null>(null);
+  const router = useRouter();
+  const { id } = router.query;
 
-const EventPage: React.FC<EventPageProps> = ({ params }) => {
-  const [event, setEvent] = React.useState<Event | null>(null);
-
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchEvent = async () => {
-<<<<<<< HEAD
-      const response = await fetch(`http://localhost:8080/api/v1/event/${params.id}`);
-=======
-      const response = await fetch(`/api/v1/event/${params.id}`);
->>>>>>> c9278b0a7b704f943b7eb94a798bd1bb5aeebe46
-      if (response.ok) {
-        const data = await response.json();
-        setEvent(data);
+      if (id) {
+        const response = await fetch(`/api/event/${id}`); 
+        if (response.ok) {
+          const data = await response.json();
+          setEvent(data);
+        } else {
+          console.error("Event not found");
+        }
       }
     };
 
-    fetchEvent();
-  }, [params.id]);
+    if (id) {
+      fetchEvent();
+    }
+  }, [id]);
 
   if (!event) return <p>Loading...</p>;
 
   return (
-    <div className="event-detail">
-<<<<<<< HEAD
-      <h1>{event.title || "Event Title Not Available"}</h1>
-      <p>{event.date || "Date Not Available"}</p>
-      <p>{event.location || "Location Not Available"}</p>
-      <p>{event.description || "No Description Available"}</p>
-=======
-      <h1>{event.title}</h1>
-      <p>{event.date}</p>
-      <p>{event.location}</p>
-      <p>{event.description}</p>
->>>>>>> c9278b0a7b704f943b7eb94a798bd1bb5aeebe46
+    <div className="event-detail p-6 max-w-[800px] mx-auto">
+      <img src={event.imageUrl} alt={event.title} className="w-full h-64 object-cover rounded-lg mb-6" />
+      <h1 className="text-3xl font-bold">{event.title}</h1>
+      <p className="text-xl text-gray-600">{event.date}</p>
+      <p className="text-sm text-gray-500">{event.location}</p>
+      <p className="mt-4">{event.description}</p>
+      <p className="mt-4 text-lg font-semibold">Fee: ${event.fee}</p>
     </div>
   );
 };
