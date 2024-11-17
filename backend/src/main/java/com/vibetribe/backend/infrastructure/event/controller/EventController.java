@@ -1,5 +1,6 @@
 package com.vibetribe.backend.infrastructure.event.controller;
 
+import com.vibetribe.backend.common.exceptions.DataNotFoundException;
 import com.vibetribe.backend.common.response.ApiResponse;
 import com.vibetribe.backend.common.response.PaginatedResponse;
 import com.vibetribe.backend.common.util.PaginationUtil;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -37,10 +39,13 @@ public class EventController {
     @GetMapping
     public ResponseEntity<?> getEvents(@RequestParam(required = false) String location,
                                        @RequestParam(required = false) String category,
+                                       @RequestParam(required = false) String title,
                                        @PageableDefault(size = 10) Pageable pageable) {
         Page<Event> events;
 
-        if (location != null && category != null) {
+        if (title != null) {
+            events = eventService.getEventsByTitleContainingIgnoreCase(pageable, title);
+        } else if (location != null && category != null) {
             events = eventService.getEventsByLocationAndCategory(pageable, location, category);
         } else if (location != null) {
             events = eventService.getEventsByLocation(pageable, location);
@@ -51,7 +56,7 @@ public class EventController {
         }
 
         if (events.isEmpty()) {
-            return ApiResponse.failedResponse("No events found");
+            return ApiResponse.failedResponse(HttpStatus.NOT_FOUND.value(), "Events not found");
         }
 
         PaginatedResponse<Event> paginatedAllEvents = PaginationUtil.toPaginatedResponse(events);

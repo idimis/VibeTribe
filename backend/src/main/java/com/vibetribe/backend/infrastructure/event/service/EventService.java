@@ -58,4 +58,8 @@ public class EventService {
     public Page<Event> getEventsByLocationAndCategory(Pageable pageable, String location, String category) {
         return eventRepository.findByLocationAndCategory(pageable, location, category);
     }
+
+    public Page<Event> getEventsByTitleContainingIgnoreCase(Pageable pageable, String title) {
+        return eventRepository.findByTitleContainingIgnoreCase(pageable, title);
+    }
 }
