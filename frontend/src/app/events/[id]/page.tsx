@@ -1,8 +1,8 @@
+// events/[id].tsx
 import React from "react";
 import { notFound } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-
 
 interface Event {
   id: number;
@@ -14,23 +14,28 @@ interface Event {
   fee: number;
 }
 
-
 const fetchEventDetails = async (id: string): Promise<Event> => {
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
-  const res = await fetch(`${baseUrl}/api/event/${id}`);
-
+  
+  console.log(`Fetching event details from: ${baseUrl}/api/v1/events/${id}`);
+  
+  const res = await fetch(`${baseUrl}/api/v1/events/${id}`);
+  
   if (!res.ok) {
-    throw new Error("Event not found");
+    if (res.status === 404) {
+      throw new Error("Event not found");
+    }
+    throw new Error("Failed to fetch event details");
   }
 
-  return await res.json(); 
+  return await res.json();
 };
+
 
 const EventPage = async ({ params }: { params: { id: string } }) => {
   const { id } = params;
 
   try {
-   
     const event = await fetchEventDetails(id);
 
     return (
@@ -65,8 +70,8 @@ const EventPage = async ({ params }: { params: { id: string } }) => {
       </div>
     );
   } catch (error) {
-    console.error(error);
-    return notFound(); 
+    console.error("Error fetching event details:", error);
+    return notFound();
   }
 };
 

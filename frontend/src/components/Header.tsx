@@ -34,21 +34,35 @@ const Header: React.FC = () => {
     ]);
   }, []);
 
+  // Debounce handling for API call
   const handleSearch = debounce((query: string) => {
-    setDebouncedSearchQuery(query);
-
     if (query.trim()) {
-      fetch(`/api/v1/events?search=${query}`)
+      fetch(`/api/v1/events?search=${encodeURIComponent(query)}`)
         .then((response) => response.json())
         .then((data) => {
-          setSearchResults(data);  // Simpan hasil pencarian
-          setIsSearchVisible(true); // Tampilkan hasil pencarian
+          if (Array.isArray(data)) {
+            setSearchResults(data);
+            setIsSearchVisible(true);
+          } else {
+            console.error('Invalid data format:', data);
+            setSearchResults([]);
+          }
         })
-        .catch((error) => console.error('Error fetching events:', error));
+        .catch((error) => {
+          console.error('Error fetching events:', error);
+          setSearchResults([]);
+        });
     } else {
-      setIsSearchVisible(false);  // Sembunyikan hasil jika pencarian kosong
+      setSearchResults([]);
+      setIsSearchVisible(false);
     }
   }, 500);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    handleSearch(query);
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -100,16 +114,13 @@ const Header: React.FC = () => {
               placeholder="Search events..."
               className="outline-none text-sm px-2 py-1 w-60"
               value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                handleSearch(e.target.value);
-              }}
+              onChange={handleInputChange}
             />
             <button className="absolute right-2 top-1/2 transform -translate-y-1/2">
               <FaSearch className="text-gray-600" />
             </button>
 
-            {/* Popup dengan hasil pencarian */}
+            {/* Popup with search results */}
             {isSearchVisible && searchResults.length > 0 && (
               <div className="absolute z-10 bg-white border border-gray-300 rounded-md w-60 mt-2 shadow-lg max-h-64 overflow-y-auto">
                 <ul>
