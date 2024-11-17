@@ -39,12 +39,12 @@ public class EventController {
     @GetMapping
     public ResponseEntity<?> getEvents(@RequestParam(required = false) String location,
                                        @RequestParam(required = false) String category,
-                                       @RequestParam(required = false) String title,
+                                       @RequestParam(required = false) String search,
                                        @PageableDefault(size = 10) Pageable pageable) {
         Page<Event> events;
 
-        if (title != null) {
-            events = eventService.getEventsByTitleContainingIgnoreCase(pageable, title);
+        if (search != null) {
+            events = eventService.getEventsByTitleContainingIgnoreCase(pageable, search);
         } else if (location != null && category != null) {
             events = eventService.getEventsByLocationAndCategory(pageable, location, category);
         } else if (location != null) {
