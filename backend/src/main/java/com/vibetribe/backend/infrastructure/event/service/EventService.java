@@ -10,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class EventService {
 
@@ -61,5 +63,13 @@ public class EventService {
 
     public Page<Event> getEventsByTitleContainingIgnoreCase(Pageable pageable, String title) {
         return eventRepository.findByTitleContainingIgnoreCase(pageable, title);
+    }
+
+    public Optional<Event> getEventById(Long id) {
+        return eventRepository.findById(id);
+    }
+
+    public Page<Event> getEventsExcludingLocation(Pageable pageable, String location) {
+        return eventRepository.findByLocationNot(pageable, location);
     }
 }

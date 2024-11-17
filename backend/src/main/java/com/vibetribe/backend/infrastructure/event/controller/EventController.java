@@ -62,4 +62,24 @@ public class EventController {
         PaginatedResponse<Event> paginatedAllEvents = PaginationUtil.toPaginatedResponse(events);
         return ApiResponse.successfulResponse("Get events success", paginatedAllEvents);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getEventDetails(@PathVariable Long id) {
+        Event event = eventService.getEventById(id)
+                .orElseThrow(() -> new DataNotFoundException("Event not found"));
+        return ApiResponse.successfulResponse("Get event details success", event);
+    }
+
+    @GetMapping("/exclude-location")
+    public ResponseEntity<?> getEventsExcludeLocation(@RequestParam String location,
+                                                      @PageableDefault(size = 10) Pageable pageable) {
+        Page<Event> events = eventService.getEventsExcludingLocation(pageable, location);
+
+        if(events.isEmpty()) {
+            return ApiResponse.failedResponse(HttpStatus.NOT_FOUND.value(), "Events not found");
+        }
+
+        PaginatedResponse<Event> paginatedEvents = PaginationUtil.toPaginatedResponse(events);
+        return ApiResponse.successfulResponse("Get events exclude location success", paginatedEvents);
+    }
 }
