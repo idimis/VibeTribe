@@ -1,3 +1,4 @@
+
 import { NextResponse } from "next/server";
 
 const events = Array.from({ length: 30 }, (_, index) => ({
@@ -11,7 +12,6 @@ const events = Array.from({ length: 30 }, (_, index) => ({
 }));
 
 export async function GET(request: Request) {
-  
   const url = new URL(request.url);
   const idParam = url.pathname.split("/").pop();
   

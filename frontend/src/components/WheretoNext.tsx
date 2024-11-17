@@ -33,7 +33,7 @@ const WhereToNext: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center w-full py-10">
-      <h2 className="text-3xl font-bold mb-6">Where to Next?</h2>
+      <h2 className="text-2xl font-bold mb-6 text-purple-600">Where to Next?</h2>
 
       <div className="relative w-full max-w-[1440px] overflow-hidden">
        

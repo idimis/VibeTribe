@@ -208,7 +208,7 @@ const CustomerDashboard: React.FC = () => {
                       <td>July 15, 2024</td>
                       <td>Active</td>
                       <td>
-                        <button className="bg-blue-600 text-white px-4 py-2 rounded-md">View Details</button>
+                        <button className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105">View Details</button>
                       </td>
                     </tr>
                     <tr>
@@ -216,7 +216,7 @@ const CustomerDashboard: React.FC = () => {
                       <td>December 31, 2024</td>
                       <td>Coming Soon</td>
                       <td>
-                        <button className="bg-blue-600 text-white px-4 py-2 rounded-md">View Details</button>
+                        <button className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105">View Details</button>
                       </td>
                     </tr>
                     {/* Add more events as needed */}
@@ -286,7 +286,7 @@ const CustomerDashboard: React.FC = () => {
     <div className="flex items-center bg-white p-4 rounded-lg shadow-sm mb-6">
       <span className="text-lg text-gray-700 font-semibold">REF2024XYZ</span>
       <button 
-        className="ml-4 bg-purple-600 text-white px-4 py-2 rounded-lg flex items-center"
+        className="ml-4 bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-3 px-3 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105 flex items-center"
         onClick={() => navigator.clipboard.writeText('REF2024XYZ')}>
         <span>Copy</span>
         <svg className="ml-2 w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -345,7 +345,7 @@ const CustomerDashboard: React.FC = () => {
   <section className="profile-section bg-gray-50 p-8 rounded-lg shadow-lg">
     <header className="flex justify-between items-center mb-8">
       <h2 className="text-3xl font-semibold text-purple-600">Profile Settings</h2>
-      <button className="bg-purple-600 text-white px-6 py-2 rounded-lg">Save Changes</button>
+     
     </header>
 
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -398,7 +398,7 @@ const CustomerDashboard: React.FC = () => {
           </div>
 
           {/* Save Button */}
-          <button type="submit" className="bg-purple-600 text-white px-6 py-2 rounded-lg">Save Changes</button>
+          <button type="submit" className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-3 px-3 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105">Save Changes</button>
         </form>
       </div>
 
@@ -452,7 +452,7 @@ const CustomerDashboard: React.FC = () => {
           </div>
 
           {/* Save Button */}
-          <button type="submit" className="bg-purple-600 text-white px-6 py-2 rounded-lg">Save Changes</button>
+          <button type="submit" className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-3 px-3 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105">Save Changes</button>
         </form>
       </div>
     </div>
@@ -464,8 +464,8 @@ const CustomerDashboard: React.FC = () => {
 {activePanel === 'help' && (
   <section className="help-section bg-gray-50 p-8 rounded-lg shadow-lg">
     <header className="flex justify-between items-center mb-8">
-      <h2 className="text-3xl font-semibold text-blue-600">Customer Help Center</h2>
-      <button className="bg-blue-600 text-white px-6 py-2 rounded-lg">Contact Support</button>
+      <h2 className="text-3xl font-semibold text-purple-600">Customer Help Center</h2>
+      
     </header>
     
     {/* Search Bar */}
@@ -480,7 +480,7 @@ const CustomerDashboard: React.FC = () => {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {/* Left Column: Account Settings */}
       <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-2xl font-semibold text-blue-600 mb-4">Account Settings</h3>
+        <h3 className="text-2xl font-semibold text-purple-600 mb-4">Account Settings</h3>
         <ul className="space-y-4">
           <li className="text-gray-700 hover:underline cursor-pointer">Update Profile</li>
           <li className="text-gray-700 hover:underline cursor-pointer">Change Password</li>
@@ -491,14 +491,14 @@ const CustomerDashboard: React.FC = () => {
   
       {/* Center Column: How-to Guides */}
       <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-2xl font-semibold text-blue-600 mb-4">How-to Guides</h3>
+        <h3 className="text-2xl font-semibold text-purple-600 mb-4">How-to Guides</h3>
         <ul className="space-y-4">
           <li className="text-gray-700 hover:underline cursor-pointer">How to Update Your Profile</li>
           <li className="text-gray-700 hover:underline cursor-pointer">How to Manage Subscriptions</li>
           <li className="text-gray-700 hover:underline cursor-pointer">Navigating Your Dashboard</li>
         </ul>
         
-        <h3 className="text-2xl font-semibold text-blue-600 mt-8 mb-4">Troubleshooting</h3>
+        <h3 className="text-2xl font-semibold text-purple-600 mt-8 mb-4">Troubleshooting</h3>
         <ul className="space-y-4">
           <li className="text-gray-700 hover:underline cursor-pointer">Can't Login?</li>
           <li className="text-gray-700 hover:underline cursor-pointer">Payment Issues</li>
@@ -508,7 +508,7 @@ const CustomerDashboard: React.FC = () => {
   
       {/* Right Column: Contact Support */}
       <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-2xl font-semibold text-blue-600 mb-4">Contact Support</h3>
+        <h3 className="text-2xl font-semibold text-purple-600 mb-4">Contact Support</h3>
         <form>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-semibold mb-2">Email</label>
@@ -524,22 +524,19 @@ const CustomerDashboard: React.FC = () => {
             ></textarea>
           </div>
     
-          <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded-lg">Submit</button>
+          <button type="submit" className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-3 px-3 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105">Submit</button>
         </form>
     
-        {/* Live Chat */}
-        <div className="mt-8">
-          <button className="bg-green-600 text-white w-full px-6 py-2 rounded-lg">Start Live Chat</button>
-        </div>
+        
       </div>
     </div>
     
     {/* System Status & Links to Documentation */}
     <div className="bg-white p-6 rounded-lg shadow-md mt-8">
-      <h3 className="text-2xl font-semibold text-blue-600 mb-4">System Status</h3>
+      <h3 className="text-2xl font-semibold text-purple-600 mb-4">System Status</h3>
       <p className="text-gray-700">All systems are operational</p>
   
-      <h3 className="text-2xl font-semibold text-blue-600 mt-8 mb-4">Documentation</h3>
+      <h3 className="text-2xl font-semibold text-purple-600 mt-8 mb-4">Documentation</h3>
       <ul className="space-y-4">
         <li className="text-gray-700 hover:underline cursor-pointer">Platform Documentation</li>
         <li className="text-gray-700 hover:underline cursor-pointer">API Reference</li>

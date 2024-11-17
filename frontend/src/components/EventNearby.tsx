@@ -3,28 +3,21 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 
-const dummyEvents = [
-  { id: 1, title: "Concert at Bandung Convention Center", date: "November 10, 2024" },
-  { id: 2, title: "Food Festival at Braga Street", date: "November 12, 2024" },
-  { id: 3, title: "Art Exhibition at Saung Angklung Udjo", date: "November 14, 2024" },
-  { id: 4, title: "Theater Performance at Taman Budaya", date: "November 15, 2024" },
-  { id: 5, title: "Live Music Night at Riau Street", date: "November 16, 2024" },
-  { id: 6, title: "Jazz Festival in Jakarta", date: "November 17, 2024" },
-  { id: 7, title: "Culinary Fair in Yogyakarta", date: "November 18, 2024" },
-  { id: 8, title: "Tech Conference in Surabaya", date: "November 19, 2024" },
-];
-
 const EventSection: React.FC = () => {
   const [location, setLocation] = useState<string>("Bandung");
-  const [events, setEvents] = useState(dummyEvents);
+  const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchEvents = async () => {
       setLoading(true);
       try {
-        // Simulasi request event ke server
-        setTimeout(() => setEvents(dummyEvents), 1000); // Placeholder delay
+        const response = await fetch(
+          `http://localhost:8080/api/v1/events?location=Bandung`
+        );
+        const data = await response.json();
+        console.log(data); 
+        setEvents(data.data.content); 
       } catch (error) {
         console.error("Error fetching events:", error);
       } finally {
@@ -35,39 +28,24 @@ const EventSection: React.FC = () => {
     fetchEvents();
 
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        setLocation("Bandung"); // Atur lokasi berdasarkan hasil geolocation
+      navigator.geolocation.getCurrentPosition(() => {
+        
+        setLocation("Bandung");
       });
     } else {
       console.error("Geolocation is not supported by this browser.");
     }
   }, [location]);
 
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const searchTerm = event.target.value.toLowerCase();
-    setEvents(
-      dummyEvents.filter((ev) =>
-        ev.title.toLowerCase().includes(searchTerm)
-      )
-    );
-  };
-
   return (
     <section className="event-section p-6 max-w-[1440px] mx-auto">
-      <h2 className="text-2xl font-bold mb-4 text-center">Events in {location}</h2>
-      
-      <div className="search-bar mb-4">
-        <input
-          type="text"
-          placeholder={`Search events in ${location}`}
-          className="border rounded-md p-2 w-full"
-          onChange={handleSearch}
-        />
-      </div>
-      
+      <h2 className="text-2xl font-bold mb-4 text-center text-purple-600">
+        Nearby Events in {location}
+      </h2>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {loading ? (
-          Array.from({ length: 8 }).map((_, index) => (
+          Array.from({ length: 10 }).map((_, index) => (
             <div
               key={index}
               className="event-card bg-gray-200 animate-pulse border rounded-lg p-4"
@@ -78,14 +56,17 @@ const EventSection: React.FC = () => {
             </div>
           ))
         ) : (
-          events.map((event) => (
+          events.map((event: any) => (
             <Link key={event.id} href={`/event/${event.id}`}>
               <div
                 className="event-card bg-white border rounded-lg p-4 shadow-md transition-transform hover:scale-105"
                 style={{ minHeight: "150px", maxHeight: "200px" }}
               >
-                <h3 className="font-bold">{event.title}</h3>
-                <p>{event.date}</p>
+                <h3 className="font-bold">{event.title || "Untitled Event"}</h3>
+                <p>{event.date || "No Date Available"}</p>
+            
+                <p className="text-sm text-gray-500">{event.locationDetails || "No Address Available"}</p>
+                <p className="text-sm text-gray-500">{event.timeStart || "No Time Available"}</p>
               </div>
             </Link>
           ))

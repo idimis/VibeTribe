@@ -138,7 +138,7 @@ const OrganizerDashboard: React.FC = () => {
             <section className="event-section bg-gray-50 p-8 rounded-lg shadow-lg">
             <header className="flex justify-between items-center mb-8">
               <h2 className="text-3xl font-semibold text-purple-600">Event Management</h2>
-              <button className="bg-purple-600 text-white px-6 py-2 rounded-lg">Create New Event</button>
+              <button className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105">Create New Event</button>
             </header>
           
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -160,7 +160,7 @@ const OrganizerDashboard: React.FC = () => {
                       <td>July 15, 2024</td>
                       <td>Active</td>
                       <td>
-                        <button className="bg-blue-600 text-white px-4 py-2 rounded-md">Details</button>
+                        <button className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-2 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105">Details</button>
                       </td>
                     </tr>
                     <tr>
@@ -168,7 +168,7 @@ const OrganizerDashboard: React.FC = () => {
                       <td>December 31, 2024</td>
                       <td>Inactive</td>
                       <td>
-                        <button className="bg-blue-600 text-white px-4 py-2 rounded-md">Details</button>
+                        <button className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-2 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105">Details</button>
                       </td>
                     </tr>
                     {/* Add more rows as needed */}
@@ -231,7 +231,6 @@ const OrganizerDashboard: React.FC = () => {
             <section className="voucher-section bg-gray-50 p-8 rounded-lg shadow-lg">
             <header className="flex justify-between items-center mb-8">
               <h2 className="text-3xl font-semibold text-purple-600">Voucher Management</h2>
-              <button className="bg-purple-600 text-white px-6 py-2 rounded-lg">Create New Voucher</button>
             </header>
           
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -267,7 +266,7 @@ const OrganizerDashboard: React.FC = () => {
                     <label className="block text-gray-700">End Date</label>
                     <input type="date" className="w-full px-4 py-2 border rounded-md" />
                   </div>
-                  <button className="bg-green-600 text-white px-6 py-2 rounded-lg w-full">Generate Voucher</button>
+                  <button className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white item-center font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105">Generate Voucher</button>
                 </form>
               </div>
           
@@ -289,8 +288,8 @@ const OrganizerDashboard: React.FC = () => {
                       <td>SUMMER2024</td>
                       <td>Active</td>
                       <td>
-                        <button className="bg-green-600 text-white px-4 py-2 rounded-md">Edit</button>
-                        <button className="bg-red-600 text-white px-4 py-2 rounded-md">Delete</button>
+                        <button className="bg-gradient-to-r from-violet-700 to-violet-500 text-white font-semibold py-2 px-5 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105">Edit</button>
+                        
                       </td>
                     </tr>
                     <tr>
@@ -298,8 +297,8 @@ const OrganizerDashboard: React.FC = () => {
                       <td>NY2024</td>
                       <td>Inactive</td>
                       <td>
-                        <button className="bg-green-600 text-white px-4 py-2 rounded-md">Edit</button>
-                        <button className="bg-red-600 text-white px-4 py-2 rounded-md">Delete</button>
+                      <button className="bg-gradient-to-r from-violet-700 to-violet-500 text-white font-semibold py-2 px-5 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105">Edit</button>
+                      
                       </td>
                     </tr>
                     {/* Add more rows as needed */}
@@ -316,7 +315,7 @@ const OrganizerDashboard: React.FC = () => {
             <section className="profile-section bg-gray-50 p-8 rounded-lg shadow-lg">
             <header className="flex justify-between items-center mb-8">
               <h2 className="text-3xl font-semibold text-purple-600">Profile Settings</h2>
-              <button className="bg-purple-600 text-white px-6 py-2 rounded-lg">Save Changes</button>
+              
             </header>
           
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -367,7 +366,7 @@ const OrganizerDashboard: React.FC = () => {
                   </div>
           
                   {/* Save Button */}
-                  <button type="submit" className="bg-purple-600 text-white px-6 py-2 rounded-lg">Save Changes</button>
+                  <button type="submit" className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-2 px-5 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105">Save Changes</button>
                 </form>
               </div>
           
@@ -422,7 +421,7 @@ const OrganizerDashboard: React.FC = () => {
                   </div>
           
                   {/* Save Button */}
-                  <button type="submit" className="bg-purple-600 text-white px-6 py-2 rounded-lg">Save Changes</button>
+                  <button type="submit" className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-2 px-5 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105">Save Changes</button>
                 </form>
               </div>
             </div>
@@ -435,7 +434,7 @@ const OrganizerDashboard: React.FC = () => {
             <section className="help-section bg-gray-50 p-8 rounded-lg shadow-lg">
             <header className="flex justify-between items-center mb-8">
               <h2 className="text-3xl font-semibold text-purple-600">Help Center</h2>
-              <button className="bg-purple-600 text-white px-6 py-2 rounded-lg">Contact Support</button>
+              
             </header>
           
             {/* Search Bar */}
@@ -499,7 +498,7 @@ const OrganizerDashboard: React.FC = () => {
           
                 {/* Live Chat */}
                 <div className="mt-8">
-                  <button className="bg-green-600 text-white w-full px-6 py-2 rounded-lg">Start Live Chat</button>
+                  <button className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105">Start Live Chat</button>
                 </div>
               </div>
             </div>

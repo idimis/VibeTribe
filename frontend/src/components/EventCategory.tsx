@@ -1,13 +1,13 @@
 "use client";
 
-import Link from 'next/link';
-import Image, { StaticImageData } from 'next/image';
+import Link from "next/link";
+import Image, { StaticImageData } from "next/image";
 
-import musicIcon from '@/public/icons/music.png';
-import nightlifeIcon from '@/public/icons/nightlife.png';
-import artsIcon from '@/public/icons/arts.png';
-import holidaysIcon from '@/public/icons/holiday.png';
-import foodIcon from '@/public/icons/food.png';
+import musicIcon from "@/public/icons/music.png";
+import nightlifeIcon from "@/public/icons/nightlife.png";
+import artsIcon from "@/public/icons/arts.png";
+import holidaysIcon from "@/public/icons/holiday.png";
+import foodIcon from "@/public/icons/food.png";
 
 interface Category {
   name: string;
@@ -16,11 +16,11 @@ interface Category {
 }
 
 const categories: Category[] = [
-  { name: 'Music', slug: 'music', icon: musicIcon },
-  { name: 'Nightlife', slug: 'nightlife', icon: nightlifeIcon },
-  { name: 'Performing and Visual Arts', slug: 'arts', icon: artsIcon },
-  { name: 'Holidays', slug: 'holidays', icon: holidaysIcon },
-  { name: 'Food & Drinks', slug: 'food-drinks', icon: foodIcon },
+  { name: "Music", slug: "music", icon: musicIcon },
+  { name: "Nightlife", slug: "nightlife", icon: nightlifeIcon },
+  { name: "Performance & Arts", slug: "performance-arts", icon: artsIcon },
+  { name: "Holiday", slug: "holiday", icon: holidaysIcon },
+  { name: "Food & Drink", slug: "food-drink", icon: foodIcon },
 ];
 
 const CategorySection: React.FC = () => {
@@ -29,7 +29,7 @@ const CategorySection: React.FC = () => {
       <div className="flex flex-wrap justify-center md:justify-around">
         {categories.map((category) => (
           <Link
-            href={`/category/${category.slug}`} 
+            href={`/category/${category.slug}`}
             key={category.slug}
             className="flex flex-col items-center cursor-pointer mb-4 w-1/2 md:w-1/5"
           >
