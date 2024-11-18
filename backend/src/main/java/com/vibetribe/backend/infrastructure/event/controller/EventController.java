@@ -43,12 +43,14 @@ public class EventController {
                                        @PageableDefault(size = 10) Pageable pageable) {
         Page<Event> events;
 
-        if (search != null) {
+        if (search != null && location != null) {
+            events = eventService.getEventsByTitleContainingIgnoreCaseAndLocation(pageable, search, location);
+        } else if (search != null) {
             events = eventService.getEventsByTitleContainingIgnoreCase(pageable, search);
         } else if (location != null && category != null) {
             events = eventService.getEventsByLocationAndCategory(pageable, location, category);
         } else if (location != null) {
-            events = eventService.getEventsByLocation(pageable, location);
+            events = eventService.getEventsByLocationContainingIgnoreCase(pageable, location);
         } else if (category != null) {
             events = eventService.getEventsByCategory(pageable, category);
         } else {

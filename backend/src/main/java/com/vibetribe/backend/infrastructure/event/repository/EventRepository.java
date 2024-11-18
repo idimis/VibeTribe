@@ -12,9 +12,10 @@ import java.util.Optional;
 public interface EventRepository extends JpaRepository<Event, Long> {
     Page<Event> findAll(Pageable pageable);
     Optional<Event> findByIdAndOrganizerId(Long eventId, Long organizerId);
-    Page<Event> findByLocation(Pageable pageable, String location);
+    Page<Event> findByLocationContainingIgnoreCase(Pageable pageable, String location);
     Page<Event> findByCategory(Pageable pageable, String category);
     Page<Event> findByLocationAndCategory(Pageable pageable, String location, String category);
     Page<Event> findByTitleContainingIgnoreCase(Pageable pageable, String title);
     Page<Event> findByLocationNot(Pageable pageable, String location);
+    Page<Event> findByTitleContainingIgnoreCaseAndLocation(Pageable pageable, String title, String location);
 }

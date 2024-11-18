@@ -49,8 +49,8 @@ public class EventService {
         return eventRepository.findAll(pageable);
     }
 
-    public Page<Event> getEventsByLocation(Pageable pageable, String location) {
-        return eventRepository.findByLocation(pageable, location);
+    public Page<Event> getEventsByLocationContainingIgnoreCase(Pageable pageable, String location) {
+        return eventRepository.findByLocationContainingIgnoreCase(pageable, location);
     }
 
     public Page<Event> getEventsByCategory(Pageable pageable, String category) {
@@ -71,5 +71,9 @@ public class EventService {
 
     public Page<Event> getEventsExcludingLocation(Pageable pageable, String location) {
         return eventRepository.findByLocationNot(pageable, location);
+    }
+
+    public Page<Event> getEventsByTitleContainingIgnoreCaseAndLocation(Pageable pageable, String title, String location) {
+        return eventRepository.findByTitleContainingIgnoreCaseAndLocation(pageable, title, location);
     }
 }
