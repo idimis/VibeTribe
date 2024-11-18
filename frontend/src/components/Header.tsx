@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import logoImage from '@/public/logo2.png';
-import { FaSearch, FaMapMarkerAlt } from 'react-icons/fa';
-import { debounce } from 'lodash';
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import logoImage from "@/public/logo2.png";
+import { FaSearch, FaMapMarkerAlt } from "react-icons/fa";
+import { debounce } from "lodash";
 
 interface Event {
   id: string;
@@ -16,55 +17,88 @@ interface Event {
 const Header: React.FC = () => {
   const [username, setUsername] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>('');
-  const [location, setLocation] = useState<string>(''); 
-  const [cities, setCities] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [location, setLocation] = useState<string>("");
+  const [cities, setCities] = useState<string[]>([
+    "Jakarta", "Surabaya", "Bandung", "Bali", "Yogyakarta", "Medan", "Makassar", "Semarang", "Malang",
+  ]);
+  const [filteredCities, setFilteredCities] = useState<string[]>(cities);
   const [searchResults, setSearchResults] = useState<Event[]>([]);
   const [isSearchVisible, setIsSearchVisible] = useState<boolean>(false);
+  const router = useRouter();
 
+  // Initialize cities and user data
   useEffect(() => {
-    const storedUsername = localStorage.getItem('username') || sessionStorage.getItem('username');
-    const storedRole = localStorage.getItem('role') || sessionStorage.getItem('role');
+    const storedUsername =
+      localStorage.getItem("username") || sessionStorage.getItem("username");
+    const storedRole =
+      localStorage.getItem("role") || sessionStorage.getItem("role");
+
     setUsername(storedUsername);
     setRole(storedRole);
-
-    setCities([
-      "Jakarta", "Surabaya", "Bandung", "Bali", "Yogyakarta", "Medan", "Makassar", "Semarang", "Malang"
-    ]);
   }, []);
 
-  const handleSearch = debounce((query: string) => {
-    setDebouncedSearchQuery(query);
+  // Handle search input change
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    handleSearch(query);
+  };
 
+  // Search events function (debounced)
+  const handleSearch = debounce((query: string) => {
     if (query.trim()) {
-      fetch(`/api/v1/events?search=${query}`)
+      fetch(`/api/v1/events?search=${encodeURIComponent(query)}`)
         .then((response) => response.json())
         .then((data) => {
-          setSearchResults(data);  // Simpan hasil pencarian
-          setIsSearchVisible(true); // Tampilkan hasil pencarian
+          setSearchResults(data);
+          setIsSearchVisible(true);
         })
-        .catch((error) => console.error('Error fetching events:', error));
+        .catch(() => {
+          setSearchResults([]);
+          setIsSearchVisible(false);
+        });
     } else {
-      setIsSearchVisible(false);  // Sembunyikan hasil jika pencarian kosong
+      setSearchResults([]);
+      setIsSearchVisible(false);
     }
   }, 500);
 
+  // Handle location input change
+  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setLocation(query);
+    // Filter cities based on user input
+    const filtered = cities.filter((city) =>
+      city.toLowerCase().includes(query.toLowerCase())
+    );
+    setFilteredCities(filtered);
+  };
+
+  // Handle city selection
+  const handleCitySelect = (city: string) => {
+    setLocation(city);
+    router.push(`/events/${city}`);
+    setFilteredCities(cities); // Reset the city filter
+  };
+
+  // Logout logic
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    localStorage.removeItem('role');
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('username');
-    sessionStorage.removeItem('role');
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    localStorage.removeItem("role");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("username");
+    sessionStorage.removeItem("role");
     setUsername(null);
     setRole(null);
-    window.location.href = '/login';
+    router.push("/login");
   };
 
   return (
     <header className="bg-white text-black shadow-md sticky top-0 z-50">
       <div className="max-w-[1440px] mx-auto flex items-center justify-between p-4 md:p-5">
+        {/* Logo */}
         <div className="flex items-center space-x-4">
           <Image
             src={logoImage}
@@ -75,21 +109,35 @@ const Header: React.FC = () => {
           />
         </div>
 
-        {/* Location Dropdown */}
-        <div className="relative hidden md:flex items-center border border-gray-300 rounded-full px-3 py-2">
-          <FaMapMarkerAlt className="mr-2 text-gray-600" />
-          <select
+        {/* Location Search Bar */}
+        <div className="relative hidden md:flex items-center border border-gray-300 rounded-full px-3 py-1">
+          <input
+            type="text"
+            placeholder="Search by city..."
+            className="outline-none text-sm px-2 py-1 w-60"
             value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            className="outline-none text-sm bg-transparent w-60"
-          >
-            <option value="">Choose Location</option>
-            {cities.map((city) => (
-              <option key={city} value={city}>
-                {city}
-              </option>
-            ))}
-          </select>
+            onChange={handleLocationChange}
+          />
+          <button className="absolute right-2 top-1/2 transform -translate-y-1/2">
+            <FaMapMarkerAlt className="text-gray-600" />
+          </button>
+
+          {/* Popup with filtered city results */}
+          {location && (
+            <div className="absolute z-10 bg-white border border-gray-300 rounded-md w-60 mt-2 shadow-lg max-h-64 overflow-y-auto">
+              <ul>
+                {filteredCities.map((city) => (
+                  <li
+                    key={city}
+                    onClick={() => handleCitySelect(city)}
+                    className="p-2 hover:bg-gray-100 cursor-pointer"
+                  >
+                    {city}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
 
         {/* Search Bar */}
@@ -100,16 +148,13 @@ const Header: React.FC = () => {
               placeholder="Search events..."
               className="outline-none text-sm px-2 py-1 w-60"
               value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                handleSearch(e.target.value);
-              }}
+              onChange={handleInputChange}
             />
             <button className="absolute right-2 top-1/2 transform -translate-y-1/2">
               <FaSearch className="text-gray-600" />
             </button>
 
-            {/* Popup dengan hasil pencarian */}
+            {/* Popup with search results */}
             {isSearchVisible && searchResults.length > 0 && (
               <div className="absolute z-10 bg-white border border-gray-300 rounded-md w-60 mt-2 shadow-lg max-h-64 overflow-y-auto">
                 <ul>
@@ -130,12 +175,12 @@ const Header: React.FC = () => {
           {username ? (
             <div className="flex items-center space-x-4">
               <span className="text-purple-600 font-semibold hidden md:block">Hello, {username}!</span>
-              {role === 'customer' && (
+              {role === "customer" && (
                 <Link href="/find-ticket" className="text-black hover:underline">
                   Find My Ticket
                 </Link>
               )}
-              {role === 'organizer' && (
+              {role === "organizer" && (
                 <Link href="/create-event" className="text-black hover:underline">
                   Create Event
                 </Link>

@@ -16,7 +16,7 @@ const EventCard: React.FC<{ event: Event }> = ({ event }) => {
   const router = useRouter();
 
   const handleCardClick = () => {
-    router.push(`/event/${event.id}`);
+    router.push(`/events/${event.id}`);
   };
 
   return (

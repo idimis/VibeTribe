@@ -15,14 +15,14 @@ const MoreEventsSection: React.FC = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [userLocation, setUserLocation] = useState<string>("");
 
-  // Function to get user's location (e.g., Bandung)
+  
   const getUserLocation = () => {
-    // Replace this with a real geolocation API or logic
-    return "Bandung"; // Hardcoded for example
+    
+    return "Bandung"; 
   };
 
   useEffect(() => {
-    // Fetch user's geolocation
+    
     const location = getUserLocation();
     setUserLocation(location);
   }, []);
