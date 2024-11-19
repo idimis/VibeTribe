@@ -29,6 +29,7 @@ CREATE TABLE event (
   category VARCHAR NOT NULL,
   fee NUMERIC(15, 2) NOT NULL,
   available_seats INTEGER NOT NULL,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
   deleted_at TIMESTAMP,
