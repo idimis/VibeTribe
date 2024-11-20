@@ -1,6 +1,6 @@
 CREATE TABLE location (
   id SERIAL PRIMARY KEY,
-  name VARCHAR NOT NULL
+  city_or_district VARCHAR NOT NULL
 )
 
 CREATE TABLE "user" (
