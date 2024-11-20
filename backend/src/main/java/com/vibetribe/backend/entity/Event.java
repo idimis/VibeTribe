@@ -64,7 +64,6 @@ public class Event {
     @Column(name = "location_details", nullable = false)
     private String locationDetails;
 
-
     @NotBlank(message = "Category is mandatory")
     @Column(nullable = false)
     private String category;

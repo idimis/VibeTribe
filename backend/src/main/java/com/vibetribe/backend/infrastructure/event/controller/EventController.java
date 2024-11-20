@@ -6,6 +6,7 @@ import com.vibetribe.backend.common.response.PaginatedResponse;
 import com.vibetribe.backend.common.util.PaginationUtil;
 import com.vibetribe.backend.entity.Event;
 import com.vibetribe.backend.infrastructure.event.dto.CreateEventRequestDTO;
+import com.vibetribe.backend.infrastructure.event.dto.UpdateEventRequestDTO;
 import com.vibetribe.backend.infrastructure.event.service.EventService;
 import com.vibetribe.backend.infrastructure.security.Claims;
 import jakarta.validation.Valid;
@@ -36,26 +37,46 @@ public class EventController {
         return ApiResponse.successfulResponse("Create new event success", event);
     }
 
+    @PreAuthorize("hasRole('ORGANIZER')")
+    @GetMapping("/organizer")
+    public ResponseEntity<?> getAllEventByOrganizer(@PageableDefault(size = 10) Pageable pageable) {
+        Long organizerId = Claims.getUserIdFromJwt();
+        Page<Event> events = eventService.getAllEventsByOrganizer(pageable, organizerId);
+
+        if(events.isEmpty()) {
+            return ApiResponse.failedResponse(HttpStatus.NOT_FOUND.value(), "Events not found");
+        }
+
+        PaginatedResponse<Event> paginatedEvents = PaginationUtil.toPaginatedResponse(events);
+        return ApiResponse.successfulResponse("Get all events by organizer success", paginatedEvents);
+    }
+
+    @PreAuthorize("hasRole('ORGANIZER')")
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateEvent(@PathVariable Long id, @RequestBody UpdateEventRequestDTO request) {
+        Long organizerId = Claims.getUserIdFromJwt();
+        Event event = eventService.updateEvent(id, request, organizerId);
+        return ApiResponse.successfulResponse("Update event success", event);
+    }
+
+    @PreAuthorize("hasRole('ORGANIZER')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteEvent(@PathVariable Long id) {
+        Long organizerId = Claims.getUserIdFromJwt();
+        eventService.deleteEvent(id, organizerId);
+        return ApiResponse.successfulResponse("Delete event success", null);
+    }
+
     @GetMapping
     public ResponseEntity<?> getEvents(@RequestParam(required = false) String location,
                                        @RequestParam(required = false) String category,
                                        @RequestParam(required = false) String search,
                                        @PageableDefault(size = 10) Pageable pageable) {
-        Page<Event> events;
 
-        if (search != null && location != null) {
-            events = eventService.getEventsByTitleContainingIgnoreCaseAndLocation(pageable, search, location);
-        } else if (search != null) {
-            events = eventService.getEventsByTitleContainingIgnoreCase(pageable, search);
-        } else if (location != null && category != null) {
-            events = eventService.getEventsByLocationAndCategory(pageable, location, category);
-        } else if (location != null) {
-            events = eventService.getEventsByLocationContainingIgnoreCase(pageable, location);
-        } else if (category != null) {
-            events = eventService.getEventsByCategory(pageable, category);
-        } else {
-            events = eventService.getAllEvents(pageable);
-        }
+        Page<Event> events = eventService.getUpcomingEvents(pageable,
+                location != null ? location.toLowerCase() : null,
+                category != null ? category.toLowerCase() : null,
+                search != null ? search.toLowerCase() : null);
 
         if (events.isEmpty()) {
             return ApiResponse.failedResponse(HttpStatus.NOT_FOUND.value(), "Events not found");
@@ -75,7 +96,7 @@ public class EventController {
     @GetMapping("/exclude-location")
     public ResponseEntity<?> getEventsExcludeLocation(@RequestParam String location,
                                                       @PageableDefault(size = 10) Pageable pageable) {
-        Page<Event> events = eventService.getEventsExcludingLocation(pageable, location);
+        Page<Event> events = eventService.getEventsExcludingLocation(pageable, location.toLowerCase());
 
         if(events.isEmpty()) {
             return ApiResponse.failedResponse(HttpStatus.NOT_FOUND.value(), "Events not found");
