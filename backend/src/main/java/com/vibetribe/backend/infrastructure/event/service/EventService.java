@@ -20,7 +20,6 @@ public class EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
 
-    @Autowired
     public EventService(EventRepository eventRepository, UserRepository userRepository) {
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
@@ -96,10 +95,6 @@ public class EventService {
 
     public Page<Event> getAllEventsByOrganizer(Pageable pageable, Long organizerId) {
         return eventRepository.findByOrganizerId(pageable, organizerId);
-    }
-
-    public Page<Event> getAllEvents(Pageable pageable) {
-        return eventRepository.findAll(pageable);
     }
 
     public Optional<Event> getEventById(Long id) {

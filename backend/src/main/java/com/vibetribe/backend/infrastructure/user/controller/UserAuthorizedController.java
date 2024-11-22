@@ -16,7 +16,6 @@ public class UserAuthorizedController {
 
     private final UserService userService;
 
-    @Autowired
     public UserAuthorizedController(UserService userService) {
         this.userService = userService;
     }

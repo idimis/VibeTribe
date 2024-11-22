@@ -5,7 +5,6 @@ import com.vibetribe.backend.entity.*;
 import com.vibetribe.backend.infrastructure.event.repository.EventRepository;
 import com.vibetribe.backend.infrastructure.voucher.dto.CreateVoucherRequestDTO;
 import com.vibetribe.backend.infrastructure.voucher.repository.VoucherRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -16,7 +15,6 @@ public class VoucherService {
     private final VoucherRepository voucherRepository;
     private final EventRepository eventRepository;
 
-    @Autowired
     public VoucherService(VoucherRepository voucherRepository, EventRepository eventRepository) {
         this.voucherRepository = voucherRepository;
         this.eventRepository = eventRepository;

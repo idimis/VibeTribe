@@ -18,7 +18,6 @@ public class UserService {
 
     private static final String DEFAULT_PROFILE_ICON_URL = "https://img.icons8.com/?size=100&id=tZuAOUGm9AuS&format=png&color=000000";
 
-    @Autowired
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ReferralService referralService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -61,6 +60,19 @@ public class UserService {
         // Set additional fields for organizer
         if ("organizer".equalsIgnoreCase(createUserRequestDTO.getRole())) {
             user.setReferralCode(null);
+
+            if (createUserRequestDTO.getWebsite() == null) {
+                throw new IllegalArgumentException("Website is mandatory for organizer");
+            }
+
+            if (createUserRequestDTO.getPhoneNumber() == null) {
+                throw new IllegalArgumentException("Phone number is mandatory for organizer");
+            }
+
+            if (createUserRequestDTO.getAddress() == null) {
+                throw new IllegalArgumentException("Address is mandatory for organizer");
+            }
+
             user.setWebsite(createUserRequestDTO.getWebsite());
             user.setPhoneNumber(createUserRequestDTO.getPhoneNumber());
             user.setAddress(createUserRequestDTO.getAddress());

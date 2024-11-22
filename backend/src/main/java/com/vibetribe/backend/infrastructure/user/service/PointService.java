@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 public class PointService {
     private final UserRepository userRepository;
 
-    @Autowired
     public PointService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }

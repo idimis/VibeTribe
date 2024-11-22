@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 public class EventController {
     private final EventService eventService;
 
-    @Autowired
     public EventController(EventService eventService) {
         this.eventService = eventService;
     }

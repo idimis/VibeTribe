@@ -6,7 +6,6 @@ import com.vibetribe.backend.infrastructure.security.Claims;
 import com.vibetribe.backend.infrastructure.voucher.dto.CreateVoucherRequestDTO;
 import com.vibetribe.backend.infrastructure.voucher.service.VoucherService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 public class VoucherController {
     private final VoucherService voucherService;
 
-    @Autowired
     public VoucherController(VoucherService voucherService) {
         this.voucherService = voucherService;
     }

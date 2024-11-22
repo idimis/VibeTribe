@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserPublicController {
     private final UserService userService;
 
-    @Autowired
     public UserPublicController(UserService userService) {
         this.userService = userService;
     }

@@ -12,7 +12,6 @@ public class ReferralService {
     private final VoucherService voucherService;
     private final PointService pointService;
 
-    @Autowired
     public ReferralService(UserRepository userRepository, VoucherService voucherService, PointService pointService) {
         this.userRepository = userRepository;
         this.voucherService = voucherService;
