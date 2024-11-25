@@ -15,7 +15,7 @@ public class PointService {
         this.userRepository = userRepository;
     }
 
-    public void addPointsToReferrer(User referrer, int points) {
+    public void addPointsToReferrer(User referrer, double points) {
         LocalDateTime expirationDate = LocalDateTime.now().plusMonths(3);
         referrer.addPoints(points, expirationDate);
         userRepository.save(referrer);

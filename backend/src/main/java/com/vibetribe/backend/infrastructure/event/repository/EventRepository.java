@@ -16,7 +16,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     Page<Event> findByLocationNot(Pageable pageable, String location);
     Page<Event> findByOrganizerId(Pageable pageable, Long organizerId);
 
-    @Query("SELECT e FROM Event e WHERE (e.date > :#{#currentDateTime.toLocalDate()} OR (e.date = :#{#currentDateTime.toLocalDate()} AND e.timeStart >= :#{#currentDateTime.toLocalTime()})) " +
+    @Query("SELECT e FROM Event e WHERE (e.dateTimeStart > :#{#currentDateTime} OR (e.dateTimeStart = :#{#currentDateTime} AND e.dateTimeEnd >= :#{#currentDateTime})) " +
             "AND (:location IS NULL OR LOWER(e.location) LIKE %:location%) " +
             "AND (:category IS NULL OR LOWER(e.category) = :category) " +
             "AND (:search IS NULL OR LOWER(e.title) LIKE %:search%)")

@@ -4,6 +4,8 @@ import com.vibetribe.backend.common.util.VoucherCodeGenerator;
 import com.vibetribe.backend.entity.*;
 import com.vibetribe.backend.infrastructure.event.repository.EventRepository;
 import com.vibetribe.backend.infrastructure.voucher.dto.CreateVoucherRequestDTO;
+import com.vibetribe.backend.infrastructure.voucher.repository.DateRangeBasedVoucherRepository;
+import com.vibetribe.backend.infrastructure.voucher.repository.QuantityBasedVoucherRepository;
 import com.vibetribe.backend.infrastructure.voucher.repository.VoucherRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,10 +16,17 @@ import java.time.LocalDateTime;
 public class VoucherService {
     private final VoucherRepository voucherRepository;
     private final EventRepository eventRepository;
+    private final DateRangeBasedVoucherRepository dateRangeBasedVoucherRepository;
+    private final QuantityBasedVoucherRepository quantityBasedVoucherRepository;
 
-    public VoucherService(VoucherRepository voucherRepository, EventRepository eventRepository) {
+    public VoucherService(VoucherRepository voucherRepository,
+                          EventRepository eventRepository,
+                          DateRangeBasedVoucherRepository dateRangeBasedVoucherRepository,
+                          QuantityBasedVoucherRepository quantityBasedVoucherRepository) {
         this.voucherRepository = voucherRepository;
         this.eventRepository = eventRepository;
+        this.dateRangeBasedVoucherRepository = dateRangeBasedVoucherRepository;
+        this.quantityBasedVoucherRepository = quantityBasedVoucherRepository;
     }
 
     public Voucher createEventVoucher(CreateVoucherRequestDTO request, Long organizerId) {
@@ -38,6 +47,8 @@ public class VoucherService {
             dateRangeBasedVoucher.setVoucher(voucher);
             dateRangeBasedVoucher.setStartDate(request.getStartDate());
             dateRangeBasedVoucher.setEndDate(request.getEndDate());
+            dateRangeBasedVoucherRepository.save(dateRangeBasedVoucher);
+            voucher.setDateRangeBasedVoucher(dateRangeBasedVoucher);
             // Save dateRangeBasedVoucher to its repository
         }
 
@@ -45,6 +56,9 @@ public class VoucherService {
             QuantityBasedVoucher quantityBasedVoucher = new QuantityBasedVoucher();
             quantityBasedVoucher.setVoucher(voucher);
             quantityBasedVoucher.setQuantityLimit(request.getQuantityLimit());
+            quantityBasedVoucher.setQuantityUsed(0);
+            quantityBasedVoucherRepository.save(quantityBasedVoucher);
+            voucher.setQuantityBasedVoucher(quantityBasedVoucher);
             // Save quantityBasedVoucher to its repository
         }
 

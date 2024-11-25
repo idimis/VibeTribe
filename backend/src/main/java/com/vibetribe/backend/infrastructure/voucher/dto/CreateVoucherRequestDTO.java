@@ -13,7 +13,7 @@ public class CreateVoucherRequestDTO {
     private String voucherCode;
     private BigDecimal voucherValue;
     private String description;
-    private String voucherType; // "dateRange" or "quantity"
+    private String voucherType; // "DATE_RANGE" or "QUANTITY" or "DISCOUNT"
     private LocalDate startDate; // for date range based voucher
     private LocalDate endDate; // for date range based voucher
     private Integer quantityLimit; // for quantity based voucher

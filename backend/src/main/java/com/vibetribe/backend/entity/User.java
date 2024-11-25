@@ -51,7 +51,7 @@ public class User {
     private String referralCode;
 
     @Column(name = "points_balance", nullable = false)
-    private Integer pointsBalance = 0;
+    private Double pointsBalance = 0.0;
 
     @NotBlank(message = "Role is mandatory")
     @Column(name = "role",nullable = false)
@@ -97,10 +97,10 @@ public class User {
     @ToString.Exclude
     private Set<Voucher> personalVouchers = new HashSet<>();
 
-    public void addPoints(int points, LocalDateTime expirationDate) {
+    public void addPoints(double points, LocalDateTime expirationDate) {
         Point point = new Point();
         point.setCustomer(this);
-        point.setPoints(points);
+        point.setPointsAvailable(points);
         point.setExpiresAt(expirationDate);
         this.points.add(point);
         this.pointsBalance += points;

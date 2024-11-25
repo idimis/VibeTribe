@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Getter
@@ -24,14 +25,11 @@ public class CreateEventRequestDTO {
     @NotBlank(message = "Description is mandatory")
     private String description;
 
-    @NotNull(message = "Date is mandatory")
-    private LocalDate date;
-
     @NotNull(message = "Start time is mandatory")
-    private LocalTime timeStart;
+    private LocalDateTime dateTimeStart;
 
     @NotNull(message = "End time is mandatory")
-    private LocalTime timeEnd;
+    private LocalDateTime dateTimeEnd;
 
     @NotBlank(message = "Location is mandatory")
     private String location;

@@ -26,7 +26,11 @@ public class Point {
     @JsonBackReference
     private User customer;
 
-    private Integer points;
+    @Column(name = "points_available")
+    private Double pointsAvailable;
+
+    @Column(name = "points_used")
+    private Double pointsUsed;
 
     @Column(name = "expires_at")
     private LocalDateTime expiresAt;

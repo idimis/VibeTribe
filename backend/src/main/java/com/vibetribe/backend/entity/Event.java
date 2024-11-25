@@ -2,8 +2,11 @@ package com.vibetribe.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.vibetribe.backend.common.view.Views;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -47,14 +50,11 @@ public class Event {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String description;
 
-    @Column(nullable = false)
-    private LocalDate date;
+    @Column(name = "date_time_start", nullable = false)
+    private LocalDateTime dateTimeStart;
 
-    @Column(name = "time_start", nullable = false)
-    private LocalTime timeStart;
-
-    @Column(name = "time_end", nullable = false)
-    private LocalTime timeEnd;
+    @Column(name = "date_time_end", nullable = false)
+    private LocalDateTime dateTimeEnd;
 
     @NotBlank(message = "Location is mandatory")
     @Column(name = "location", nullable = false)
@@ -73,6 +73,9 @@ public class Event {
 
     @Column(name = "available_seats", nullable = false)
     private Integer availableSeats;
+
+    @Column(name = "booked_seats", nullable = false)
+    private Integer bookedSeats = 0;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

@@ -33,9 +33,8 @@ public class EventService {
         event.setImageUrl(request.getImageUrl());
         event.setTitle(request.getTitle());
         event.setDescription(request.getDescription());
-        event.setDate(request.getDate());
-        event.setTimeStart(request.getTimeStart());
-        event.setTimeEnd(request.getTimeEnd());
+        event.setDateTimeStart(request.getDateTimeStart());
+        event.setDateTimeEnd(request.getDateTimeEnd());
         event.setLocation(request.getLocation());
         event.setLocationDetails(request.getLocationDetails());
         event.setCategory(request.getCategory());
@@ -59,14 +58,11 @@ public class EventService {
         if (request.getDescription() != null) {
             event.setDescription(request.getDescription());
         }
-        if (request.getDate() != null) {
-            event.setDate(request.getDate());
+        if (request.getDateTimeStart() != null) {
+            event.setDateTimeStart(request.getDateTimeStart());
         }
-        if (request.getTimeStart() != null) {
-            event.setTimeStart(request.getTimeStart());
-        }
-        if (request.getTimeEnd() != null) {
-            event.setTimeEnd(request.getTimeEnd());
+        if (request.getDateTimeEnd() != null) {
+            event.setDateTimeEnd(request.getDateTimeEnd());
         }
         if (request.getLocation() != null) {
             event.setLocation(request.getLocation());

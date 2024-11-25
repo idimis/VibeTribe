@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Getter
@@ -17,9 +18,8 @@ public class UpdateEventRequestDTO {
     private String imageUrl;
     private String title;
     private String description;
-    private LocalDate date;
-    private LocalTime timeStart;
-    private LocalTime timeEnd;
+    private LocalDateTime dateTimeStart;
+    private LocalDateTime dateTimeEnd;
     private String location;
     private String locationDetails;
     private String category;

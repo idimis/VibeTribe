@@ -1,6 +1,7 @@
 package com.vibetribe.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -43,7 +44,10 @@ public class Voucher {
     private String description;
 
     @Column(name = "voucher_type")
-    private String voucherType;
+    private String voucherType; // 'DATE_RANGE' or 'QUANTITY' or 'DISCOUNT'
+
+    @Column(name = "is_used")
+    private boolean isUsed;
 
     @Column(name = "expires_at")
     private LocalDateTime expiresAt;
@@ -55,5 +59,13 @@ public class Voucher {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @OneToOne(mappedBy = "voucher", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private DateRangeBasedVoucher dateRangeBasedVoucher;
+
+    @OneToOne(mappedBy = "voucher", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private QuantityBasedVoucher quantityBasedVoucher;
 }
 

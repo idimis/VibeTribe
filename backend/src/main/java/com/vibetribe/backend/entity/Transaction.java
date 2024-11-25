@@ -21,6 +21,14 @@ public class Transaction {
     @SequenceGenerator(name = "transaction_id_gen", sequenceName = "transaction_id_seq", schema = "vibetribe", allocationSize = 1)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "voucher_id")
+    private Voucher voucher;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "point_id")
+    private Point point;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "customer_id", nullable = false)
     private User customer;
@@ -32,11 +40,14 @@ public class Transaction {
     @Column(nullable = false)
     private Integer quantity;
 
-    @Column(name = "amount_paid", nullable = false, precision = 15, scale = 2)
-    private BigDecimal amountPaid;
+    @Column(name = "points_applied", precision = 15, scale = 2)
+    private BigDecimal pointsApplied;
 
     @Column(name = "discount_applied", precision = 15, scale = 2)
     private BigDecimal discountApplied;
+
+    @Column(name = "amount_paid", nullable = false, precision = 15, scale = 2)
+    private BigDecimal amountPaid;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
