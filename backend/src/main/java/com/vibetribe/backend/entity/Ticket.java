@@ -8,6 +8,7 @@ import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
 @Getter
@@ -17,7 +18,7 @@ import java.time.OffsetDateTime;
 public class Ticket {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ticket_id_gen")
-    @SequenceGenerator(name = "ticket_id_gen", sequenceName = "ticket_id_seq", allocationSize = 1)
+    @SequenceGenerator(name = "ticket_id_gen", sequenceName = "ticket_id_seq", schema = "vibetribe", allocationSize = 1)
     @Column(name = "id", nullable = false)
     private Long id;
 
@@ -46,11 +47,11 @@ public class Ticket {
 
     @NotNull
     @Column(name = "valid_from", nullable = false)
-    private LocalDate validFrom;
+    private LocalDateTime validFrom;
 
     @NotNull
     @Column(name = "valid_until", nullable = false)
-    private LocalDate validUntil;
+    private LocalDateTime validUntil;
 
     @Column(name = "barcode", length = Integer.MAX_VALUE)
     private String barcode;
@@ -69,4 +70,15 @@ public class Ticket {
     @Column(name = "deleted_at")
     private OffsetDateTime deletedAt;
 
+    @PrePersist
+    protected void onCreate() {
+        createdAt = OffsetDateTime.now();
+        issueDate = OffsetDateTime.now();
+        updatedAt = OffsetDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = OffsetDateTime.now();
+    }
 }
