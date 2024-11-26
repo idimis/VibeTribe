@@ -94,8 +94,8 @@ CREATE TABLE vibetribe.quantity_based_voucher (
 -- Table: date_range_based_voucher
 CREATE TABLE vibetribe.date_range_based_voucher (
   voucher_id integer PRIMARY KEY REFERENCES vibetribe.voucher(id),
-  start_date date,
-  end_date date
+  start_date timestamp with time zone,
+  end_date timestamp with time zone
 );
 
 -- Table: voucher_usage
