@@ -13,6 +13,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -45,22 +46,49 @@ public class TransactionService {
             throw new IllegalStateException("No seats with this quantity is available for this event");
         }
 
-        Voucher voucher = request.getVoucherId() != null ? voucherRepository.findById(request.getVoucherId()).orElse(null) : null;
+        Voucher voucher = null;
+        if (request.getVoucherId() != null) {
+            voucher = voucherRepository.findById(request.getVoucherId())
+                    .orElseThrow(() -> new IllegalArgumentException("Voucher not found"));
+
+            if (!voucher.getEvent().getId().equals(event.getId())) {
+                throw new IllegalArgumentException("Voucher is not valid for this event");
+            }
+
+            if (voucher.getQuantityBasedVoucher() != null) {
+                QuantityBasedVoucher quantityBasedVoucher = voucher.getQuantityBasedVoucher();
+
+                if (quantityBasedVoucher.getQuantityUsed() >= quantityBasedVoucher.getQuantityLimit()) {
+                    throw new IllegalArgumentException("Voucher usage limit reached");
+                }
+
+                quantityBasedVoucher.setQuantityUsed(quantityBasedVoucher.getQuantityUsed() + 1);
+            }
+
+            if (voucher.getDateRangeBasedVoucher() != null) {
+                DateRangeBasedVoucher dateRangeBasedVoucher = voucher.getDateRangeBasedVoucher();
+                LocalDate today = LocalDate.now();
+
+                if (today.isBefore(dateRangeBasedVoucher.getStartDate()) || today.isAfter(dateRangeBasedVoucher.getEndDate())) {
+                    throw new IllegalArgumentException("Voucher is not valid for the current date");
+                }
+            }
+        }
 
         User customer = userRepository.findById(customerId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         BigDecimal totalAmount = event.getFee().multiply(BigDecimal.valueOf(request.getQuantity()));
-        BigDecimal discount = request.getPoints() != null ? request.getPoints() : BigDecimal.ZERO;
+        BigDecimal points = request.getPoints() != null ? request.getPoints() : BigDecimal.ZERO;
         BigDecimal voucherDiscount = voucher != null ? voucher.getVoucherValue() : BigDecimal.ONE;
 
-        BigDecimal amountPaid = (totalAmount.subtract(discount)).multiply(voucherDiscount);
+        BigDecimal amountPaid = (totalAmount.subtract(points)).multiply(BigDecimal.ONE.subtract(voucherDiscount));
 
         Transaction transaction = new Transaction();
         transaction.setCustomer(customer);
         transaction.setEvent(event);
         transaction.setQuantity(request.getQuantity());
-        transaction.setPointsApplied(discount);
+        transaction.setPointsApplied(points);
         transaction.setDiscountApplied(voucherDiscount);
         transaction.setAmountPaid(amountPaid);
         transaction.setVoucher(voucher);
