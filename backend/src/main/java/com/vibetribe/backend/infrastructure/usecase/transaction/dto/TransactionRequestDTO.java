@@ -15,4 +15,5 @@ public class TransactionRequestDTO {
     private Integer quantity;
     private Long voucherId;
     private BigDecimal points;
+    private Boolean isUsePoints;
 }

@@ -3,6 +3,7 @@ package com.vibetribe.backend.infrastructure.usecase.event.service;
 import com.vibetribe.backend.entity.Event;
 import com.vibetribe.backend.entity.User;
 import com.vibetribe.backend.infrastructure.usecase.event.dto.CreateEventRequestDTO;
+import com.vibetribe.backend.infrastructure.usecase.event.dto.EventDTO;
 import com.vibetribe.backend.infrastructure.usecase.event.dto.UpdateEventRequestDTO;
 import com.vibetribe.backend.infrastructure.usecase.event.repository.EventRepository;
 import com.vibetribe.backend.infrastructure.usecase.user.repository.UserRepository;
@@ -92,8 +93,28 @@ public class EventService {
         return eventRepository.findByOrganizerId(pageable, organizerId);
     }
 
-    public Optional<Event> getEventById(Long id) {
-        return eventRepository.findById(id);
+    public Optional<EventDTO> getEventById(Long id) {
+        return eventRepository.findById(id).map(this::convertToDTO);
+    }
+
+    private EventDTO convertToDTO(Event event) {
+        return new EventDTO(
+                event.getId(),
+                event.getImageUrl(),
+                event.getTitle(),
+                event.getDescription(),
+                event.getDateTimeStart(),
+                event.getDateTimeEnd(),
+                event.getLocation(),
+                event.getLocationDetails(),
+                event.getCategory(),
+                event.getFee(),
+                event.getAvailableSeats(),
+                event.getBookedSeats(),
+                event.getCreatedAt(),
+                event.getUpdatedAt(),
+                event.getDeletedAt()
+        );
     }
 
     public Page<Event> getEventsExcludingLocation(Pageable pageable, String location) {

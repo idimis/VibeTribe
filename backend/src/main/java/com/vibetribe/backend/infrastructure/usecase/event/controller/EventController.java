@@ -6,6 +6,7 @@ import com.vibetribe.backend.common.response.PaginatedResponse;
 import com.vibetribe.backend.common.util.PaginationUtil;
 import com.vibetribe.backend.entity.Event;
 import com.vibetribe.backend.infrastructure.usecase.event.dto.CreateEventRequestDTO;
+import com.vibetribe.backend.infrastructure.usecase.event.dto.EventDTO;
 import com.vibetribe.backend.infrastructure.usecase.event.dto.UpdateEventRequestDTO;
 import com.vibetribe.backend.infrastructure.usecase.event.service.EventService;
 import com.vibetribe.backend.infrastructure.system.security.Claims;
@@ -85,11 +86,11 @@ public class EventController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getEventDetails(@PathVariable Long id) {
-        Event event = eventService.getEventById(id)
-                .orElseThrow(() -> new DataNotFoundException("Event not found"));
-        return ApiResponse.successfulResponse("Get event details success", event);
-    }
+    public ResponseEntity<?> getEvent(@PathVariable Long id) {
+    return eventService.getEventById(id)
+            .map(event -> ApiResponse.successfulResponse("Get event success", event))
+            .orElse(ApiResponse.failedResponse(HttpStatus.NOT_FOUND.value(), "Event not found"));
+}
 
     @GetMapping("/exclude-location")
     public ResponseEntity<?> getEventsExcludeLocation(@RequestParam String location,

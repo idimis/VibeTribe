@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -41,6 +43,10 @@ public class TransactionService {
     public TransactionResponseDTO createTransaction(TransactionRequestDTO request, Long customerId) {
         Event event = eventRepository.findById(request.getEventId())
                 .orElseThrow(() -> new IllegalArgumentException("Event not found"));
+
+        if (event.getDateTimeEnd().isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("Cannot buy tickets for past events");
+        }
 
         if (event.getBookedSeats() + request.getQuantity() > event.getAvailableSeats()) {
             throw new IllegalStateException("No seats with this quantity is available for this event");
@@ -79,9 +85,36 @@ public class TransactionService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         BigDecimal totalAmount = event.getFee().multiply(BigDecimal.valueOf(request.getQuantity()));
-        BigDecimal points = request.getPoints() != null ? request.getPoints() : BigDecimal.ZERO;
-        BigDecimal voucherDiscount = voucher != null ? voucher.getVoucherValue() : BigDecimal.ONE;
+        BigDecimal points = BigDecimal.ZERO;
 
+        if (request.getIsUsePoints()) {
+            List<Point> userPoints = customer.getPoints().stream()
+                    .filter(point -> point.getExpiresAt().isAfter(LocalDateTime.now()))
+                    .sorted(Comparator.comparing(Point::getExpiresAt).thenComparing(Point::getCreatedAt))
+                    .toList();
+
+            BigDecimal totalAvailablePoints = userPoints.stream()
+                    .map(point -> BigDecimal.valueOf(point.getPointsAvailable()).subtract(BigDecimal.valueOf(point.getPointsUsed() != null ? point.getPointsUsed() : 0)))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            BigDecimal pointsToUse = totalAmount.min(totalAvailablePoints);
+
+            for (Point point : userPoints) {
+                if (pointsToUse.compareTo(BigDecimal.ZERO) <= 0) break;
+
+                BigDecimal availablePoints = BigDecimal.valueOf(point.getPointsAvailable()).subtract(BigDecimal.valueOf(point.getPointsUsed() != null ? point.getPointsUsed() : 0));
+                BigDecimal pointsUsed = pointsToUse.min(availablePoints);
+
+                point.setPointsUsed((point.getPointsUsed() != null ? point.getPointsUsed() : 0) + pointsUsed.doubleValue());
+                points = points.add(pointsUsed);
+                pointsToUse = pointsToUse.subtract(pointsUsed);
+            }
+
+            // Update the user's points
+            customer.setPointsBalance(customer.getPointsBalance() - points.doubleValue());
+        }
+
+        BigDecimal voucherDiscount = voucher != null ? voucher.getVoucherValue() : BigDecimal.ZERO;
         BigDecimal amountPaid = (totalAmount.subtract(points)).multiply(BigDecimal.ONE.subtract(voucherDiscount));
 
         Transaction transaction = new Transaction();

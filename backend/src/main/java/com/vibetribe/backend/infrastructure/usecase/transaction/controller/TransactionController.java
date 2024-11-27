@@ -1,5 +1,6 @@
 package com.vibetribe.backend.infrastructure.usecase.transaction.controller;
 
+import com.vibetribe.backend.common.response.ApiResponse;
 import com.vibetribe.backend.entity.Transaction;
 import com.vibetribe.backend.infrastructure.system.security.Claims;
 import com.vibetribe.backend.infrastructure.usecase.transaction.dto.TransactionRequestDTO;
@@ -23,9 +24,9 @@ public class TransactionController {
 
     @PreAuthorize("hasRole('CUSTOMER')")
     @PostMapping
-    public ResponseEntity<TransactionResponseDTO> createTransaction(@RequestBody TransactionRequestDTO request) {
+    public ResponseEntity<?> createTransaction(@RequestBody TransactionRequestDTO request) {
         Long customerId = Claims.getUserIdFromJwt();
         TransactionResponseDTO transaction = transactionService.createTransaction(request, customerId);
-        return ResponseEntity.ok(transaction);
+        return ApiResponse.successfulResponse("Create new transaction success", transaction);
     }
 }
