@@ -4,9 +4,13 @@ import com.vibetribe.backend.entity.Ticket;
 import com.vibetribe.backend.entity.Transaction;
 import com.vibetribe.backend.infrastructure.usecase.ticket.dto.TicketDTO;
 import com.vibetribe.backend.infrastructure.usecase.ticket.repository.TicketRepository;
+import com.vibetribe.backend.infrastructure.usecase.user.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -37,6 +41,23 @@ public class TicketService {
             tickets.add(ticketRepository.save(ticket));
         }
         return tickets.stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
+    public Page<TicketDTO> getAllTicketsByCustomer(Long customerId, Pageable pageable) {
+        return ticketRepository.findByCustomerId(customerId, pageable)
+                .map(this::convertToDTO);
+    }
+
+    public Page<TicketDTO> getUpcomingTicketsByCustomer(Long customerId, Pageable pageable) {
+        LocalDateTime now = LocalDateTime.now();
+        return ticketRepository.findByCustomerIdAndEventDateTimeEndAfter(customerId, now, pageable)
+                .map(this::convertToDTO);
+    }
+
+    public Page<TicketDTO> getPastTicketsByCustomer(Long customerId, Pageable pageable) {
+        LocalDateTime now = LocalDateTime.now();
+        return ticketRepository.findByCustomerIdAndEventDateTimeEndBefore(customerId, now, pageable)
+                .map(this::convertToDTO);
     }
 
     private TicketDTO convertToDTO(Ticket ticket) {
