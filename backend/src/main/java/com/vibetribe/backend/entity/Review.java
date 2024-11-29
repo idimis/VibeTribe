@@ -20,13 +20,11 @@ public class Review {
     @SequenceGenerator(name = "review_id_gen", sequenceName = "review_id_seq", schema = "vibetribe", allocationSize = 1)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "customer_id", nullable = false)
-    private User customer;
+    @Column(name = "customer_id", nullable = false)
+    private Long customer;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "event_id", nullable = false)
-    private Event event;
+    @Column(name = "event_id", nullable = false)
+    private Long event;
 
     private Integer rating;
 
