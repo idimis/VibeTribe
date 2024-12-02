@@ -1,15 +1,15 @@
 package com.vibetribe.backend.infrastructure.usecase.event.controller;
 
-import com.vibetribe.backend.common.exceptions.DataNotFoundException;
 import com.vibetribe.backend.common.response.ApiResponse;
 import com.vibetribe.backend.common.response.PaginatedResponse;
 import com.vibetribe.backend.common.util.PaginationUtil;
 import com.vibetribe.backend.entity.Event;
+import com.vibetribe.backend.infrastructure.system.security.Claims;
 import com.vibetribe.backend.infrastructure.usecase.event.dto.CreateEventRequestDTO;
-import com.vibetribe.backend.infrastructure.usecase.event.dto.EventDTO;
 import com.vibetribe.backend.infrastructure.usecase.event.dto.UpdateEventRequestDTO;
 import com.vibetribe.backend.infrastructure.usecase.event.service.EventService;
-import com.vibetribe.backend.infrastructure.system.security.Claims;
+import com.vibetribe.backend.infrastructure.usecase.review.dto.ReviewRequestDTO;
+import com.vibetribe.backend.infrastructure.usecase.review.dto.ReviewResponseDTO;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -103,5 +103,13 @@ public class EventController {
 
         PaginatedResponse<Event> paginatedEvents = PaginationUtil.toPaginatedResponse(events);
         return ApiResponse.successfulResponse("Get events exclude location success", paginatedEvents);
+    }
+
+    @PreAuthorize("hasRole('CUSTOMER')")
+    @PostMapping("/review")
+    public ResponseEntity<?> submitReview(@Valid @RequestBody ReviewRequestDTO reviewRequest) {
+        Long customerId = Claims.getUserIdFromJwt();
+        ReviewResponseDTO reviewResponse = eventService.submitReview(customerId, reviewRequest);
+        return ApiResponse.successfulResponse("Review submitted successfully", reviewResponse);
     }
 }

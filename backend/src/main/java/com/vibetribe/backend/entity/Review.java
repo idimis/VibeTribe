@@ -21,11 +21,12 @@ public class Review {
     private Long id;
 
     @Column(name = "customer_id", nullable = false)
-    private Long customer;
+    private Long customerId;
 
     @Column(name = "event_id", nullable = false)
-    private Long event;
+    private Long eventId;
 
+    @Column(nullable = false)
     private Integer rating;
 
     @Column(columnDefinition = "TEXT")
@@ -34,4 +35,9 @@ public class Review {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
 }

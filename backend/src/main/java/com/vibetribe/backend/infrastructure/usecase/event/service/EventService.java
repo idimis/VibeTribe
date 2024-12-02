@@ -1,12 +1,18 @@
 package com.vibetribe.backend.infrastructure.usecase.event.service;
 
 import com.vibetribe.backend.entity.Event;
+import com.vibetribe.backend.entity.Review;
 import com.vibetribe.backend.entity.User;
 import com.vibetribe.backend.infrastructure.usecase.event.dto.CreateEventRequestDTO;
 import com.vibetribe.backend.infrastructure.usecase.event.dto.EventDTO;
 import com.vibetribe.backend.infrastructure.usecase.event.dto.UpdateEventRequestDTO;
 import com.vibetribe.backend.infrastructure.usecase.event.repository.EventRepository;
+import com.vibetribe.backend.infrastructure.usecase.review.dto.ReviewRequestDTO;
+import com.vibetribe.backend.infrastructure.usecase.review.dto.ReviewResponseDTO;
+import com.vibetribe.backend.infrastructure.usecase.review.repository.ReviewRepository;
+import com.vibetribe.backend.infrastructure.usecase.ticket.repository.TicketRepository;
 import com.vibetribe.backend.infrastructure.usecase.user.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,10 +23,17 @@ import java.util.Optional;
 @Service
 public class EventService {
 
+    private final TicketRepository ticketRepository;
+    private final ReviewRepository reviewRepository;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
 
-    public EventService(EventRepository eventRepository, UserRepository userRepository) {
+    public EventService(EventRepository eventRepository,
+                        UserRepository userRepository,
+                        TicketRepository ticketRepository,
+                        ReviewRepository reviewRepository) {
+        this.ticketRepository = ticketRepository;
+        this.reviewRepository = reviewRepository;
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
     }
@@ -124,5 +137,43 @@ public class EventService {
     public Page<Event> getUpcomingEvents(Pageable pageable, String location, String category, String search) {
         LocalDateTime currentDateTime = LocalDateTime.now();
         return eventRepository.findUpcomingEvents(pageable, currentDateTime, location, category, search);
+    }
+
+    @Transactional
+    public ReviewResponseDTO submitReview(Long customerId, ReviewRequestDTO reviewRequest) {
+        if (!ticketRepository.existsByCustomerIdAndEventId(customerId, reviewRequest.getEventId())) {
+            throw new IllegalArgumentException("Customer has not bought a ticket for this event");
+        }
+
+        Event event = eventRepository.findById(reviewRequest.getEventId())
+                .orElseThrow(() -> new IllegalArgumentException("Event not found"));
+
+        if (event.getDateTimeEnd().isAfter(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Event has not ended yet");
+        }
+
+        User customer = userRepository.findById(customerId)
+                .orElseThrow(() -> new IllegalArgumentException("Customer not found"));
+
+        Review review = new Review();
+        review.setCustomerId(customerId);
+        review.setEventId(event.getId());
+        review.setRating(reviewRequest.getRating());
+        review.setReview(reviewRequest.getReview());
+        review = reviewRepository.save(review);
+
+        ReviewResponseDTO responseDTO = new ReviewResponseDTO();
+        responseDTO.setId(review.getId());
+        responseDTO.setCustomerId(review.getCustomerId());
+        responseDTO.setEventId(review.getEventId());
+        responseDTO.setRating(review.getRating());
+        responseDTO.setReview(review.getReview());
+        responseDTO.setCreatedAt(review.getCreatedAt());
+        responseDTO.setEventTitle(event.getTitle());
+        responseDTO.setEventDateTimeStart(event.getDateTimeStart());
+        responseDTO.setEventDateTimeEnd(event.getDateTimeEnd());
+        responseDTO.setCustomerName(customer.getName());
+
+        return responseDTO;
     }
 }

@@ -88,7 +88,7 @@ public class User {
     @JsonIgnore
     private Set<Transaction> transactions = new HashSet<>();
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "customerId", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @ToString.Exclude
     @JsonIgnore
     private Set<Review> reviews = new HashSet<>();
