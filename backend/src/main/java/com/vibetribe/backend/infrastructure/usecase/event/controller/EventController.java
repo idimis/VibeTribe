@@ -10,6 +10,7 @@ import com.vibetribe.backend.infrastructure.usecase.event.dto.UpdateEventRequest
 import com.vibetribe.backend.infrastructure.usecase.event.service.EventService;
 import com.vibetribe.backend.infrastructure.usecase.review.dto.ReviewRequestDTO;
 import com.vibetribe.backend.infrastructure.usecase.review.dto.ReviewResponseDTO;
+import com.vibetribe.backend.infrastructure.usecase.review.service.ReviewService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,10 +23,14 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/events")
 public class EventController {
-    private final EventService eventService;
 
-    public EventController(EventService eventService) {
+    private final EventService eventService;
+    private final ReviewService reviewService;
+
+    public EventController(EventService eventService,
+                           ReviewService reviewService) {
         this.eventService = eventService;
+        this.reviewService = reviewService;
     }
 
     @PreAuthorize("hasRole('ORGANIZER')")
@@ -111,5 +116,17 @@ public class EventController {
         Long customerId = Claims.getUserIdFromJwt();
         ReviewResponseDTO reviewResponse = eventService.submitReview(customerId, reviewRequest);
         return ApiResponse.successfulResponse("Review submitted successfully", reviewResponse);
+    }
+
+    @GetMapping("/{eventId}/reviews")
+    public ResponseEntity<?> getReviewsByEventId(@PathVariable Long eventId, @PageableDefault(size = 10) Pageable pageable) {
+        var reviews = reviewService.getReviewsByEventId(eventId, pageable);
+
+        if (reviews.isEmpty()) {
+            return ApiResponse.failedResponse(HttpStatus.NOT_FOUND.value(), "Reviews not found");
+        }
+
+        PaginatedResponse<ReviewResponseDTO> paginatedReviews = PaginationUtil.toPaginatedResponse(reviews);
+        return ApiResponse.successfulResponse("Get reviews success", paginatedReviews);
     }
 }
