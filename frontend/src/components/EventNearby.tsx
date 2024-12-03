@@ -16,8 +16,8 @@ const EventSection: React.FC = () => {
           `http://localhost:8080/api/v1/events?location=${encodeURIComponent(location)}`
         );
         const data = await response.json();
-        console.log(data); // Debugging
-        setEvents(data.data.content); // Set events from API response
+        console.log(data); 
+        setEvents(data.data.content); 
       } catch (error) {
         console.error("Error fetching events:", error);
       } finally {
@@ -29,7 +29,7 @@ const EventSection: React.FC = () => {
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(() => {
-        setLocation("Bandung"); // Placeholder for geolocation logic
+        setLocation("Bandung"); 
       });
     } else {
       console.error("Geolocation is not supported by this browser.");
@@ -56,17 +56,15 @@ const EventSection: React.FC = () => {
           ))
         ) : (
           events.map((event: any) => (
-            <Link key={event.id} href={`/events/${event.id}`}>
-              <div
-                className="event-card bg-white border rounded-lg p-4 shadow-md transition-transform hover:scale-105"
-                style={{ minHeight: "150px", maxHeight: "200px" }}
-              >
-                <h3 className="font-bold">{event.title || "Untitled Event"}</h3>
-                <p>{event.date || "No Date Available"}</p>
-                <p className="text-sm text-gray-500">{event.locationDetails || "No Address Available"}</p>
-                <p className="text-sm text-gray-500">{event.timeStart || "No Time Available"}</p>
-              </div>
-            </Link>
+            <Link key={event.id} href={`/events/${event.title.replace(/\s+/g, '-').toLowerCase()}`}>
+  <div className="event-card bg-white border rounded-lg p-4 shadow-md transition-transform hover:scale-105">
+    <h3 className="font-bold">{event.title || "Untitled Event"}</h3>
+    <p>{event.date || "No Date Available"}</p>
+    <p className="text-sm text-gray-500">{event.locationDetails || "No Address Available"}</p>
+    <p className="text-sm text-gray-500">{event.timeStart || "No Time Available"}</p>
+  </div>
+</Link>
+
           ))
         )}
       </div>

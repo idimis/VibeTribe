@@ -26,9 +26,13 @@ const fetchEventsByCategory = async (category: string): Promise<Event[]> => {
   return data.data.content;
 };
 
-// Make sure params are awaited before usage
-const CategoryPage = async ({ params }: { params: { slug: string } }) => {
-  // Await params first before accessing them
+interface CategoryPageProps {
+  params: {
+    slug: string;
+  };
+}
+
+const CategoryPage = async ({ params }: CategoryPageProps) => {
   const { slug } = params;
 
   const slugToCategoryMap: { [key: string]: string } = {
@@ -46,7 +50,6 @@ const CategoryPage = async ({ params }: { params: { slug: string } }) => {
     return notFound();
   }
 
-  // Fetch events after category is determined
   const events = await fetchEventsByCategory(categoryName);
 
   return (

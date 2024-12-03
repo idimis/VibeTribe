@@ -1,43 +1,74 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import Footer from '@/components/Footer'; 
-import Image from 'next/image'; 
-import Logo from '@/public/logo2.png'; 
-import userProfileImage from '@/public/dance.jpg';
-import Link from 'next/link';
+import React, { useState, useEffect } from "react";
+import Footer from "@/components/Footer";
+import Image from "next/image";
+import Logo from "@/public/logo2.png";
+import userProfileImage from "@/public/dance.jpg";
+import Link from "next/link";
+
+interface Event {
+  id: string;
+  title: string;
+  dateTimeStart: string;
+  reviews: Review[];
+}
+
+interface Review {
+  comment: string;
+  reviewerName: string;
+}
 
 const OrganizerDashboard: React.FC = () => {
-  const [eventName, setEventName] = useState('Dance Festival 2024');
-  const [eventDate, setEventDate] = useState('December 15, 2024');
-  const [attendeesCount, setAttendeesCount] = useState(150);
-  const [eventStatus, setEventStatus] = useState('Upcoming');
-  const [activePanel, setActivePanel] = useState('overview');
-  
-  const [profileData, setProfileData] = useState({
-    name: 'John Doe',
-    email: 'john@example.com',
-    username: 'johnny',
-    phone: '123-456-7890',
-    address: '123 Street, City, Country',
-  });
+  const [data, setData] = useState<any>({ events: [], profile: {} });
+  const [activePanel, setActivePanel] = useState("overview");
 
-  
   useEffect(() => {
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
     if (!token) {
-      alert('You are not logged in!');
-      window.location.href = '/login'; 
-    } else {
-      
-      const role = 'organizer'; 
-      if (role !== 'organizer') {
-        alert('Unauthorized access');
-        window.location.href = '/'; 
-      }
+      alert("You are not logged in!");
+      window.location.href = "/login";
     }
-  }, []);
 
+    const fetchData = async () => {
+      try {
+        const [responseEvents, responseProfile] = await Promise.all([
+          fetch("http://localhost:8080/api/v1/events/organizer", {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch("http://localhost:8080/api/v1/user/details", {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
+
+        // Handle potential response errors
+        if (!responseEvents.ok || !responseProfile.ok) {
+          throw new Error("Failed to fetch data");
+        }
+
+        // Parse JSON responses
+        const eventsData = await responseEvents.json();
+        const profileData = await responseProfile.json();
+
+        // Check if the response contains valid data
+        if (eventsData.success && profileData.success) {
+          setData({
+            events: eventsData.data.content,
+            profile: profileData.data,
+          });
+        } else {
+          alert("Failed to load data");
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        alert("An error occurred while fetching data.");
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col bg-light-gray">
@@ -46,19 +77,44 @@ const OrganizerDashboard: React.FC = () => {
         <aside className="bg-purple-600 text-white w-64 py-4 px-8">
           <h2 className="text-xl font-bold mb-8">Organizer Dashboard</h2>
           <ul className="space-y-4">
-            <li onClick={() => setActivePanel('overview')} className={`cursor-pointer p-2 rounded-lg ${activePanel === 'overview' ? 'bg-blue-700' : 'hover:bg-blue-600'}`}>
+            <li
+              onClick={() => setActivePanel("overview")}
+              className={`cursor-pointer p-2 rounded-lg ${
+                activePanel === "overview" ? "bg-blue-700" : "hover:bg-blue-600"
+              }`}
+            >
               Overview
             </li>
-            <li onClick={() => setActivePanel('event')} className={`cursor-pointer p-2 rounded-lg ${activePanel === 'event' ? 'bg-blue-700' : 'hover:bg-blue-600'}`}>
+            <li
+              onClick={() => setActivePanel("event")}
+              className={`cursor-pointer p-2 rounded-lg ${
+                activePanel === "event" ? "bg-blue-700" : "hover:bg-blue-600"
+              }`}
+            >
               Event
             </li>
-            <li onClick={() => setActivePanel('voucher')} className={`cursor-pointer p-2 rounded-lg ${activePanel === 'voucher' ? 'bg-blue-700' : 'hover:bg-blue-600'}`}>
+            <li
+              onClick={() => setActivePanel("voucher")}
+              className={`cursor-pointer p-2 rounded-lg ${
+                activePanel === "voucher" ? "bg-blue-700" : "hover:bg-blue-600"
+              }`}
+            >
               Voucher
             </li>
-            <li onClick={() => setActivePanel('profile')} className={`cursor-pointer p-2 rounded-lg ${activePanel === 'profile' ? 'bg-blue-700' : 'hover:bg-blue-600'}`}>
+            <li
+              onClick={() => setActivePanel("profile")}
+              className={`cursor-pointer p-2 rounded-lg ${
+                activePanel === "profile" ? "bg-blue-700" : "hover:bg-blue-600"
+              }`}
+            >
               Profile
             </li>
-            <li onClick={() => setActivePanel('help')} className={`cursor-pointer p-2 rounded-lg ${activePanel === 'help' ? 'bg-blue-700' : 'hover:bg-blue-600'}`}>
+            <li
+              onClick={() => setActivePanel("help")}
+              className={`cursor-pointer p-2 rounded-lg ${
+                activePanel === "help" ? "bg-blue-700" : "hover:bg-blue-600"
+              }`}
+            >
               Help
             </li>
           </ul>
@@ -67,69 +123,75 @@ const OrganizerDashboard: React.FC = () => {
         {/* Main Content */}
         <main className="flex-grow p-8 overflow-y-auto">
           {/* Overview Panel */}
-          {activePanel === 'overview' && (
-            // Overview Section for Event Management Organizer Dashboard
+          {activePanel === "overview" && (
+            <section className="h-full mb-8 bg-white p-6 rounded-lg shadow-md flex flex-col gap-8">
+              <div className="flex justify-between gap-8">
+                {/* Left: Event List */}
+                <div className="w-2/3 bg-white p-6 rounded-lg shadow-md">
+                  <h3 className="text-2xl font-semibold text-purple-600 mb-4">Event List</h3>
+                  <ul className="space-y-4 text-gray-700">
+                    {data.events.length > 0 ? (
+                      data.events.map((event: Event) => (
+                        <li
+                          key={event.id}
+                          className="cursor-pointer hover:bg-gray-100 p-4 rounded-md"
+                        >
+                          {event.title}
+                        </li>
+                      ))
+                    ) : (
+                      <p>No events found.</p>
+                    )}
+                  </ul>
+                </div>
 
-<section className="h-full mb-8 bg-white p-6 rounded-lg shadow-md flex flex-col gap-8">
-  {/* Upper Row: Left and Right */}
-  <div className="flex justify-between gap-8">
-    {/* Left: Event List */}
-    <div className="w-2/3 bg-white p-6 rounded-lg shadow-md">
-      <h3 className="text-2xl font-semibold text-purple-600 mb-4">Event List</h3>
-      <ul className="space-y-4 text-gray-700">
-        <li className="cursor-pointer hover:bg-gray-100 p-4 rounded-md">Dance Festival 2024</li>
-        <li className="cursor-pointer hover:bg-gray-100 p-4 rounded-md">Rock Concert 2024</li>
-        <li className="cursor-pointer hover:bg-gray-100 p-4 rounded-md">Food Expo 2024</li>
-      </ul>
-    </div>
+                {/* Right: Organizer Profile */}
+                <div className="w-1/3 bg-white p-6 rounded-lg shadow-md flex flex-col gap-4">
+                  <h3 className="text-2xl font-semibold text-purple-600 mb-4">Organizer Profile</h3>
+                  <div className="flex items-center gap-4">
+                    <div className="w-20 h-20 rounded-full overflow-hidden">
+                      <Image
+                        src={data.profile.photoProfileUrl || userProfileImage}
+                        alt="Organizer Photo"
+                        width={80}
+                        height={80}
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <p className="font-semibold text-gray-700">{data.profile.name}</p>
+                      <p className="text-gray-600">
+                        Joined: {new Date(data.profile.createdAt).toLocaleDateString()}
+                      </p>
+                      <p className="text-gray-600">
+                        Website:{" "}
+                        <Link
+                          href={`https://${data.profile.website}`}
+                          target="_blank"
+                          className="text-blue-500"
+                        >
+                          {data.profile.website}
+                        </Link>
+                      </p>
+                      <p className="text-gray-600">Phone: {data.profile.phoneNumber}</p>
+                      <p className="text-gray-600">Address: {data.profile.address}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-    {/* Right: Organizer Profile */}
-    <div className="w-1/3 bg-white p-6 rounded-lg shadow-md flex flex-col gap-4">
-      <h3 className="text-2xl font-semibold text-purple-600 mb-4">Organizer Profile</h3>
-      <div className="flex items-center gap-4">
-        <div className="w-20 h-20 rounded-full overflow-hidden">
-          <Image src={userProfileImage} alt="Organizer Photo" width={80} height={80} className="object-cover" />
-        </div>
-        <div className="flex flex-col">
-          <p className="font-semibold text-gray-700">John Doe</p>
-          <p className="text-gray-600">Joined: January 2020</p>
-          <p className="text-gray-600">Events Held: 12</p>
-          <p className="text-gray-600">Attendees: 2,500+</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  {/* Lower Row: Left and Right */}
-  <div className="flex justify-between gap-8">
-    {/* Left: Statistics */}
-    <div className="w-2/3 bg-white p-6 rounded-lg shadow-md">
-      <h3 className="text-2xl font-semibold text-purple-600 mb-4">Event Statistics</h3>
-      <ul className="space-y-4 text-gray-700">
-        <li><strong>Total Events:</strong> 12</li>
-        <li><strong>Total Attendees:</strong> 2,500+</li>
-        <li><strong>Upcoming Events:</strong> 3</li>
-        <li><strong>Average Rating:</strong> 4.7/5</li>
-      </ul>
-    </div>
-
-    {/* Right: Event Reviews */}
-    <div className="w-1/3 bg-white p-6 rounded-lg shadow-md">
-      <h3 className="text-2xl font-semibold text-purple-600 mb-4">Event Reviews</h3>
-      <ul className="space-y-4 text-gray-700">
-        <li className="cursor-pointer hover:bg-gray-100 p-4 rounded-md">
-          "Amazing event! The atmosphere was electric!" - Jane D.
-        </li>
-        <li className="cursor-pointer hover:bg-gray-100 p-4 rounded-md">
-          "Great experience, well organized and the crowd was awesome!" - Mark T.
-        </li>
-        <li className="cursor-pointer hover:bg-gray-100 p-4 rounded-md">
-          "I loved the venue and the performances. Will definitely come again!" - Sarah L.
-        </li>
-      </ul>
-    </div>
-  </div>
-</section>
+              {/* Event Statistics */}
+              <div className="w-2/3 bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-2xl font-semibold text-purple-600 mb-4">Event Statistics</h3>
+                <ul className="space-y-4 text-gray-700">
+            {data.events.map((event: Event) => (
+            <li key={event.id} className="cursor-pointer hover:bg-gray-100 p-4 rounded-md">
+              {event.title}
+            </li>
+             ))}
+              </ul>
+              </div>
+            </section>
 
           )}
 

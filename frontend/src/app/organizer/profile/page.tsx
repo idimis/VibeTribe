@@ -29,7 +29,7 @@ const OrganizerProfilePage: React.FC = () => {
 
   const router = useRouter();
 
-  // Fetching the organizer data from localStorage if exists
+  
   useEffect(() => {
     const storedOrganizer = localStorage.getItem('organizer');
     if (storedOrganizer) {
@@ -45,11 +45,11 @@ const OrganizerProfilePage: React.FC = () => {
     }
   }, []);
 
-  // Handling change of profile fields
+ 
   const handleChange = (field: string, value: string) => {
     setOrganizer((prev) => {
       const updatedOrganizer = { ...prev, [field]: value };
-      localStorage.setItem('organizer', JSON.stringify(updatedOrganizer)); // Store to localStorage
+      localStorage.setItem('organizer', JSON.stringify(updatedOrganizer)); 
       return updatedOrganizer;
     });
   };
