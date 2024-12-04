@@ -5,7 +5,9 @@ import Footer from "@/components/Footer";
 import Image from "next/image";
 import Logo from "@/public/logo2.png";
 import userProfileImage from "@/public/dance.jpg";
+import { useAuth } from '@/context/AuthContext';
 import Link from "next/link";
+import useAuthRedirect from '@/hooks/useAuthRedirect';
 
 interface Event {
   id: string;
@@ -43,16 +45,17 @@ const OrganizerDashboard: React.FC = () => {
           }),
         ]);
 
-        // Handle potential response errors
+        
         if (!responseEvents.ok || !responseProfile.ok) {
           throw new Error("Failed to fetch data");
         }
 
-        // Parse JSON responses
+        
         const eventsData = await responseEvents.json();
         const profileData = await responseProfile.json();
+      
 
-        // Check if the response contains valid data
+        
         if (eventsData.success && profileData.success) {
           setData({
             events: eventsData.data.content,
@@ -69,6 +72,10 @@ const OrganizerDashboard: React.FC = () => {
 
     fetchData();
   }, []);
+  
+  const { isLoggedIn, login, logout, loggedEmail, isAuthLoaded } = useAuth();
+  
+  useAuthRedirect();
 
   return (
     <div className="flex min-h-screen flex-col bg-light-gray">
@@ -117,8 +124,22 @@ const OrganizerDashboard: React.FC = () => {
             >
               Help
             </li>
+
+            <li
+              onClick={logout}
+              className={`cursor-pointer p-2 rounded-lg ${
+                activePanel === "help" ? "bg-blue-700" : "hover:bg-blue-600"
+              }`}
+            >
+              Logout
+            </li>
+              
+
           </ul>
         </aside>
+
+
+
 
         {/* Main Content */}
         <main className="flex-grow p-8 overflow-y-auto">
@@ -150,13 +171,13 @@ const OrganizerDashboard: React.FC = () => {
                   <h3 className="text-2xl font-semibold text-purple-600 mb-4">Organizer Profile</h3>
                   <div className="flex items-center gap-4">
                     <div className="w-20 h-20 rounded-full overflow-hidden">
-                      <Image
-                        src={data.profile.photoProfileUrl || userProfileImage}
-                        alt="Organizer Photo"
-                        width={80}
-                        height={80}
-                        className="object-cover"
-                      />
+                      {/* <Image */}
+                        {/* src={data.profile.photoProfileUrl || userProfileImage} */}
+                        {/* alt="Organizer Photo" */}
+                        {/* width={80} */}
+                        {/* height={80} */}
+                        {/* className="object-cover" */}
+                      {/* /> */}
                     </div>
                     <div className="flex flex-col">
                       <p className="font-semibold text-gray-700">{data.profile.name}</p>
@@ -372,124 +393,154 @@ const OrganizerDashboard: React.FC = () => {
           
           )}
 
-          {/* Profile Panel */}
-          {activePanel === 'profile' && (
-            <section className="profile-section bg-gray-50 p-8 rounded-lg shadow-lg">
-            <header className="flex justify-between items-center mb-8">
-              <h2 className="text-3xl font-semibold text-purple-600">Profile Settings</h2>
-              
-            </header>
-          
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Left Side: Profile Details */}
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-2xl font-semibold text-purple-600 mb-4">Personal Information</h3>
-                <form>
-                  {/* Name */}
-                  <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-semibold mb-2">Full Name</label>
-                    <input type="text" className="w-full px-4 py-2 border rounded-lg shadow-sm" placeholder="Enter your full name" />
-                  </div>
-          
-                  {/* Username */}
-                  <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-semibold mb-2">Username</label>
-                    <input type="text" className="w-full px-4 py-2 border rounded-lg shadow-sm" placeholder="Enter your username" />
-                  </div>
-          
-                  {/* Email */}
-                  <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-semibold mb-2">Email</label>
-                    <input type="email" className="w-full px-4 py-2 border rounded-lg shadow-sm" placeholder="Enter your email" />
-                  </div>
-          
-                  {/* Phone Number */}
-                  <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-semibold mb-2">Phone Number</label>
-                    <input type="text" className="w-full px-4 py-2 border rounded-lg shadow-sm" placeholder="Enter your phone number" />
-                  </div>
-          
-                  {/* Bio */}
-                  <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-semibold mb-2">Bio</label>
-                    <textarea className="w-full px-4 py-2 border rounded-lg shadow-sm" placeholder="Tell us about yourself" rows={4}></textarea>
-                  </div>
-          
-                  {/* Date of Birth */}
-                  <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-semibold mb-2">Date of Birth</label>
-                    <input type="date" className="w-full px-4 py-2 border rounded-lg shadow-sm" />
-                  </div>
-          
-                  {/* Profile Picture Upload */}
-                  <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-semibold mb-2">Profile Picture</label>
-                    <input type="file" className="w-full px-4 py-2 border rounded-lg shadow-sm" />
-                  </div>
-          
-                  {/* Save Button */}
-                  <button type="submit" className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-2 px-5 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105">Save Changes</button>
-                </form>
-              </div>
-          
-              {/* Right Side: Account Settings & Preferences */}
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-2xl font-semibold text-purple-600 mb-4">Account Settings</h3>
-                <form>
-                  {/* Password */}
-                  <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-semibold mb-2">Password</label>
-                    <input type="password" className="w-full px-4 py-2 border rounded-lg shadow-sm" placeholder="Enter a new password" />
-                  </div>
-          
-                  {/* Social Media Links */}
-                  <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-semibold mb-2">Social Media</label>
-                    <input type="text" className="w-full px-4 py-2 border rounded-lg shadow-sm mb-2" placeholder="Instagram Link" />
-                    <input type="text" className="w-full px-4 py-2 border rounded-lg shadow-sm" placeholder="LinkedIn Link" />
-                  </div>
-          
-                  {/* Language Preference */}
-                  <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-semibold mb-2">Language Preference</label>
-                    <select className="w-full px-4 py-2 border rounded-lg shadow-sm">
-                      <option value="en">English</option>
-                      <option value="id">Indonesian</option>
-                      <option value="es">Spanish</option>
-                      {/* Add other language options as needed */}
-                    </select>
-                  </div>
-          
-                  {/* Notifications */}
-                  <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-semibold mb-2">Notifications</label>
-                    <div className="flex items-center mb-2">
-                      <input type="checkbox" id="email-notifications" className="mr-2" />
-                      <label htmlFor="email-notifications">Email Notifications</label>
-                    </div>
-                    <div className="flex items-center mb-2">
-                      <input type="checkbox" id="sms-notifications" className="mr-2" />
-                      <label htmlFor="sms-notifications">SMS Notifications</label>
-                    </div>
-                  </div>
-          
-                  {/* Account Status */}
-                  <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-semibold mb-2">Account Status</label>
-                    <select className="w-full px-4 py-2 border rounded-lg shadow-sm">
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
-                    </select>
-                  </div>
-          
-                  {/* Save Button */}
-                  <button type="submit" className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-2 px-5 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105">Save Changes</button>
-                </form>
-              </div>
-            </div>
-          </section>
-          
-          )}
+{activePanel === "profile" && data?.profile && (
+  <section className="profile-section bg-gray-50 p-8 rounded-lg shadow-lg">
+    <header className="flex justify-between items-center mb-8">
+      <h2 className="text-3xl font-semibold text-purple-600">Profile Settings</h2>
+    </header>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {/* Left Side: Profile Details */}
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h3 className="text-2xl font-semibold text-purple-600 mb-4">Personal Information</h3>
+        <form>
+          {/* Name */}
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-semibold mb-2">Full Name</label>
+            <input
+              type="text"
+              className="w-full px-4 py-2 border rounded-lg shadow-sm"
+              placeholder="Enter your full name"
+              defaultValue={data.profile.name}
+            />
+          </div>
+
+          {/* Email */}
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-semibold mb-2">Email</label>
+            <input
+              type="email"
+              className="w-full px-4 py-2 border rounded-lg shadow-sm"
+              placeholder="Enter your email"
+              defaultValue={data.profile.email}
+            />
+          </div>
+
+          {/* Phone Number */}
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-semibold mb-2">Phone Number</label>
+            <input
+              type="text"
+              className="w-full px-4 py-2 border rounded-lg shadow-sm"
+              placeholder="Enter your phone number"
+              defaultValue={data.profile.phoneNumber}
+            />
+          </div>
+
+          {/* Bio */}
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-semibold mb-2">Bio</label>
+            <textarea
+              className="w-full px-4 py-2 border rounded-lg shadow-sm"
+              placeholder="Tell us about yourself"
+              rows={4}
+              defaultValue={data.profile.bio}
+            ></textarea>
+          </div>
+
+          {/* Date of Birth */}
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-semibold mb-2">Date of Birth</label>
+            <input
+              type="date"
+              className="w-full px-4 py-2 border rounded-lg shadow-sm"
+              defaultValue={data.profile.dateOfBirth}
+            />
+          </div>
+
+          {/* Profile Picture Upload */}
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-semibold mb-2">Profile Picture</label>
+            <img
+              src={data.profile.profilePicture}
+              alt="Profile"
+              className="w-16 h-16 rounded-full mb-4"
+            />
+            <input
+              type="file"
+              className="w-full px-4 py-2 border rounded-lg shadow-sm"
+            />
+          </div>
+
+          {/* Save Button */}
+          <button
+            type="submit"
+            className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-2 px-5 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105"
+          >
+            Save Changes
+          </button>
+        </form>
+      </div>
+
+      {/* Right Side: Account Settings & Preferences */}
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h3 className="text-2xl font-semibold text-purple-600 mb-4">
+          Account Settings
+        </h3>
+        <form>
+          {/* Password */}
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-semibold mb-2">Password</label>
+            <input
+              type="password"
+              className="w-full px-4 py-2 border rounded-lg shadow-sm"
+              placeholder="Enter a new password"
+            />
+          </div>
+
+          {/* Social Media Links */}
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-semibold mb-2">Social Media</label>
+            <input
+              type="text"
+              className="w-full px-4 py-2 border rounded-lg shadow-sm mb-2"
+              placeholder="Instagram Link"
+              defaultValue={data.profile.socialMedia?.instagram}
+            />
+            <input
+              type="text"
+              className="w-full px-4 py-2 border rounded-lg shadow-sm"
+              placeholder="LinkedIn Link"
+              defaultValue={data.profile.socialMedia?.linkedin}
+            />
+          </div>
+
+          {/* Language Preference */}
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-semibold mb-2">Language Preference</label>
+            <select
+              className="w-full px-4 py-2 border rounded-lg shadow-sm"
+              defaultValue={data.profile.languagePreference}
+            >
+              <option value="en">English</option>
+              <option value="id">Indonesian</option>
+              <option value="es">Spanish</option>
+            </select>
+          </div>
+
+          {/* Save Button */}
+          <button
+            type="submit"
+            className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-2 px-5 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105"
+          >
+            Save Changes
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+)}
+
 
            {/* Help Panel */}
            {activePanel === 'help' && (

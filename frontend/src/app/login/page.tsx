@@ -1,13 +1,15 @@
+
 "use client";
 
 import React, { useState } from "react";
+import { useAuth } from "@/context/AuthContext";  
 import Footer from "@/components/Footer";
 import Image from "next/image";
 import GoogleIcon from "@/public/icons/google.png";
 import Logo from "@/public/logo2.png";
 import yogaImage from "@/public/yoga.jpg";
 import Link from "next/link";
-import { AuthProvider, useAuth } from "@/context/AuthContext"; 
+import { AuthProvider } from "@/context/AuthContext"; 
 
 const LoginContent: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -15,54 +17,69 @@ const LoginContent: React.FC = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { setToken } = useAuth();
+  const {isLoggedIn, getJwtToken , login} = useAuth();
+
+
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
+    const api = {
+        login: async (email: string, password: string) => {
+            const response = await fetch("http://localhost:8080/api/v1/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Login failed.");
+            }
+
+            return response.json();
+        },
+
+        getUserDetails: async (token: string) => {
+            const response = await fetch("http://localhost:8080/api/v1/user/details", {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch user details.");
+            }
+
+            return response.json();
+        },
+    };
+
     try {
-      const response = await fetch("/api/v1/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      // Check if the response is OK (status code 200-299)
-      if (!response.ok) {
-        // Check if response is JSON
-        const contentType = response.headers.get("Content-Type");
+        const result = await api.login(email, password);
         
-        if (contentType && contentType.includes("application/json")) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || `Login failed with status ${response.status}`);
-        } else {
-          const errorText = await response.text();
-          throw new Error(`Unexpected response format: ${errorText}`);
-        }
-      }
+        // Extract the JWT token from the response
+        const token = result.data.accessToken;
 
-      const result = await response.json();
-      const token = result.token;
+        login(token); 
+        console.log("token = " + token)
+        const userDetails = await api.getUserDetails(token);
+        localStorage.setItem("userDetails", JSON.stringify(userDetails));
 
-      if (rememberMe) {
-        localStorage.setItem("accessToken", token);
-      } else {
-        sessionStorage.setItem("accessToken", token);
-      }
-
-      setToken(token);
-
-      window.location.href = "/dashboard/organizer";
+        window.location.href = "/dashboard/organizer";
     } catch (err: any) {
-      const errorMessage = err.message || "Something went wrong";
-      console.error("Error during login:", errorMessage);
-      setError(errorMessage);
+        const errorMessage = err.message || "Something went wrong, please try again.";
+        console.error("Error during login:", errorMessage);
+        setError(errorMessage);
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
+
+  
 
   return (
     <>
@@ -145,7 +162,7 @@ const LoginContent: React.FC = () => {
 
 const Login: React.FC = () => {
   return (
-    <AuthProvider>
+    <AuthProvider> 
       <LoginContent />
     </AuthProvider>
   );

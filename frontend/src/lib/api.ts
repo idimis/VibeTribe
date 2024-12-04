@@ -1,10 +1,17 @@
-export const api = { 
+
+export const api = {
     login: async (email: string, password: string) => {
       const response = await fetch("http://localhost:8080/api/v1/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Login failed.");
+      }
+  
       return response.json(); 
     },
   
@@ -17,11 +24,10 @@ export const api = {
       });
   
       if (!response.ok) {
-        throw new Error("Failed to fetch user details with status " + response.status);
+        throw new Error("Failed to fetch user details.");
       }
   
-      const data = await response.json();
-      return data;
+      return response.json(); 
     },
   };
   
