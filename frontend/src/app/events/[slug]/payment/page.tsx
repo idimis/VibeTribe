@@ -2,16 +2,15 @@
 
 import React, { useEffect, useState } from "react";
 import { notFound, useRouter } from "next/navigation";
-import { events } from "@/constants/events"; 
+import { api, submitPayment, fetchEventDetails } from "@/lib/api"; 
 
 interface PaymentPageProps {
   params: { slug: string };
 }
 
 const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
-  const [slug, setSlug] = useState<string>(""); 
-  const [event, setEvent] = useState<any>(null); 
-  const [loading, setLoading] = useState<boolean>(true); 
+  const [event, setEvent] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -19,27 +18,21 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
   });
   const router = useRouter();
 
-  // Use useEffect to load the slug
-  useEffect(() => {
-    setSlug(params.slug || "");
-  }, [params]);
-
-  // Fetch event based on slug
+  
   useEffect(() => {
     const fetchEvent = async () => {
-      const foundEvent = events.find(
-        (event) => event.title.toLowerCase().replace(/\s+/g, "-") === slug
-      );
-
-      if (foundEvent) {
-        setEvent(foundEvent);
-      } else {
-        notFound(); 
+      try {
+        const eventData = await fetchEventDetails(params.slug);  
+        setEvent(eventData);
+      } catch (error) {
+        notFound();  
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
+
     fetchEvent();
-  }, [slug]);
+  }, [params.slug]);
 
   const handleFormChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -54,8 +47,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const paymentResponse = { success: true };
-
+      const paymentResponse = await submitPayment(event.id, formData); 
       if (paymentResponse.success) {
         router.push(`/find-ticket/your-ticket`);
       } else {
