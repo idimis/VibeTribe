@@ -184,4 +184,8 @@ public class EventService {
     public Page<Event> getPastEventsByCustomer(Long customerId, Pageable pageable) {
         return eventRepository.findPastEventsByCustomer(customerId, LocalDateTime.now(), pageable);
     }
+
+    public Page<Event> getUpcomingEventsByCustomer(Long customerId, Pageable pageable) {
+        return eventRepository.findUpcomingEventsByCustomer(customerId, LocalDateTime.now(), pageable);
+    }
 }

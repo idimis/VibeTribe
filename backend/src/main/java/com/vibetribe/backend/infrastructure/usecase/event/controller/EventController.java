@@ -143,4 +143,18 @@ public class EventController {
         PaginatedResponse<Event> paginatedEvents = PaginationUtil.toPaginatedResponse(events);
         return ApiResponse.successfulResponse("Get past events success", paginatedEvents);
     }
+
+    @PreAuthorize("hasRole('CUSTOMER')")
+    @GetMapping("/upcoming")
+    public ResponseEntity<?> getUpcomingEventsByCustomer(@PageableDefault(size = 10) Pageable pageable) {
+        Long customerId = Claims.getUserIdFromJwt();
+        Page<Event> events = eventService.getUpcomingEventsByCustomer(customerId, pageable);
+
+        if (events.isEmpty()) {
+            return ApiResponse.failedResponse(HttpStatus.NOT_FOUND.value(), "Upcoming events not found");
+        }
+
+        PaginatedResponse<Event> paginatedEvents = PaginationUtil.toPaginatedResponse(events);
+        return ApiResponse.successfulResponse("Get upcoming events success", paginatedEvents);
+    }
 }

@@ -24,4 +24,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     @Query("SELECT e FROM Event e JOIN Transaction t ON e.id = t.event.id WHERE t.customer.id = :customerId AND e.dateTimeEnd < :currentDateTime")
     Page<Event> findPastEventsByCustomer(Long customerId, LocalDateTime currentDateTime, Pageable pageable);
+
+    @Query("SELECT e FROM Event e JOIN Transaction t ON e.id = t.event.id WHERE t.customer.id = :customerId AND e.dateTimeEnd >= :currentDateTime")
+    Page<Event> findUpcomingEventsByCustomer(Long customerId, LocalDateTime currentDateTime, Pageable pageable);
 }
