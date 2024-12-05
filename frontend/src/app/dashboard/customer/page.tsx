@@ -1,84 +1,103 @@
 "use client";
 
-import React, { useState } from 'react';
-import Footer from '@/components/Footer'; 
-import Image from 'next/image'; 
-import Logo from '@/public/logo2.png'; 
-import userProfileImage from '@/public/dance.jpg';
-import Link from 'next/link';
+import React, { useState, useEffect } from "react";
+import Footer from "@/components/Footer";
+import Image from "next/image";
+import Logo from "@/public/logo2.png";
+import userProfileImage from "@/public/customer-profile.jpg";
+import { useAuth } from '@/context/AuthContext';
+import Link from "next/link";
+import useAuthRedirect from '@/hooks/useAuthRedirect';
+
+interface Event {
+  id: string;
+  productName: string;
+  orderDate: string;
+  status: string;
+}
+
+interface Review {
+  comment: string;
+  product: string;
+  reviewerName: string;
+}
 
 const CustomerDashboard: React.FC = () => {
-  // State for event details
-  const [eventName, setEventName] = useState('Dance Festival 2024');
-  const [eventDate, setEventDate] = useState('December 15, 2024');
-  const [attendeesCount, setAttendeesCount] = useState(150);
-  const [eventStatus, setEventStatus] = useState('Upcoming');
-  const [activePanel, setActivePanel] = useState('overview');
+  const [data, setData] = useState<any>({ events: [], profile: {} });
+  const [activePanel, setActivePanel] = useState("overview");
 
-  // State for profile data
-  const [profileData, setProfileData] = useState({
-    name: 'John Doe',
-    email: 'john@example.com',
-    username: 'johnny',
-    phone: '123-456-7890',
-    address: '123 Street, City, Country',
-  });
-
-  // State for events
-  const [attendedEvents, setAttendedEvents] = useState([
-    { name: 'Dance Festival 2024', date: 'December 15, 2024', status: 'Upcoming' },
-    { name: 'Music Concert 2024', date: 'January 20, 2025', status: 'Upcoming' },
-    { name: 'Tech Expo 2024', date: 'February 25, 2025', status: 'Past' },
-  ]);
-
-  // Function to handle profile update
-  const handleProfileUpdate = async () => {
-    try {
-      const response = await fetch('/api/updateProfile', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(profileData),
-      });
-
-      if (response.ok) {
-        alert('Profile Updated!');
-      } else {
-        alert('Error updating profile!');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Failed to update profile');
+  useEffect(() => {
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    if (!token) {
+      alert("You are not logged in!");
+      window.location.href = "/login";
+      return;
     }
-  };
 
-  // Placeholder for generating voucher
-  const generateVoucher = async () => {
-    alert('Generate Voucher function will be implemented!');
-  };
+    const fetchData = async () => {
+      try {
+        const [responseEvents, responseProfile] = await Promise.all([
+          fetch("http://localhost:8080/api/v1/events/past", {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+            fetch("http://localhost:8080/api/v1/events/upcoming", {
+              method: "GET",
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+          fetch("http://localhost:8080/api/v1/user/details", {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
 
-  // Function to handle event creation
-  const createEvent = async () => {
-    try {
-      const response = await fetch('/api/createEvent', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name: eventName, date: eventDate, status: eventStatus }),
-      });
+        if (!responseEvents.ok || !responseProfile.ok) {
+          throw new Error("Failed to fetch data");
+        }
 
-      if (response.ok) {
-        alert('Event Created!');
-      } else {
-        alert('Error creating event!');
+        const eventsData = await responseEvents.json();
+        const profileData = await responseProfile.json();
+
+        
+        if (eventsData.success && profileData.success) {
+          const updatedEvents = [];
+
+          
+          for (let event of eventsData.data.content) {
+            const reviewsResponse = await fetch(
+              `http://localhost:8080/api/v1/events/${event.id}/reviews`,
+              {
+                method: "GET",
+                headers: { Authorization: `Bearer ${token}` },
+              }
+            );
+
+            const reviewsData = await reviewsResponse.json();
+            event.reviews = reviewsData.success ? reviewsData.data : [];
+
+            updatedEvents.push(event);
+          }
+
+          setData({
+            events: updatedEvents,
+            profile: profileData.data,
+          });
+          
+        } else {
+          alert("Failed to load data");
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        alert("An error occurred while fetching data.");
       }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Failed to create event');
-    }
-  };
+    };
+
+    fetchData();
+  }, []);
+
+  const { isLoggedIn, login, logout, loggedEmail, isAuthLoaded } = useAuth();
+  
+  useAuthRedirect();
 
   return (
     <div className="flex min-h-screen flex-col bg-light-gray">
@@ -121,158 +140,141 @@ const CustomerDashboard: React.FC = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-grow p-8 overflow-y-auto">
-          {/* Overview Panel */}
-          {activePanel === 'overview' && (
-            <section className="h-full mb-8 bg-white p-6 rounded-lg shadow-md flex flex-col gap-8">
-              {/* Upper Row: Left and Right */}
-              <div className="flex justify-between gap-8">
-                {/* Left: Event List */}
-                <div className="w-2/3 bg-white p-6 rounded-lg shadow-md">
-                  <h3 className="text-2xl font-semibold text-purple-600 mb-4">Upcoming Events</h3>
-                  <ul className="space-y-4 text-gray-700">
-                    {attendedEvents.filter(event => event.status === 'Upcoming').map(event => (
-                      <li key={event.name} className="cursor-pointer hover:bg-gray-100 p-4 rounded-md">{event.name} - {event.date}</li>
-                    ))}
-                  </ul>
-                </div>
+<main className="flex-grow p-8 overflow-y-auto">
+  {/* Overview Panel */}
+  {activePanel === "overview" && (
+    <section className="h-full mb-8 bg-white p-6 rounded-lg shadow-md flex flex-col gap-8">
+      <div className="flex justify-between gap-8">
+        {/* Left: Event List */}
+        <div className="w-2/3 bg-white p-6 rounded-lg shadow-md">
+          <h3 className="text-2xl font-semibold text-purple-600 mb-4">Event List</h3>
+          <ul className="space-y-4 text-gray-700">
+            {data.events.length > 0 ? (
+              data.events.map((event: Event) => (
+                <li
+                  key={event.id}
+                  className="cursor-pointer hover:bg-gray-100 p-4 rounded-md"
+                >
+                  <h4 className="font-semibold">{event.productName}</h4>
+                  <p className="text-gray-600">{event.orderDate}</p>
+                  <p className="text-sm text-gray-500">{event.status}</p>
+                </li>
+              ))
+            ) : (
+              <p>No events found.</p>
+            )}
+          </ul>
+        </div>
 
-                {/* Right: Customer Profile */}
-                <div className="w-1/3 bg-white p-6 rounded-lg shadow-md flex flex-col gap-4">
-                  <h3 className="text-2xl font-semibold text-purple-600 mb-4">Customer Profile</h3>
-                  <div className="flex items-center gap-4">
-                    <div className="w-20 h-20 rounded-full overflow-hidden">
-                      <Image src={userProfileImage} alt="Customer Photo" width={80} height={80} className="object-cover" />
-                    </div>
-                    <div className="flex flex-col">
-                      <p className="font-semibold text-gray-700">{profileData.name}</p>
-                      <p className="text-gray-600">Email: {profileData.email}</p>
-                      <p className="text-gray-600">Phone: {profileData.phone}</p>
-                      <p className="text-gray-600">Address: {profileData.address}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Lower Row: Left and Right */}
-              <div className="flex justify-between gap-8">
-                {/* Left: Statistics */}
-                <div className="w-2/3 bg-white p-6 rounded-lg shadow-md">
-                  <h3 className="text-2xl font-semibold text-purple-600 mb-4">Event Statistics</h3>
-                  <ul className="space-y-4 text-gray-700">
-                    <li><strong>Total Events Attended:</strong> 5</li>
-                    <li><strong>Upcoming Events:</strong> 3</li>
-                    <li><strong>Average Rating:</strong> 4.5/5</li>
-                  </ul>
-                </div>
-
-                {/* Right: My Event Reviews */}
-                <div className="w-1/3 bg-white p-6 rounded-lg shadow-md">
-                  <h3 className="text-2xl font-semibold text-purple-600 mb-4">My Event Reviews</h3>
-                  <ul className="space-y-4 text-gray-700">
-                    <li className="cursor-pointer hover:bg-gray-100 p-4 rounded-md">"Great experience, can't wait for the next one!" - John D.</li>
-                    <li className="cursor-pointer hover:bg-gray-100 p-4 rounded-md">"Amazing music and vibes!" - Emily R.</li>
-                    <li className="cursor-pointer hover:bg-gray-100 p-4 rounded-md">"Loved the venue and the performances. Will attend again!" - Michael B.</li>
-                  </ul>
-                </div>
-              </div>
-            </section>
-
-           
-
-          )}
-
-           {/* Event Panel */}
-           {activePanel === 'events' && (
-            <section className="event-section bg-gray-50 p-8 rounded-lg shadow-lg">
-            <header className="flex justify-between items-center mb-8">
-              <h2 className="text-3xl font-semibold text-purple-600">Your Upcoming Events</h2>
-            </header>
-        
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Event List */}
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-2xl font-semibold text-purple-600 mb-4">Upcoming Events</h3>
-                <table className="w-full table-auto">
-                  <thead>
-                    <tr>
-                      <th className="text-left">Event Name</th>
-                      <th className="text-left">Date</th>
-                      <th className="text-left">Status</th>
-                      <th className="text-left">Details</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Summer Sale 2024</td>
-                      <td>July 15, 2024</td>
-                      <td>Active</td>
-                      <td>
-                        <button className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105">View Details</button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>New Year Gala</td>
-                      <td>December 31, 2024</td>
-                      <td>Coming Soon</td>
-                      <td>
-                        <button className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105">View Details</button>
-                      </td>
-                    </tr>
-                    {/* Add more events as needed */}
-                  </tbody>
-                </table>
-              </div>
-        
-              {/* Event Statistics */}
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-2xl font-semibold text-purple-600 mb-4">Event Statistics</h3>
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="stat-box bg-purple-100 p-4 rounded-lg">
-                    <h4 className="text-lg font-semibold">Total Attendees</h4>
-                    <p className="text-2xl font-bold">1,200</p>
-                  </div>
-                  <div className="stat-box bg-purple-100 p-4 rounded-lg">
-                    <h4 className="text-lg font-semibold">Total Events</h4>
-                    <p className="text-2xl font-bold">15</p>
-                  </div>
-                </div>
-              </div>
+        {/* Right: Customer Profile */}
+        <div className="w-1/3 bg-white p-6 rounded-lg shadow-md flex flex-col gap-4">
+          <h3 className="text-2xl font-semibold text-purple-600 mb-4">Customer Profile</h3>
+          <div className="flex items-center gap-4">
+            <div className="w-20 h-20 rounded-full overflow-hidden">
+              {/* <Image */}
+                {/* src={data.profile.photoProfileUrl || userProfileImage} */}
+                {/* alt="Organizer Photo" */}
+                {/* width={80} */}
+                {/* height={80} */}
+                {/* className="object-cover" */}
+              {/* /> */}
             </div>
-        
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-              {/* Testimonial Section */}
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-2xl font-semibold text-purple-600 mb-4">What Our Attendees Say</h3>
-                <ul className="space-y-4">
-                  <li className="flex flex-col">
-                    <p className="text-lg font-semibold">"Amazing event, will definitely join again!"</p>
-                    <p className="text-sm text-gray-600">- John Doe</p>
-                  </li>
-                  <li className="flex flex-col">
-                    <p className="text-lg font-semibold">"Great networking opportunities and fun activities."</p>
-                    <p className="text-sm text-gray-600">- Jane Smith</p>
-                  </li>
-                  {/* Add more reviews as needed */}
-                </ul>
-              </div>
-        
-              {/* Event Performance Chart */}
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-2xl font-semibold text-purple-600 mb-4">Event Performance</h3>
-                {/* You can integrate a chart library like Chart.js or D3.js here */}
-                <div className="bg-gray-200 p-4 rounded-lg">
-                  <p className="text-center text-xl font-semibold">Performance Data Chart</p>
-                  {/* Placeholder for the chart */}
-                  <div className="h-64 bg-gray-300 rounded-lg mt-4">
-                    <p className="text-center text-gray-600 py-24">Chart Placeholder</p>
-                  </div>
-                </div>
-              </div>
+            <div className="flex flex-col">
+              <p className="font-semibold text-gray-700">{data.profile.name}</p>
+              <p className="text-gray-600">
+                Joined: {new Date(data.profile.createdAt).toLocaleDateString()}
+              </p>
+              <p className="text-gray-600">
+                Website:{" "}
+                <Link
+                  href={`https://${data.profile.website}`}
+                  target="_blank"
+                  className="text-blue-500"
+                >
+                  {data.profile.website}
+                </Link>
+              </p>
+              <p className="text-gray-600">Phone: {data.profile.phoneNumber}</p>
+              <p className="text-gray-600">Address: {data.profile.address}</p>
             </div>
-          </section>
+          </div>
+        </div>
+      </div>
 
-           )}
+      {/* Event Statistics */}
+      <div className="w-2/3 bg-white p-6 rounded-lg shadow-md">
+        <h3 className="text-2xl font-semibold text-purple-600 mb-4">Event Statistics</h3>
+        <ul className="space-y-4 text-gray-700">
+          {data.events.map((event: Event) => (
+            <li key={event.id} className="cursor-pointer hover:bg-gray-100 p-4 rounded-md">
+              <h4 className="font-semibold">{event.productName}</h4>
+              <p className="text-gray-600">{event.orderDate}</p>
+              <p className="text-sm text-gray-500">{event.status}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  {/* Event Panel */}
+  {activePanel === 'events' && (
+    <section className="event-section bg-gray-50 p-8 rounded-lg shadow-lg">
+      <header className="flex justify-between items-center mb-8">
+        <h2 className="text-3xl font-semibold text-purple-600">Your Upcoming Events</h2>
+      </header>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Upcoming Events */}
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h3 className="text-2xl font-semibold text-purple-600 mb-4">Upcoming Events</h3>
+          <table className="w-full table-auto">
+            <thead>
+              <tr>
+                <th className="text-left">Event Name</th>
+                <th className="text-left">Date</th>
+                <th className="text-left">Status</th>
+                <th className="text-left">Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.events.length > 0 ? (
+                data.events.map((event: Event) => (
+                  <tr key={event.id}>
+                    <td>{event.productName}</td>
+                    <td>{new Date(event.orderDate).toLocaleDateString()}</td>
+                    <td>{event.status}</td>
+                    <td>
+                      <button className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105">
+                        View Details
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr><td colSpan={4} className="text-center">No upcoming events.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Event Statistics */}
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h3 className="text-2xl font-semibold text-purple-600 mb-4">Event Statistics</h3>
+          <div className="grid grid-cols-2 gap-6">
+            <div className="stat-box bg-purple-100 p-4 rounded-lg">
+              <h4 className="text-lg font-semibold">Total Attendees</h4>
+              <p className="text-2xl font-bold">1,200</p>
+            </div>
+            <div className="stat-box bg-purple-100 p-4 rounded-lg">
+              <h4 className="text-lg font-semibold">Total Events</h4>
+              <p className="text-2xl font-bold">{data.events.length}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
 
 
           {/* Simplified Referral Panel */}
@@ -543,13 +545,13 @@ const CustomerDashboard: React.FC = () => {
         <li className="text-gray-700 hover:underline cursor-pointer">Customer Guide</li>
       </ul>
     </div>
-  </section>
-)}
-
-</main>
+      </section>
+      )}
+          
+        </main>
       </div>
       
-      {/* Footer */}
+      
       <Footer />
     </div>
   );

@@ -1,5 +1,6 @@
 import React from "react";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import EventCard from "@/components/EventCard";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -58,9 +59,15 @@ const CategoryPage = async ({ params }: CategoryPageProps) => {
       <main className="max-w-[1440px] mx-auto p-6">
         <h1 className="text-2xl font-bold mb-4">{categoryName} Events</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {events.map((event: Event) => (
-            <EventCard key={event.id} event={event} />
-          ))}
+          {events.map((event: Event) => {
+            const eventSlug = event.title.toLowerCase().replace(/\s+/g, "-");
+
+            return (
+              <Link key={event.id} href={`/events/${eventSlug}?id=${event.id}`}>
+                <EventCard event={event} />
+              </Link>
+            );
+          })}
         </div>
       </main>
       <Footer />

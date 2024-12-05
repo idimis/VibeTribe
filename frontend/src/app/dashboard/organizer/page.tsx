@@ -30,6 +30,7 @@ const OrganizerDashboard: React.FC = () => {
     if (!token) {
       alert("You are not logged in!");
       window.location.href = "/login";
+      return;
     }
 
     const fetchData = async () => {
@@ -45,22 +46,74 @@ const OrganizerDashboard: React.FC = () => {
           }),
         ]);
 
-        
         if (!responseEvents.ok || !responseProfile.ok) {
           throw new Error("Failed to fetch data");
         }
 
-        
         const eventsData = await responseEvents.json();
         const profileData = await responseProfile.json();
-      
 
         
         if (eventsData.success && profileData.success) {
+          const updatedEvents = [];
+
+          
+          for (let event of eventsData.data.content) {
+            const reviewsResponse = await fetch(
+              `http://localhost:8080/api/v1/events/${event.id}/reviews`,
+              {
+                method: "GET",
+                headers: { Authorization: `Bearer ${token}` },
+              }
+            );
+
+            const reviewsData = await reviewsResponse.json();
+            event.reviews = reviewsData.success ? reviewsData.data : [];
+
+            updatedEvents.push(event);
+          }
+
           setData({
-            events: eventsData.data.content,
+            events: updatedEvents,
             profile: profileData.data,
           });
+
+          
+          const voucherData = {
+            name: "Welcome Voucher",
+            code: "WELCOME2024",
+            discount: 15,
+            expiryDate: "2024-12-31T23:59:59Z", 
+          };
+
+          const createVoucher = async () => {
+            try {
+              const response = await fetch("http://localhost:8080/api/v1/vouchers/create", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(voucherData),
+              });
+
+              const result = await response.json();
+
+              if (response.ok && result.success) {
+                alert("Voucher created successfully!");
+                console.log("Voucher Data:", result.data);
+              } else {
+                alert(result.message || "Failed to create voucher");
+              }
+            } catch (error) {
+              console.error("Error creating voucher:", error);
+              alert("An error occurred while creating voucher.");
+            }
+          };
+
+          
+          await createVoucher();
+
         } else {
           alert("Failed to load data");
         }
@@ -72,7 +125,7 @@ const OrganizerDashboard: React.FC = () => {
 
     fetchData();
   }, []);
-  
+
   const { isLoggedIn, login, logout, loggedEmail, isAuthLoaded } = useAuth();
   
   useAuthRedirect();
@@ -217,97 +270,91 @@ const OrganizerDashboard: React.FC = () => {
           )}
 
           {/* Event Panel */}
-          {activePanel === 'event' && (
-            <section className="event-section bg-gray-50 p-8 rounded-lg shadow-lg">
-            <header className="flex justify-between items-center mb-8">
-              <h2 className="text-3xl font-semibold text-purple-600">Event Management</h2>
-              <button className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105">Create New Event</button>
-            </header>
+{activePanel === 'event' && (
+  <section className="event-section bg-gray-50 p-8 rounded-lg shadow-lg">
+    <header className="flex justify-between items-center mb-8">
+      <h2 className="text-3xl font-semibold text-purple-600">Event Management</h2>
+      <button 
+        className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105" 
+        onClick={() => handleCreateEvent()}>Create New Event</button>
+    </header>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {/* Event List */}
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h3 className="text-2xl font-semibold text-purple-600 mb-4">Event List</h3>
+        <table className="w-full table-auto">
+          <thead>
+            <tr>
+              <th className="text-left">Event Name</th>
+              <th className="text-left">Date</th>
+              <th className="text-left">Status</th>
+              <th className="text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.events.map((event: Event) => (
+              <tr key={event.id}>
+                <td>{event.title}</td>
+                <td>{event.dateTimeStart}</td>
+                <td>Active</td>
+                <td>
+                  <button 
+                    className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-2 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105"
+                    onClick={() => handleEventDetails(event.id)}>Details</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Event Statistics */}
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h3 className="text-2xl font-semibold text-purple-600 mb-4">Event Statistics</h3>
+        <div className="grid grid-cols-2 gap-6">
+          <div className="stat-box bg-purple-100 p-4 rounded-lg">
+            <h4 className="text-lg font-semibold">Total Attendees</h4>
+            <p className="text-2xl font-bold">1,200</p>
+          </div>
+          <div className="stat-box bg-purple-100 p-4 rounded-lg">
+            <h4 className="text-lg font-semibold">Total Events</h4>
+            <p className="text-2xl font-bold">{data.events.length}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+      {/* Testimonial Section */}
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h3 className="text-2xl font-semibold text-purple-600 mb-4">Audience Reviews</h3>
+        <ul className="space-y-4">
+          {data.events.map((event: Event) => (
+            event.reviews.map((review, index) => (
+              <li key={index} className="flex flex-col">
+                <p className="text-lg font-semibold">"{review.comment}"</p>
+                <p className="text-sm text-gray-600">- {review.reviewerName}</p>
+              </li>
+            ))
+          ))}
+        </ul>
+      </div>
+
+      {/* Event Performance Chart */}
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h3 className="text-2xl font-semibold text-purple-600 mb-4">Event Performance</h3>
+        <div className="bg-gray-200 p-4 rounded-lg">
+          <p className="text-center text-xl font-semibold">Performance Data Chart</p>
+          <div className="h-64 bg-gray-300 rounded-lg mt-4">
+            <p className="text-center text-gray-600 py-24">Chart Placeholder</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+)}
           
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Event List */}
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-2xl font-semibold text-purple-600 mb-4">Event List</h3>
-                <table className="w-full table-auto">
-                  <thead>
-                    <tr>
-                      <th className="text-left">Event Name</th>
-                      <th className="text-left">Date</th>
-                      <th className="text-left">Status</th>
-                      <th className="text-left">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Summer Sale 2024</td>
-                      <td>July 15, 2024</td>
-                      <td>Active</td>
-                      <td>
-                        <button className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-2 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105">Details</button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>New Year Gala</td>
-                      <td>December 31, 2024</td>
-                      <td>Inactive</td>
-                      <td>
-                        <button className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-2 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105">Details</button>
-                      </td>
-                    </tr>
-                    {/* Add more rows as needed */}
-                  </tbody>
-                </table>
-              </div>
-          
-              {/* Event Statistics */}
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-2xl font-semibold text-purple-600 mb-4">Event Statistics</h3>
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="stat-box bg-purple-100 p-4 rounded-lg">
-                    <h4 className="text-lg font-semibold">Total Attendees</h4>
-                    <p className="text-2xl font-bold">1,200</p>
-                  </div>
-                  <div className="stat-box bg-purple-100 p-4 rounded-lg">
-                    <h4 className="text-lg font-semibold">Total Events</h4>
-                    <p className="text-2xl font-bold">15</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-              {/* Testimonial Section */}
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-2xl font-semibold text-purple-600 mb-4">Audience Reviews</h3>
-                <ul className="space-y-4">
-                  <li className="flex flex-col">
-                    <p className="text-lg font-semibold">"Amazing event, will definitely join again!"</p>
-                    <p className="text-sm text-gray-600">- John Doe</p>
-                  </li>
-                  <li className="flex flex-col">
-                    <p className="text-lg font-semibold">"Great networking opportunities and fun activities."</p>
-                    <p className="text-sm text-gray-600">- Jane Smith</p>
-                  </li>
-                  {/* Add more reviews as needed */}
-                </ul>
-              </div>
-          
-              {/* Event Performance Chart */}
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-2xl font-semibold text-purple-600 mb-4">Event Performance</h3>
-                {/* You can integrate a chart library like Chart.js or D3.js here */}
-                <div className="bg-gray-200 p-4 rounded-lg">
-                  <p className="text-center text-xl font-semibold">Performance Data Chart</p>
-                  {/* Placeholder for the chart */}
-                  <div className="h-64 bg-gray-300 rounded-lg mt-4">
-                    <p className="text-center text-gray-600 py-24">Chart Placeholder</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-          
-          )}
 
           {/* Voucher Panel */}
           {activePanel === 'voucher' && (

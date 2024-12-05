@@ -8,6 +8,27 @@ const EventSection: React.FC = () => {
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
+  // Format date function
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("id-ID", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  // Format time function
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString("id-ID", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true, // 12-hour format
+    });
+  };
+
   useEffect(() => {
     const fetchEvents = async () => {
       setLoading(true);
@@ -16,8 +37,8 @@ const EventSection: React.FC = () => {
           `http://localhost:8080/api/v1/events?location=${encodeURIComponent(location)}`
         );
         const data = await response.json();
-        console.log(data); 
-        setEvents(data.data.content); 
+        console.log(data); // For debugging purposes
+        setEvents(data.data.content); // Assuming data structure includes 'data.content'
       } catch (error) {
         console.error("Error fetching events:", error);
       } finally {
@@ -25,16 +46,25 @@ const EventSection: React.FC = () => {
       }
     };
 
+    // Fetch events initially based on the default location
     fetchEvents();
 
+    // Handle geolocation if supported by the browser
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(() => {
-        setLocation("Bandung"); 
-      });
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation("Bandung"); // Update location based on geolocation (for future use)
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          setLocation("Bandung"); // Default location if geolocation fails
+        }
+      );
     } else {
       console.error("Geolocation is not supported by this browser.");
+      setLocation("Bandung"); // Default to Bandung if geolocation isn't supported
     }
-  }, [location]);
+  }, [location]); // Runs when location changes
 
   return (
     <section className="event-section p-6 max-w-[1440px] mx-auto">
@@ -57,14 +87,15 @@ const EventSection: React.FC = () => {
         ) : (
           events.map((event: any) => (
             <Link key={event.id} href={`/events/${event.title.replace(/\s+/g, '-').toLowerCase()}`}>
-  <div className="event-card bg-white border rounded-lg p-4 shadow-md transition-transform hover:scale-105">
-    <h3 className="font-bold">{event.title || "Untitled Event"}</h3>
-    <p>{event.date || "No Date Available"}</p>
-    <p className="text-sm text-gray-500">{event.locationDetails || "No Address Available"}</p>
-    <p className="text-sm text-gray-500">{event.timeStart || "No Time Available"}</p>
-  </div>
-</Link>
-
+              <div className="event-card bg-white border rounded-lg p-4 shadow-md transition-transform hover:scale-105">
+                <h3 className="font-bold">{event.title || "Untitled Event"}</h3>
+                <p>{formatDate(event.dateTimeStart) || "No Date Available"}</p>
+                <p className="text-sm text-gray-500">{event.locationDetails || "No Address Available"}</p>
+                {event.timeStart && (
+                  <p className="text-sm text-gray-500">{formatTime(event.timeStart) || "No Time Available"}</p>
+                )}
+              </div>
+            </Link>
           ))
         )}
       </div>

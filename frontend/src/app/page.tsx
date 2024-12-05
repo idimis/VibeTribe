@@ -9,7 +9,7 @@ import EventNearby from '@/components/EventNearby';
 import MoreEvents from '@/components/MoreEvents';
 import WhereToNext from '@/components/WheretoNext';
 import PromotionSection from '@/components/PromotionSection';
-import NewestEvent from '@/components/NewestEvent'; 
+
 
 const Page: React.FC = () => {
   return (
@@ -17,7 +17,7 @@ const Page: React.FC = () => {
         <Header />
         <Carousel />
         <EventCategory />
-        <NewestEvent />
+        
         <PromotionSection />
         <EventNearby />
         <WhereToNext />

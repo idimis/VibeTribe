@@ -61,7 +61,7 @@ const LoginContent: React.FC = () => {
     try {
         const result = await api.login(email, password);
         
-        // Extract the JWT token from the response
+        
         const token = result.data.accessToken;
 
         login(token); 
