@@ -11,6 +11,7 @@ import com.vibetribe.backend.infrastructure.usecase.review.dto.ReviewRequestDTO;
 import com.vibetribe.backend.infrastructure.usecase.review.dto.ReviewResponseDTO;
 import com.vibetribe.backend.infrastructure.usecase.review.repository.ReviewRepository;
 import com.vibetribe.backend.infrastructure.usecase.ticket.repository.TicketRepository;
+import com.vibetribe.backend.infrastructure.usecase.transaction.repository.TransactionRepository;
 import com.vibetribe.backend.infrastructure.usecase.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -27,15 +28,18 @@ public class EventService {
     private final ReviewRepository reviewRepository;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
+    private final TransactionRepository transactionRepository;
 
     public EventService(EventRepository eventRepository,
                         UserRepository userRepository,
                         TicketRepository ticketRepository,
-                        ReviewRepository reviewRepository) {
+                        ReviewRepository reviewRepository,
+                        TransactionRepository transactionRepository) {
         this.ticketRepository = ticketRepository;
         this.reviewRepository = reviewRepository;
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     public Event createEvent(CreateEventRequestDTO request, Long organizerId) {
@@ -175,5 +179,9 @@ public class EventService {
         responseDTO.setCustomerName(customer.getName());
 
         return responseDTO;
+    }
+
+    public Page<Event> getPastEventsByCustomer(Long customerId, Pageable pageable) {
+        return eventRepository.findPastEventsByCustomer(customerId, LocalDateTime.now(), pageable);
     }
 }

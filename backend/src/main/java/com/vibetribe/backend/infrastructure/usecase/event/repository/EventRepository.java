@@ -21,4 +21,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "AND (:category IS NULL OR LOWER(e.category) = :category) " +
             "AND (:search IS NULL OR LOWER(e.title) LIKE %:search%)")
     Page<Event> findUpcomingEvents(Pageable pageable, LocalDateTime currentDateTime, String location, String category, String search);
+
+    @Query("SELECT e FROM Event e JOIN Transaction t ON e.id = t.event.id WHERE t.customer.id = :customerId AND e.dateTimeEnd < :currentDateTime")
+    Page<Event> findPastEventsByCustomer(Long customerId, LocalDateTime currentDateTime, Pageable pageable);
 }

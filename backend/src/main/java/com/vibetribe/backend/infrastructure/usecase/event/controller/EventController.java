@@ -129,4 +129,18 @@ public class EventController {
         PaginatedResponse<ReviewResponseDTO> paginatedReviews = PaginationUtil.toPaginatedResponse(reviews);
         return ApiResponse.successfulResponse("Get reviews success", paginatedReviews);
     }
+
+    @PreAuthorize("hasRole('CUSTOMER')")
+    @GetMapping("/past")
+    public ResponseEntity<?> getPastEventsByCustomer(@PageableDefault(size = 10) Pageable pageable) {
+        Long customerId = Claims.getUserIdFromJwt();
+        Page<Event> events = eventService.getPastEventsByCustomer(customerId, pageable);
+
+        if (events.isEmpty()) {
+            return ApiResponse.failedResponse(HttpStatus.NOT_FOUND.value(), "Past events not found");
+        }
+
+        PaginatedResponse<Event> paginatedEvents = PaginationUtil.toPaginatedResponse(events);
+        return ApiResponse.successfulResponse("Get past events success", paginatedEvents);
+    }
 }
