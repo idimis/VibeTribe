@@ -4,7 +4,7 @@ import com.vibetribe.backend.entity.*;
 import com.vibetribe.backend.infrastructure.usecase.event.repository.EventRepository;
 import com.vibetribe.backend.infrastructure.usecase.ticket.dto.TicketDTO;
 import com.vibetribe.backend.infrastructure.usecase.ticket.service.TicketService;
-import com.vibetribe.backend.infrastructure.usecase.transaction.dto.LatestTransactionResponseDTO;
+import com.vibetribe.backend.infrastructure.usecase.transaction.dto.TransactionReceiptResponseDTO;
 import com.vibetribe.backend.infrastructure.usecase.transaction.dto.TransactionRequestDTO;
 import com.vibetribe.backend.infrastructure.usecase.transaction.dto.TransactionResponseDTO;
 import com.vibetribe.backend.infrastructure.usecase.transaction.repository.TransactionRepository;
@@ -149,10 +149,31 @@ public class TransactionService {
         return response;
     }
 
-    public Optional<LatestTransactionResponseDTO> getLatestTransactionByCustomer(Long customerId) {
+    public Optional<TransactionReceiptResponseDTO> getLatestTransactionByCustomer(Long customerId) {
         return transactionRepository.findTopByCustomerIdOrderByCreatedAtDesc(customerId)
                 .map(transaction -> {
-                    LatestTransactionResponseDTO response = new LatestTransactionResponseDTO();
+                    TransactionReceiptResponseDTO response = new TransactionReceiptResponseDTO();
+                    response.setEventName(transaction.getEvent().getTitle());
+                    response.setEventStartDateTime(transaction.getEvent().getDateTimeStart());
+                    response.setEventEndDateTime(transaction.getEvent().getDateTimeEnd());
+                    response.setEventLocation(transaction.getEvent().getLocation());
+                    response.setEventLocationDetails(transaction.getEvent().getLocationDetails());
+                    response.setTicketQuantity(transaction.getQuantity());
+                    response.setTotalFeeBeforeDiscount(transaction.getEvent().getFee().multiply(BigDecimal.valueOf(transaction.getQuantity())));
+                    response.setCustomerFullName(transaction.getCustomer().getName());
+                    response.setCustomerEmail(transaction.getCustomer().getEmail());
+                    response.setVoucherUsed(transaction.getDiscountApplied());
+                    response.setPointsUsed(transaction.getPointsApplied());
+                    response.setTotalPaid(transaction.getAmountPaid());
+                    return response;
+                });
+    }
+
+    public Optional<TransactionReceiptResponseDTO> getTransactionById(Long transactionId) {
+        return transactionRepository.findById(transactionId)
+                .map(transaction -> {
+                    TransactionReceiptResponseDTO response = new TransactionReceiptResponseDTO();
+                    response.setCustomerId(transaction.getCustomer().getId()); // Set customerId
                     response.setEventName(transaction.getEvent().getTitle());
                     response.setEventStartDateTime(transaction.getEvent().getDateTimeStart());
                     response.setEventEndDateTime(transaction.getEvent().getDateTimeEnd());

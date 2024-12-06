@@ -36,4 +36,14 @@ public class TransactionController {
                 .map(transaction -> ApiResponse.successfulResponse("Get latest transaction success", transaction))
                 .orElseGet(() -> ApiResponse.failedResponse(HttpStatus.NOT_FOUND.value(), "Latest transaction not found"));
     }
+
+    @PreAuthorize("hasRole('CUSTOMER')")
+    @GetMapping("/{transactionId}")
+    public ResponseEntity<?> getTransactionById(@PathVariable Long transactionId) {
+        Long customerId = Claims.getUserIdFromJwt();
+        return transactionService.getTransactionById(transactionId)
+                .filter(transaction -> transaction.getCustomerId().equals(customerId))
+                .map(transaction -> ApiResponse.successfulResponse("Get transaction by ID success", transaction))
+                .orElseGet(() -> ApiResponse.failedResponse(HttpStatus.FORBIDDEN.value(), "Access denied"));
+    }
 }

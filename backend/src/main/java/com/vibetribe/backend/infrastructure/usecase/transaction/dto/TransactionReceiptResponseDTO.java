@@ -10,7 +10,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-public class LatestTransactionResponseDTO {
+public class TransactionReceiptResponseDTO {
+    private Long customerId;
     private String eventName;
     private LocalDateTime eventStartDateTime;
     private LocalDateTime eventEndDateTime;
