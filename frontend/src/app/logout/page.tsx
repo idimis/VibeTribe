@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Logo from '@/public/logo2.png';
 import danceImage from '@/public/dance.jpg';
+
 import Footer from '@/components/Footer';
 
 const Logout: React.FC = () => {
@@ -20,6 +21,7 @@ const Logout: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-light-gray">
+     
       <div className="flex flex-col lg:flex-row flex-grow">
         <div className="relative w-full lg:w-1/2">
           <Image
