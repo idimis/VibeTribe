@@ -3,6 +3,7 @@ package com.vibetribe.backend.infrastructure.usecase.user.service;
 import com.vibetribe.backend.common.util.ReferralCodeGenerator;
 import com.vibetribe.backend.entity.User;
 import com.vibetribe.backend.infrastructure.usecase.user.dto.CreateUserRequestDTO;
+import com.vibetribe.backend.infrastructure.usecase.user.dto.UpdateUserRequestDTO;
 import com.vibetribe.backend.infrastructure.usecase.user.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -82,5 +83,32 @@ public class UserService {
 
     public User getUserById(Long id) {
         return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    public User updateUser(Long userId, UpdateUserRequestDTO updateUserRequestDTO) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (updateUserRequestDTO.getName() != null && !updateUserRequestDTO.getName().isEmpty()) {
+            user.setName(updateUserRequestDTO.getName());
+        }
+
+        if (updateUserRequestDTO.getEmail() != null && !updateUserRequestDTO.getEmail().isEmpty()) {
+            if (userRepository.existsByEmail(updateUserRequestDTO.getEmail())) {
+                throw new RuntimeException("Email is already in use");
+            }
+            user.setEmail(updateUserRequestDTO.getEmail());
+        }
+
+        if (updateUserRequestDTO.getPassword() != null && !updateUserRequestDTO.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(updateUserRequestDTO.getPassword()));
+        }
+
+        user.setPhotoProfileUrl(updateUserRequestDTO.getPhotoProfileUrl());
+        user.setWebsite(updateUserRequestDTO.getWebsite());
+        user.setPhoneNumber(updateUserRequestDTO.getPhoneNumber());
+        user.setAddress(updateUserRequestDTO.getAddress());
+
+        return userRepository.save(user);
     }
 }
