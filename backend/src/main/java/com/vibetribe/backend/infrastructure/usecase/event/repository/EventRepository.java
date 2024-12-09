@@ -1,10 +1,12 @@
 package com.vibetribe.backend.infrastructure.usecase.event.repository;
 
 import com.vibetribe.backend.entity.Event;
+import com.vibetribe.backend.infrastructure.usecase.event.dto.EventStatisticsDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -27,4 +29,12 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     @Query("SELECT e FROM Event e JOIN Transaction t ON e.id = t.event.id WHERE t.customer.id = :customerId AND e.dateTimeEnd >= :currentDateTime")
     Page<Event> findUpcomingEventsByCustomer(Long customerId, LocalDateTime currentDateTime, Pageable pageable);
+
+    @Query("SELECT new com.vibetribe.backend.infrastructure.usecase.event.dto.EventStatisticsDTO(e.id, e.title, COUNT(t), AVG(r.rating), SUM(t.amountPaid)) " +
+            "FROM Event e " +
+            "LEFT JOIN Review r ON e.id = r.eventId " +
+            "LEFT JOIN Transaction t ON e.id = t.event.id " +
+            "WHERE e.organizer.id = :organizerId " +
+            "GROUP BY e.id, e.title")
+    Page<EventStatisticsDTO> findEventStatisticsByOrganizer(@Param("organizerId") Long organizerId, Pageable pageable);
 }

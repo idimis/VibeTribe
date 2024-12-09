@@ -5,6 +5,7 @@ import com.vibetribe.backend.entity.Review;
 import com.vibetribe.backend.entity.User;
 import com.vibetribe.backend.infrastructure.usecase.event.dto.CreateEventRequestDTO;
 import com.vibetribe.backend.infrastructure.usecase.event.dto.EventDTO;
+import com.vibetribe.backend.infrastructure.usecase.event.dto.EventStatisticsDTO;
 import com.vibetribe.backend.infrastructure.usecase.event.dto.UpdateEventRequestDTO;
 import com.vibetribe.backend.infrastructure.usecase.event.repository.EventRepository;
 import com.vibetribe.backend.infrastructure.usecase.review.dto.ReviewRequestDTO;
@@ -187,5 +188,9 @@ public class EventService {
 
     public Page<Event> getUpcomingEventsByCustomer(Long customerId, Pageable pageable) {
         return eventRepository.findUpcomingEventsByCustomer(customerId, LocalDateTime.now(), pageable);
+    }
+
+    public Page<EventStatisticsDTO> getEventStatisticsByOrganizer(Long organizerId, Pageable pageable) {
+        return eventRepository.findEventStatisticsByOrganizer(organizerId, pageable);
     }
 }

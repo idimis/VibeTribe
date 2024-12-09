@@ -6,6 +6,7 @@ import com.vibetribe.backend.common.util.PaginationUtil;
 import com.vibetribe.backend.entity.Event;
 import com.vibetribe.backend.infrastructure.system.security.Claims;
 import com.vibetribe.backend.infrastructure.usecase.event.dto.CreateEventRequestDTO;
+import com.vibetribe.backend.infrastructure.usecase.event.dto.EventStatisticsDTO;
 import com.vibetribe.backend.infrastructure.usecase.event.dto.UpdateEventRequestDTO;
 import com.vibetribe.backend.infrastructure.usecase.event.service.EventService;
 import com.vibetribe.backend.infrastructure.usecase.review.dto.ReviewRequestDTO;
@@ -69,6 +70,15 @@ public class EventController {
         Long organizerId = Claims.getUserIdFromJwt();
         eventService.deleteEvent(id, organizerId);
         return ApiResponse.successfulResponse("Delete event success", null);
+    }
+
+    @PreAuthorize("hasRole('ORGANIZER')")
+    @GetMapping("/statistics")
+    public ResponseEntity<?> getEventStatistics(@PageableDefault(size = 10) Pageable pageable) {
+        Long organizerId = Claims.getUserIdFromJwt();
+        Page<EventStatisticsDTO> statistics = eventService.getEventStatisticsByOrganizer(organizerId, pageable);
+        PaginatedResponse<EventStatisticsDTO> paginatedStatistics = PaginationUtil.toPaginatedResponse(statistics);
+        return ApiResponse.successfulResponse("Get event statistics success", paginatedStatistics);
     }
 
     @GetMapping
