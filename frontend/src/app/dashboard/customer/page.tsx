@@ -2,28 +2,25 @@
 
 import React, { useState, useEffect } from "react";
 import Footer from "@/components/Footer";
-import Image from "next/image";
-import Logo from "@/public/logo2.png";
-import userProfileImage from "@/public/customer-profile.jpg";
-import { useAuth } from '@/context/AuthContext';
+import Header from "@/components/Header";
+import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
-import useAuthRedirect from '@/hooks/useAuthRedirect';
+import useAuthRedirect from "@/hooks/useAuthRedirect";
 
 interface Event {
   id: string;
-  productName: string;
-  orderDate: string;
-  status: string;
-}
-
-interface Review {
-  comment: string;
-  product: string;
-  reviewerName: string;
+  title: string;
+  dateTimeStart: string;
+  dateTimeEnd: string;
+  location: string;
+  locationDetails: string;
+  fee: number;
+  availableSeats: number;
+  bookedSeats: number;
 }
 
 const CustomerDashboard: React.FC = () => {
-  const [data, setData] = useState<any>({ events: [], profile: {} });
+  const [data, setData] = useState<any>({ upcomingEvents: [], pastEvents: [], profile: {} });
   const [activePanel, setActivePanel] = useState("overview");
 
   useEffect(() => {
@@ -36,53 +33,35 @@ const CustomerDashboard: React.FC = () => {
 
     const fetchData = async () => {
       try {
-        const [responseEvents, responseProfile] = await Promise.all([
+        const [responseUpcoming, responsePast, responseProfile] = await Promise.all([
+          fetch("http://localhost:8080/api/v1/events/upcoming", {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          }),
           fetch("http://localhost:8080/api/v1/events/past", {
             method: "GET",
             headers: { Authorization: `Bearer ${token}` },
           }),
-            fetch("http://localhost:8080/api/v1/events/upcoming", {
-              method: "GET",
-              headers: { Authorization: `Bearer ${token}` },
-            }),
           fetch("http://localhost:8080/api/v1/user/details", {
             method: "GET",
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
 
-        if (!responseEvents.ok || !responseProfile.ok) {
+        if (!responseUpcoming.ok || !responsePast.ok || !responseProfile.ok) {
           throw new Error("Failed to fetch data");
         }
 
-        const eventsData = await responseEvents.json();
+        const upcomingEvents = await responseUpcoming.json();
+        const pastEvents = await responsePast.json();
         const profileData = await responseProfile.json();
 
-        
-        if (eventsData.success && profileData.success) {
-          const updatedEvents = [];
-
-          
-          for (let event of eventsData.data.content) {
-            const reviewsResponse = await fetch(
-              `http://localhost:8080/api/v1/events/${event.id}/reviews`,
-              {
-                method: "GET",
-                headers: { Authorization: `Bearer ${token}` },
-              }
-            );
-
-            const reviewsData = await reviewsResponse.json();
-            event.reviews = reviewsData.success ? reviewsData.data : [];
-
-            updatedEvents.push(event);
-          }
-
+        if (upcomingEvents.success && pastEvents.success && profileData.success) {
           setData({
-            events: updatedEvents,
+            upcomingEvents: upcomingEvents.data.content,
+            pastEvents: pastEvents.data.content,
             profile: profileData.data,
           });
-          
         } else {
           alert("Failed to load data");
         }
@@ -96,125 +75,167 @@ const CustomerDashboard: React.FC = () => {
   }, []);
 
   const { isLoggedIn, login, logout, loggedEmail, isAuthLoaded } = useAuth();
-  
   useAuthRedirect();
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userDetails");
+    sessionStorage.clear();
+    window.location.href = "/logout";
+  };
+  
   return (
     <div className="flex min-h-screen flex-col bg-light-gray">
+      <Header />
       <div className="flex flex-row flex-grow">
         {/* Sidebar */}
         <aside className="bg-purple-600 text-white w-64 py-4 px-8">
           <h2 className="text-xl font-bold mb-8">Customer Dashboard</h2>
           <ul className="space-y-4">
             <li
-              onClick={() => setActivePanel('overview')}
-              className={`cursor-pointer p-3 rounded-lg transition-all duration-200 ease-in-out ${activePanel === 'overview' ? 'bg-blue-700' : 'hover:bg-blue-600 hover:scale-105'}`}
+              onClick={() => setActivePanel("overview")}
+              className={`cursor-pointer p-3 rounded-lg transition-all duration-200 ease-in-out ${
+                activePanel === "overview" ? "bg-blue-700" : "hover:bg-blue-600 hover:scale-105"
+              }`}
             >
               Overview
             </li>
             <li
-              onClick={() => setActivePanel('events')}
-              className={`cursor-pointer p-3 rounded-lg transition-all duration-200 ease-in-out ${activePanel === 'events' ? 'bg-blue-700' : 'hover:bg-blue-600 hover:scale-105'}`}
+              onClick={() => setActivePanel("events")}
+              className={`cursor-pointer p-3 rounded-lg transition-all duration-200 ease-in-out ${
+                activePanel === "events" ? "bg-blue-700" : "hover:bg-blue-600 hover:scale-105"
+              }`}
             >
               My Events
             </li>
             <li
-              onClick={() => setActivePanel('referral')}
-              className={`cursor-pointer p-3 rounded-lg transition-all duration-200 ease-in-out ${activePanel === 'referral' ? 'bg-blue-700' : 'hover:bg-blue-600 hover:scale-105'}`}
+              onClick={() => setActivePanel("rewards")}
+              className={`cursor-pointer p-3 rounded-lg transition-all duration-200 ease-in-out ${
+                activePanel === "rewards" ? "bg-blue-700" : "hover:bg-blue-600 hover:scale-105"
+              }`}
             >
-              Referral
+              Rewards
             </li>
             <li
-              onClick={() => setActivePanel('profile')}
-              className={`cursor-pointer p-3 rounded-lg transition-all duration-200 ease-in-out ${activePanel === 'profile' ? 'bg-blue-700' : 'hover:bg-blue-600 hover:scale-105'}`}
+              onClick={() => setActivePanel("profile")}
+              className={`cursor-pointer p-3 rounded-lg transition-all duration-200 ease-in-out ${
+                activePanel === "profile" ? "bg-blue-700" : "hover:bg-blue-600 hover:scale-105"
+              }`}
             >
               Profile
             </li>
             <li
-              onClick={() => setActivePanel('help')}
-              className={`cursor-pointer p-3 rounded-lg transition-all duration-200 ease-in-out ${activePanel === 'help' ? 'bg-blue-700' : 'hover:bg-blue-600 hover:scale-105'}`}
+              onClick={() => setActivePanel("help")}
+              className={`cursor-pointer p-3 rounded-lg transition-all duration-200 ease-in-out ${
+                activePanel === "help" ? "bg-blue-700" : "hover:bg-blue-600 hover:scale-105"
+              }`}
             >
               Help
             </li>
+            <li
+              onClick={handleLogout}
+              className="cursor-pointer p-2 rounded-lg hover:bg-blue-600"
+            >
+              Logout
+            </li>
           </ul>
         </aside>
-
-        {/* Main Content */}
+  
+           {/* Main Content */}
 <main className="flex-grow p-8 overflow-y-auto">
-  {/* Overview Panel */}
   {activePanel === "overview" && (
-    <section className="h-full mb-8 bg-white p-6 rounded-lg shadow-md flex flex-col gap-8">
-      <div className="flex justify-between gap-8">
-        {/* Left: Event List */}
-        <div className="w-2/3 bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-2xl font-semibold text-purple-600 mb-4">Event List</h3>
-          <ul className="space-y-4 text-gray-700">
-            {data.events.length > 0 ? (
-              data.events.map((event: Event) => (
-                <li
-                  key={event.id}
-                  className="cursor-pointer hover:bg-gray-100 p-4 rounded-md"
-                >
-                  <h4 className="font-semibold">{event.productName}</h4>
-                  <p className="text-gray-600">{event.orderDate}</p>
-                  <p className="text-sm text-gray-500">{event.status}</p>
+    <section className="bg-white p-6 rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold mb-4">Overview</h2>
+      <div className="flex gap-8">
+        <div className="w-2/3">
+          <h3 className="text-xl font-semibold mb-4">Upcoming Events</h3>
+          <ul>
+            {data.upcomingEvents.length > 0 ? (
+              data.upcomingEvents.map((event: Event) => (
+                <li key={event.id} className="p-4 border-b flex justify-between items-center">
+                  {/* Grid for text alignment */}
+                  <div className="grid grid-cols-3 gap-4 w-full">
+                    <div className="flex flex-col">
+                      <h4 className="font-regular">{event.title}</h4>
+                    </div>
+                    <div className="flex flex-col text-center">
+                      <p>{new Date(event.dateTimeStart).toLocaleString()}</p>
+                    </div>
+                    <div className="flex flex-col text-left">
+                      <p>Location: {event.location}</p>
+                    </div>
+                  </div>
+                  <Link
+                   href={`/events/${event.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '')}/review`}
+                    >
+                    <button className="bg-gradient-to-r from-orange-600 to-orange-400 text-white py-3 px-6 rounded-lg shadow-md hover:from-orange-500 hover:to-orange-300 transition duration-300">
+                   Leave a Review
+                    </button>
+                      </Link>
+                  
                 </li>
               ))
             ) : (
-              <p>No events found.</p>
+              <p>No upcoming events available.</p>
             )}
           </ul>
-        </div>
-
-        {/* Right: Customer Profile */}
-        <div className="w-1/3 bg-white p-6 rounded-lg shadow-md flex flex-col gap-4">
-          <h3 className="text-2xl font-semibold text-purple-600 mb-4">Customer Profile</h3>
-          <div className="flex items-center gap-4">
-            <div className="w-20 h-20 rounded-full overflow-hidden">
-              {/* <Image */}
-                {/* src={data.profile.photoProfileUrl || userProfileImage} */}
-                {/* alt="Organizer Photo" */}
-                {/* width={80} */}
-                {/* height={80} */}
-                {/* className="object-cover" */}
-              {/* /> */}
-            </div>
-            <div className="flex flex-col">
-              <p className="font-semibold text-gray-700">{data.profile.name}</p>
-              <p className="text-gray-600">
-                Joined: {new Date(data.profile.createdAt).toLocaleDateString()}
-              </p>
-              <p className="text-gray-600">
-                Website:{" "}
-                <Link
-                  href={`https://${data.profile.website}`}
-                  target="_blank"
-                  className="text-blue-500"
-                >
-                  {data.profile.website}
-                </Link>
-              </p>
-              <p className="text-gray-600">Phone: {data.profile.phoneNumber}</p>
-              <p className="text-gray-600">Address: {data.profile.address}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Event Statistics */}
-      <div className="w-2/3 bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-2xl font-semibold text-purple-600 mb-4">Event Statistics</h3>
-        <ul className="space-y-4 text-gray-700">
-          {data.events.map((event: Event) => (
-            <li key={event.id} className="cursor-pointer hover:bg-gray-100 p-4 rounded-md">
-              <h4 className="font-semibold">{event.productName}</h4>
-              <p className="text-gray-600">{event.orderDate}</p>
-              <p className="text-sm text-gray-500">{event.status}</p>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
+          
+          <h3 className="text-xl font-semibold mb-4 mt-8">Past Events</h3>
+          <ul>
+            {data.pastEvents.length > 0 ? (
+              data.pastEvents.map((event: Event) => (
+                <li key={event.id} className="p-4 border-b flex justify-between items-center">
+                  {/* Grid for text alignment */}
+                  <div className="grid grid-cols-3 gap-4 w-full">
+                    <div className="flex flex-col">
+                      <h4 className="">{event.title}</h4>
+                    </div>
+                    <div className="flex flex-col text-center">
+                      <p>{new Date(event.dateTimeStart).toLocaleString()}</p>
+                    </div>
+                    <div className="flex flex-col text-left">
+                      <p>Location: {event.location}</p>
+                    </div>
+                  </div>
+                  <Link
+                   href={`/events/${event.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '')}/review`}
+                    >
+                    <button className="bg-gradient-to-r from-orange-600 to-orange-400 text-white py-3 px-6 rounded-lg shadow-md hover:from-orange-500 hover:to-orange-300 transition duration-300">
+                   Leave a Review
+                    </button>
+                      </Link>
+                </li>
+              ))
+            ) : (
+              <p>No past events available.</p>
+            )}
+          </ul>
+                </div>
+                <div className="w-1/3">
+                  <h3 className="text-xl font-semibold mb-4">Profile</h3>
+                  <p>Name: {data.profile.name}</p>
+                  <p>Email: {data.profile.email}</p>
+                </div>
+              </div>
+            </section>
+          )}
+          {activePanel === "events" && (
+            <section className="bg-white p-6 rounded-lg shadow-md">
+              <h2 className="text-2xl font-bold">My Events</h2>
+              <ul>
+                {data.events.length > 0 ? (
+                  data.events.map((event: Event) => (
+                    <li key={event.id} className="p-4 border-b">
+                      <h4 className="font-semibold">{event.productName}</h4>
+                      <p>{event.orderDate}</p>
+                      <p>{event.status}</p>
+                    </li>
+                  ))
+                ) : (
+                  <p>No events available.</p>
+                )}
+              </ul>
+            </section>
   )}
 
   {/* Event Panel */}
@@ -278,67 +299,84 @@ const CustomerDashboard: React.FC = () => {
 
 
           {/* Simplified Referral Panel */}
-{activePanel === 'referral' && (
-  <section className="referral-section bg-gray-50 p-6 rounded-lg shadow-md">
-    <header className="flex justify-between items-center mb-4">
-      <h2 className="text-2xl font-semibold text-purple-600">Your Referral Code</h2>
-    </header>
+{activePanel === 'rewards' && (
+ <section className="rewards-section bg-gray-50 p-6 rounded-lg shadow-md">
+ <header className="flex justify-between items-center mb-4">
+   <h2 className="text-2xl font-semibold text-purple-600">Your Referral & Rewards</h2>
+ </header>
 
-    {/* Referral Code Display with Copy Button */}
-    <div className="flex items-center bg-white p-4 rounded-lg shadow-sm mb-6">
-      <span className="text-lg text-gray-700 font-semibold">REF2024XYZ</span>
-      <button 
-        className="ml-4 bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-3 px-3 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105 flex items-center"
-        onClick={() => navigator.clipboard.writeText('REF2024XYZ')}>
-        <span>Copy</span>
-        <svg className="ml-2 w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16h8M8 12h8m-6-4h6" />
-        </svg>
-      </button>
-    </div>
+ {/* Referral Code Display with Copy Button */}
+ <div className="flex items-center bg-white p-4 rounded-lg shadow-sm mb-6">
+   <span className="text-lg text-gray-700 font-semibold">REF2024XYZ</span>
+   <button 
+     className="ml-4 bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-3 px-3 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105 flex items-center"
+     onClick={() => navigator.clipboard.writeText('REF2024XYZ')}>
+     <span>Copy</span>
+     <svg className="ml-2 w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16h8M8 12h8m-6-4h6" />
+     </svg>
+   </button>
+ </div>
 
-    {/* Referral User List */}
-    <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
-      <h3 className="text-xl font-semibold text-purple-600 mb-2">People Using Your Referral</h3>
-      <ul>
-        {/* List of referred users - Backend logic would populate this */}
-        <li className="flex justify-between text-gray-700 mb-2">
-          <span>John Doe</span> <span>2024-11-15</span>
-        </li>
-        <li className="flex justify-between text-gray-700 mb-2">
-          <span>Jane Smith</span> <span>2024-11-14</span>
-        </li>
-        {/* Add more referred users as necessary */}
-      </ul>
-    </div>
+ {/* Points & Voucher List */}
+ <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
+   <h3 className="text-xl font-semibold text-purple-600 mb-2">Your Rewards</h3>
+   <div className="flex justify-between mb-2">
+     <span className="text-gray-700">Points Balance:</span>
+     <span className="text-gray-800">350 Points</span>
+   </div>
+   <div className="flex justify-between mb-2">
+     <span className="text-gray-700">Voucher:</span>
+     <span className="text-gray-800">10% Off</span>
+   </div>
+ </div>
 
-    {/* Reward Chart */}
-    <div className="bg-white p-4 rounded-lg shadow-sm">
-      <h3 className="text-xl font-semibold text-purple-600 mb-2">Referral Rewards</h3>
-      <table className="w-full table-auto">
-        <thead>
-          <tr>
-            <th className="text-left">Referrals</th>
-            <th className="text-left">Reward</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>5 Referrals</td>
-            <td>10% Discount</td>
-          </tr>
-          <tr>
-            <td>100 Referrals</td>
-            <td>$50 Credit</td>
-          </tr>
-          <tr>
-            <td>1,000 Referrals</td>
-            <td>$500 Credit</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
+ {/* Referral User List */}
+ <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
+   <h3 className="text-xl font-semibold text-purple-600 mb-2">People Using Your Referral</h3>
+   <ul>
+     {/* List of referred users */}
+     <li className="flex justify-between text-gray-700 mb-2">
+       <span>John Doe</span> <span>2024-11-15</span>
+     </li>
+     <li className="flex justify-between text-gray-700 mb-2">
+       <span>Jane Smith</span> <span>2024-11-14</span>
+     </li>
+     <li className="flex justify-between text-gray-700 mb-2">
+       <span>Michael Brown</span> <span>2024-11-13</span>
+     </li>
+   </ul>
+ </div>
+
+ {/* Reward Chart */}
+ <div className="bg-white p-4 rounded-lg shadow-sm">
+   <h3 className="text-xl font-semibold text-purple-600 mb-2">Referral Rewards</h3>
+   <table className="w-full table-auto">
+     <thead>
+       <tr>
+         <th className="text-left">Referrals</th>
+         <th className="text-left">Reward</th>
+       </tr>
+     </thead>
+     <tbody>
+       <tr>
+         <td>5 Referrals</td>
+         <td>10% Discount</td>
+       </tr>
+       <tr>
+         <td>100 Referrals</td>
+         <td>$50 Credit</td>
+       </tr>
+       <tr>
+         <td>1,000 Referrals</td>
+         <td>$500 Credit</td>
+       </tr>
+     </tbody>
+   </table>
+ </div>
+</section>
+
+
 )}
 
 

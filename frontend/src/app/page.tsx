@@ -17,7 +17,6 @@ const Page: React.FC = () => {
         <Header />
         <Carousel />
         <EventCategory />
-        
         <PromotionSection />
         <EventNearby />
         <WhereToNext />

@@ -157,7 +157,7 @@ const EventPage: React.FC<EventPageProps> = ({ params }) => {
           {/* Buy Button Section */}
           <div className="mt-6">
             <div className="flex justify-center">
-              <Link href={`/event/${event.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '')}/payment`}>
+              <Link href={`/events/${event.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '')}/payment`}>
                 <button className="bg-gradient-to-r from-orange-600 to-orange-400 text-white py-3 px-6 rounded-lg shadow-md hover:from-orange-500 hover:to-orange-300 transition duration-300">
                   Buy This Ticket
                 </button>

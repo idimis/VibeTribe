@@ -17,9 +17,7 @@ const LoginContent: React.FC = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const {isLoggedIn, getJwtToken , login} = useAuth();
-
-
+  const { isLoggedIn, getJwtToken, login } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,57 +25,63 @@ const LoginContent: React.FC = () => {
     setError(null);
 
     const api = {
-        login: async (email: string, password: string) => {
-            const response = await fetch("http://localhost:8080/api/v1/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password }),
-            });
+      login: async (email: string, password: string) => {
+        const response = await fetch("http://localhost:8080/api/v1/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || "Login failed.");
-            }
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Login failed.");
+        }
 
-            return response.json();
-        },
+        return response.json();
+      },
 
-        getUserDetails: async (token: string) => {
-            const response = await fetch("http://localhost:8080/api/v1/user/details", {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+      getUserDetails: async (token: string) => {
+        const response = await fetch("http://localhost:8080/api/v1/user/details", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-            if (!response.ok) {
-                throw new Error("Failed to fetch user details.");
-            }
+        if (!response.ok) {
+          throw new Error("Failed to fetch user details.");
+        }
 
-            return response.json();
-        },
+        return response.json();
+      },
     };
 
     try {
-        const result = await api.login(email, password);
-        
-        
-        const token = result.data.accessToken;
+      const result = await api.login(email, password);
+      const token = result.data.accessToken;
 
-        login(token); 
-        console.log("token = " + token)
-        const userDetails = await api.getUserDetails(token);
-        localStorage.setItem("userDetails", JSON.stringify(userDetails));
+      login(token);
+      console.log("token = " + token);
 
-        window.location.href = "/dashboard/organizer";
+      const userDetails = await api.getUserDetails(token);
+      localStorage.setItem("userDetails", JSON.stringify(userDetails));
+
+      
+
+      if (userDetails.data.role.toLowerCase() === "customer") {
+        window.location.href = "/dashboard/customer"; 
+      } else {
+        window.location.href = "/dashboard/organizer"; 
+      }
+
     } catch (err: any) {
-        const errorMessage = err.message || "Something went wrong, please try again.";
-        console.error("Error during login:", errorMessage);
-        setError(errorMessage);
+      const errorMessage = err.message || "Something went wrong, please try again.";
+      console.error("Error during login:", errorMessage);
+      setError(errorMessage);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
+  };
 
   
 

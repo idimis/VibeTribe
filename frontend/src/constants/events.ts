@@ -29,6 +29,8 @@ export const events = [
   { id: 28, title: "Pesta Pora" },
   { id: 29, title: "Pesta Pora" },
   { id: 30, title: "Pesta Pora" },
+  { id: 31, title: "Makan Besar Fest" },
+  { id: 32, title: "Makan Besar Fest" },
   
 ];
 
