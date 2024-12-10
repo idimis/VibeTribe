@@ -4,6 +4,7 @@ import com.vibetribe.backend.entity.Event;
 import com.vibetribe.backend.entity.User;
 import com.vibetribe.backend.infrastructure.usecase.event.repository.EventRepository;
 import com.vibetribe.backend.infrastructure.usecase.review.dto.ReviewResponseDTO;
+import com.vibetribe.backend.infrastructure.usecase.review.dto.ReviewSummaryDTO;
 import com.vibetribe.backend.infrastructure.usecase.review.repository.ReviewRepository;
 import com.vibetribe.backend.infrastructure.usecase.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -50,5 +51,9 @@ public class ReviewService {
 
                     return responseDTO;
                 });
+    }
+
+    public Page<ReviewSummaryDTO> getAllReviews(Pageable pageable) {
+        return reviewRepository.findAllReviews(pageable);
     }
 }
