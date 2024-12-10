@@ -4,9 +4,13 @@ import com.vibetribe.backend.common.util.VoucherCodeGenerator;
 import com.vibetribe.backend.entity.*;
 import com.vibetribe.backend.infrastructure.usecase.event.repository.EventRepository;
 import com.vibetribe.backend.infrastructure.usecase.voucher.dto.CreateVoucherRequestDTO;
+import com.vibetribe.backend.infrastructure.usecase.voucher.dto.VoucherDetailsDTO;
+import com.vibetribe.backend.infrastructure.usecase.voucher.dto.VoucherSummaryDTO;
 import com.vibetribe.backend.infrastructure.usecase.voucher.repository.DateRangeBasedVoucherRepository;
 import com.vibetribe.backend.infrastructure.usecase.voucher.repository.QuantityBasedVoucherRepository;
 import com.vibetribe.backend.infrastructure.usecase.voucher.repository.VoucherRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -75,5 +79,14 @@ public class VoucherService {
         voucher.setExpiresAt(LocalDateTime.now().plusMonths(3));
 
         voucherRepository.save(voucher);
+    }
+
+    public Page<VoucherSummaryDTO> getUpcomingEventVouchers(Long organizerId, Pageable pageable) {
+        return voucherRepository.findUpcomingEventVouchersByOrganizer(organizerId, pageable);
+    }
+
+    public VoucherDetailsDTO getVoucherDetails(Long voucherId, Long organizerId) {
+        return voucherRepository.findVoucherDetailsByIdAndOrganizer(voucherId, organizerId)
+                .orElseThrow(() -> new IllegalArgumentException("Voucher not found or not owned by organizer"));
     }
 }
