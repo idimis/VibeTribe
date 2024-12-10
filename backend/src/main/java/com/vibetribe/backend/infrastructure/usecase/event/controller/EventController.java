@@ -101,9 +101,9 @@ public class EventController {
     }
 
     @GetMapping("/{slug}")
-    public ResponseEntity<Event> getEventBySlug(@PathVariable String slug) {
+    public ResponseEntity<?> getEventBySlug(@PathVariable String slug) {
         Event event = eventService.getEventBySlug(slug);
-        return ResponseEntity.ok(event);
+        return ApiResponse.successfulResponse("Get event by slug success", event);
     }
 
     @GetMapping("/id/{id}")
