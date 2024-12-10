@@ -100,7 +100,13 @@ public class EventController {
         return ApiResponse.successfulResponse("Get events success", paginatedAllEvents);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{slug}")
+    public ResponseEntity<Event> getEventBySlug(@PathVariable String slug) {
+        Event event = eventService.getEventBySlug(slug);
+        return ResponseEntity.ok(event);
+    }
+
+    @GetMapping("/id/{id}")
     public ResponseEntity<?> getEvent(@PathVariable Long id) {
     return eventService.getEventById(id)
             .map(event -> ApiResponse.successfulResponse("Get event success", event))

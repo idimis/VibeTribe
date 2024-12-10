@@ -60,6 +60,8 @@ public class EventService {
         event.setAvailableSeats(request.getAvailableSeats());
         event.setOrganizer(organizer);
 
+        event.generateSlug();
+
         return eventRepository.save(event);
     }
 
@@ -97,6 +99,8 @@ public class EventService {
         if (request.getAvailableSeats() != null) {
             event.setAvailableSeats(request.getAvailableSeats());
         }
+
+        event.generateSlug();
 
         return eventRepository.save(event);
     }
@@ -192,5 +196,10 @@ public class EventService {
 
     public Page<EventStatisticsDTO> getEventStatisticsByOrganizer(Long organizerId, Pageable pageable) {
         return eventRepository.findEventStatisticsByOrganizer(organizerId, pageable);
+    }
+
+    public Event getEventBySlug(String slug) {
+        return eventRepository.findBySlug(slug)
+                .orElseThrow(() -> new IllegalArgumentException("Event not found"));
     }
 }

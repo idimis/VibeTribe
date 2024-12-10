@@ -13,9 +13,11 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.text.Normalizer;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 @Entity
 @Table(name = "event", schema = "vibetribe")
@@ -74,6 +76,9 @@ public class Event {
     @Column(name = "booked_seats", nullable = false)
     private Integer bookedSeats = 0;
 
+    @Column(name = "slug", nullable = false)
+    private String slug;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -99,4 +104,19 @@ public class Event {
     @ToString.Exclude
     @JsonManagedReference
     private Set<Voucher> vouchers = new HashSet<>();
+
+    @PrePersist
+    @PreUpdate
+    public void generateSlug() {
+        if (this.title != null && (this.slug == null || this.slug.isEmpty())) {
+            this.slug = toSlug(this.title);
+        }
+    }
+
+    private String toSlug(String input) {
+        String nonWhitespace = input.trim().replaceAll("\\s+", "-");
+        String normalized = Normalizer.normalize(nonWhitespace, Normalizer.Form.NFD);
+        String slug = Pattern.compile("\\P{Alnum}+").matcher(normalized).replaceAll("-").toLowerCase();
+        return slug;
+    }
 }

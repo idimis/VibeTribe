@@ -37,4 +37,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "WHERE e.organizer.id = :organizerId " +
             "GROUP BY e.id, e.title")
     Page<EventStatisticsDTO> findEventStatisticsByOrganizer(@Param("organizerId") Long organizerId, Pageable pageable);
+
+    Optional<Event> findBySlug(String slug);
 }
