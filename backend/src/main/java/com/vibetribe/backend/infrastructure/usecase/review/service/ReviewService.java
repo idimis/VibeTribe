@@ -56,4 +56,8 @@ public class ReviewService {
     public Page<ReviewSummaryDTO> getAllReviews(Pageable pageable) {
         return reviewRepository.findAllReviews(pageable);
     }
+
+    public Page<ReviewSummaryDTO> getReviewsByOrganizerId(Long organizerId, Pageable pageable) {
+        return reviewRepository.findReviewsByOrganizerId(organizerId, pageable);
+    }
 }

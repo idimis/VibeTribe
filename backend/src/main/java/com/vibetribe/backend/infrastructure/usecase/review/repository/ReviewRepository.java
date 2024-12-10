@@ -15,4 +15,11 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             "JOIN Event e ON r.eventId = e.id " +
             "JOIN User c ON r.customerId = c.id")
     Page<ReviewSummaryDTO> findAllReviews(Pageable pageable);
+
+    @Query("SELECT new com.vibetribe.backend.infrastructure.usecase.review.dto.ReviewSummaryDTO(e.title, c.name, r.rating, r.review) " +
+            "FROM Review r " +
+            "JOIN Event e ON r.eventId = e.id " +
+            "JOIN User c ON r.customerId = c.id " +
+            "WHERE e.organizer.id = :organizerId")
+    Page<ReviewSummaryDTO> findReviewsByOrganizerId(Long organizerId, Pageable pageable);
 }
