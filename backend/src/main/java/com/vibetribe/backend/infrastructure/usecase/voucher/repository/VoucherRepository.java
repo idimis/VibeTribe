@@ -33,4 +33,7 @@ public interface VoucherRepository extends JpaRepository<Voucher, Long> {
             "LEFT JOIN v.dateRangeBasedVoucher drv " +
             "WHERE v.id = :voucherId AND e.organizer.id = :organizerId")
     Optional<VoucherDetailsDTO> findVoucherDetailsByIdAndOrganizer(@Param("voucherId") Long voucherId, @Param("organizerId") Long organizerId);
+
+//    @Query("SELECT v FROM Voucher v WHERE v.event.id = :eventId")
+    Page<Voucher> findByEventId(@Param("eventId") Long eventId, Pageable pageable);
 }

@@ -89,4 +89,8 @@ public class VoucherService {
         return voucherRepository.findVoucherDetailsByIdAndOrganizer(voucherId, organizerId)
                 .orElseThrow(() -> new IllegalArgumentException("Voucher not found or not owned by organizer"));
     }
+
+    public Page<Voucher> getVouchersByEventId(Long eventId, Pageable pageable) {
+        return voucherRepository.findByEventId(eventId, pageable);
+    }
 }

@@ -50,4 +50,13 @@ public class VoucherController {
         VoucherDetailsDTO voucherDetails = voucherService.getVoucherDetails(voucherId, organizerId);
         return ResponseEntity.ok(voucherDetails);
     }
+
+    @GetMapping("/by-event")
+    public ResponseEntity<?> getVouchersByEventId(
+            @RequestParam Long eventId,
+            @PageableDefault(size = 10) Pageable pageable) {
+        Page<Voucher> vouchers = voucherService.getVouchersByEventId(eventId, pageable);
+        PaginatedResponse paginatedVouchers = PaginationUtil.toPaginatedResponse(vouchers);
+        return ApiResponse.successfulResponse("Get all vouchers by event success", paginatedVouchers);
+    }
 }
