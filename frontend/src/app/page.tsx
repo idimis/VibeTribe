@@ -9,6 +9,7 @@ import EventNearby from '@/components/EventNearby';
 import MoreEvents from '@/components/MoreEvents';
 import WhereToNext from '@/components/WheretoNext';
 import PromotionSection from '@/components/PromotionSection';
+import PopupReview from '@/components/PopupReview';
 
 
 const Page: React.FC = () => {
@@ -17,6 +18,7 @@ const Page: React.FC = () => {
         <Header />
         <Carousel />
         <EventCategory />
+        <PopupReview />
         <PromotionSection />
         <EventNearby />
         <WhereToNext />

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import logoImage from "@/public/logo2.png";
 import { cities } from "@/constants/cities";
-import { events } from "@/constants/events";
 import LocationSearch from "./LocationSearch";
 import EventSearch from "./EventSearch";
 import UserGreeting from "./UserGreeting";

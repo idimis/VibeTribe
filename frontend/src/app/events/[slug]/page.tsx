@@ -4,11 +4,10 @@ import React, { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { notFound } from "next/navigation";
-import { events } from "@/constants/events";
 import Link from 'next/link';
 
 interface EventPageProps {
-  params: { slug: string };
+  params: { slug: string };  
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
@@ -17,71 +16,42 @@ const EventPage: React.FC<EventPageProps> = ({ params }) => {
   const [slug, setSlug] = useState<string>('');  
   const [event, setEvent] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [eventId, setEventId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchSlug = async () => {
       const paramsData = await params;  
-      setSlug(paramsData.slug || '');  
+      setSlug(paramsData.slug || ''); 
     };
     fetchSlug();
   }, [params]);
 
   useEffect(() => {
-    const fetchEventIdFromTitle = async () => {
+    const fetchEventFromTitle = async () => {
       setLoading(true);
       try {
-        const foundEvent = events.find(
-          (event) =>
-            event.title.toLowerCase().replace(/\s+/g, "-") === slug 
-        );
+        
+        const response = await fetch(`${BASE_URL}/api/v1/events/${slug}`);
+        const data = await response.json();
 
-        if (foundEvent) {
-          const eventIndex = events.indexOf(foundEvent);
-          const eventId = eventIndex + 1; 
-          setEventId(eventId);
+        if (data.success && data.data) {
+          setEvent(data.data);  
         } else {
-          notFound(); 
+          notFound();  
         }
       } catch (error) {
-        console.error("Error fetching events:", error);
-        notFound();
+        console.error("Error fetching event details:", error);
+        notFound();  
       } finally {
         setLoading(false);
       }
     };
-    fetchEventIdFromTitle();
-  }, [slug]);
 
-  useEffect(() => {
-    const fetchEventDetails = async () => {
-      if (eventId !== null) {
-        setLoading(true);
-        try {
-          const response = await fetch(`${BASE_URL}/api/v1/events/${eventId}`);
-          const data = await response.json();
-
-          if (data.success && data.data) {
-            setEvent(data.data); 
-          } else {
-            notFound(); 
-          }
-        } catch (error) {
-          console.error("Error fetching event details:", error);
-          notFound(); 
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-
-    if (eventId !== null) {
-      fetchEventDetails();
+    if (slug) {
+      fetchEventFromTitle();  
     }
-  }, [eventId]);
+  }, [slug]); 
 
   const formatDate = (dateString: string) => {
-    
     const date = new Date(dateString);  
     return date.toLocaleDateString('id-ID', {
       weekday: 'long',
@@ -106,6 +76,9 @@ const EventPage: React.FC<EventPageProps> = ({ params }) => {
   if (!event) {
     return <div>Event not found</div>;
   }
+
+  
+  const eventSlug = event.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -157,7 +130,7 @@ const EventPage: React.FC<EventPageProps> = ({ params }) => {
           {/* Buy Button Section */}
           <div className="mt-6">
             <div className="flex justify-center">
-              <Link href={`/events/${event.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '')}/payment`}>
+              <Link href={`/events/${eventSlug}/payment`}>
                 <button className="bg-gradient-to-r from-orange-600 to-orange-400 text-white py-3 px-6 rounded-lg shadow-md hover:from-orange-500 hover:to-orange-300 transition duration-300">
                   Buy This Ticket
                 </button>

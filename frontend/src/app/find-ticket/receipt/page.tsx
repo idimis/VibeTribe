@@ -9,61 +9,57 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080"
 
 const ConfirmationPage: React.FC = () => {
   const searchParams = useSearchParams();
-  const eventId = searchParams.get("id");
-  const quantity = searchParams.get("quantity");
+  const eventSlug = searchParams.get("id");
+  const quantity = parseInt(searchParams.get("quantity") || "");
   const transactionId = searchParams.get("transactionId");
-  const fee = searchParams.get("fee");
-
+  const voucher = parseInt(searchParams.get("voucher") || "");
+  const points = parseInt(searchParams.get("points") || "");
+  const fee = parseFloat(searchParams.get("fee") || "");
+  
   const [event, setEvent] = useState<any>(null);
-  const [voucher, setVoucher] = useState<string | null>(null);
-  const [points, setPoints] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    if (eventId) {
-      const fetchEventDetails = async () => {
-        setLoading(true);
-        try {
-          const response = await fetch(`${BASE_URL}/api/v1/events/${eventId}`);
-          const data = await response.json();
+    const fetchEventDetails = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`${BASE_URL}/api/v1/events/${eventSlug}`);
+        const data = await response.json();
 
-          if (data.success && data.data) {
-            setEvent(data.data);
-          } else {
-            alert("Event not found");
-          }
-        } catch (error) {
-          console.error("Error fetching event details:", error);
-          alert("Error fetching event details");
-        } finally {
-          setLoading(false);
+        if (data.success && data.data) {
+          setEvent(data.data);
+        } else {
+          console.error("Event not found or API error");
         }
-      };
+      } catch (error) {
+        console.error("Error fetching event details:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    if (eventSlug) {
       fetchEventDetails();
     }
+  }, [eventSlug]);
 
-    if (transactionId) {
-      const fetchTransactionDetails = async () => {
-        try {
-          const response = await fetch(`${BASE_URL}/api/v1/transactions/${transactionId}`);
-          const data = await response.json();
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('id-ID', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
 
-          if (data.success && data.data) {
-            setVoucher(data.data.voucher || null);
-            setPoints(data.data.points || null);
-          } else {
-            alert("Transaction not found");
-          }
-        } catch (error) {
-          console.error("Error fetching transaction details:", error);
-          alert("Error fetching transaction details");
-        }
-      };
-
-      fetchTransactionDetails();
-    }
-  }, [eventId, transactionId]);
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString('id-ID', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -72,84 +68,99 @@ const ConfirmationPage: React.FC = () => {
   if (!event) {
     return <div>Event not found</div>;
   }
+  
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow max-w-[1440px] mx-auto p-6">
-        <div className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg space-y-8">
-          {/* Title */}
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-blue-600">Ticket Purchase Receipt</h1>
-            <p className="mt-4 text-lg text-gray-700">
-              Your ticket purchase was successful. Below are the details of your transaction.
-            </p>
+        <div className="receipt max-w-4xl mx-auto space-y-8">
+          {/* Confirmation Page Header */}
+          <div className="text-center my-8">
+            <h1 className="text-4xl font-bold text-blue-600">Payment Success!</h1>
+            <p className="mt-4 text-lg text-gray-700">Thank you for your payment! Here are your ticket details:</p>
+          </div>
+
+          {/* Event Title */}
+          <div className="text-center my-4">
+            <h2 className="text-3xl font-semibold text-gray-800">{event.title}</h2>
           </div>
 
           {/* Event Details */}
-          <div className="border-t border-gray-300 pt-4">
-            <h2 className="text-2xl font-semibold text-gray-800">Event Details</h2>
-            <div className="flex justify-between text-gray-700 mt-4">
-              <div>
-                <p><span className="font-medium">Event Title:</span> {event.title}</p>
-                <p><span className="font-medium">Category:</span> {event.category}</p>
-                <p>
-                  <span className="font-medium">Date & Time:</span>{" "}
-                  {new Date(event.dateTimeStart).toLocaleDateString("id-ID")}{" "}
-                  {new Date(event.dateTimeStart).toLocaleTimeString("id-ID")} -{" "}
-                  {new Date(event.dateTimeEnd).toLocaleTimeString("id-ID")}
-                </p>
-                <p><span className="font-medium">Location:</span> {event.location}</p>
-                <p><span className="font-medium">Location Details:</span> {event.locationDetails}</p>
-              </div>
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold text-gray-800">Event Details</h3>
+            <p className="text-gray-500 text-sm">
+              <span className="font-medium">Category: </span>
+              {event.category}
+            </p>
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center text-gray-600">
+              <p>
+                <span className="font-medium">Date: </span>
+                {formatDate(event.dateTimeStart)}
+              </p>
+              <p>
+                <span className="font-medium">Time: </span>
+                {formatTime(event.dateTimeStart)} - {formatTime(event.dateTimeEnd)}
+              </p>
+            </div>
+            <div className="text-gray-600">
+              <p>
+                <span className="font-medium">Location: </span>
+                {event.location} ({event.locationDetails})
+              </p>
             </div>
           </div>
 
-          {/* Payment Details */}
-          <div className="border-t border-gray-300 pt-4">
-            <h2 className="text-2xl font-semibold text-gray-800">Payment Summary</h2>
-            <div className="space-y-2 mt-4">
-              <div className="flex justify-between">
-                <span className="font-medium">Voucher Applied:</span>
-                <span>{voucher || "None"}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium">Points Used:</span>
-                <span>{points || "0"}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium">Quantity:</span>
-                <span>{quantity}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium">Transaction ID:</span>
-                <span>{transactionId}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium">Original Fee:</span>
-                <span>Rp {fee}</span>
-              </div>
-              <div className="flex justify-between border-t border-gray-300 pt-2">
-                <span className="font-medium">Total Fee:</span>
-                <span>
-                  Rp{" "}
-                  {parseFloat(fee) -
-                    (parseInt(points || "0") * 0.1) -
-                    (parseInt(voucher || "0") * 0.1)}
-                </span>
-              </div>
+          {/* Transaction Details */}
+          <div className="bg-gray-100 p-4 rounded-lg space-y-4 my-4">
+            <div className="flex justify-between">
+              <span>Quantity:</span>
+              <span>{quantity}</span>
             </div>
+            <div className="flex justify-between">
+            <span>Voucher Applied:</span>
+            <span>{voucher ? `${voucher}% Off` : '0% Off'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Points Used:</span>
+              <span>{points ? `${points} Points` : 'No Points Used'}</span>
+            </div>
+            <div className="flex justify-between font-semibold">
+              <span>Event Fee:</span>
+              <span>{fee ? fee : 'N/A'}</span>
+            </div>
+            <div className="flex justify-between font-semibold">
+  <span>Total:</span>
+  <span>
+    {Number(fee) * Number(quantity) - (points ? Number(points) : 0)}
+  </span>
+</div>
+
           </div>
 
-          {/* Footer */}
-          <div className="text-center text-sm text-gray-500 mt-8">
-            <p>Thank you for your purchase. We hope you enjoy the event!</p>
-          </div>
-        </div>
-      </main>
-      <Footer />
-    </div>
-  );
+          {/* Payment Confirmation */}
+<div className="text-center mt-8">
+  <p className="text-lg text-gray-700 mt-4">
+    <span className="font-bold text-xl">Thank you for trusting us!</span><br />
+    We appreciate your support and are excited to have you as part of this event!<br /><br />
+
+    <span className="text-lg font-medium">Transaction ID:</span> <strong>{transactionId}</strong><br /><br />
+
+    <span className="text-sm text-gray-600">
+      You can use this Transaction ID for tracking, future references, or customer support inquiries.<br />
+      Please keep this information safe, as it may be helpful in case of any issues related to your booking.
+    </span>
+  </p>
+
+  <div className="mt-6">
+    <a href="/" className="text-blue-600 font-semibold hover:underline">Return to Homepage</a>
+  </div>
+</div>
+</div>
+</main>
+<Footer />
+</div>
+);
 };
 
 export default ConfirmationPage;

@@ -1,10 +1,9 @@
-"use client"; 
+"use client";
 
 import React, { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { notFound } from "next/navigation";
-import { events } from "@/constants/events";
 import { useAuth } from "@/context/AuthContext";
 
 interface ReviewPageProps {
@@ -23,12 +22,11 @@ const ReviewPage: React.FC<ReviewPageProps> = ({ params }) => {
   const [rating, setRating] = useState<number>(0);
   const [hoverRating, setHoverRating] = useState<number>(0);
   const [feedbackText, setFeedbackText] = useState<string>("");
-  const [hasPurchasedTicket, setHasPurchasedTicket] = useState<boolean>(false); // state untuk cek tiket
+  const [hasPurchasedTicket, setHasPurchasedTicket] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchSlug = async () => {
-      const paramsData = await params;
-      setSlug(paramsData.slug || "");
+      setSlug(params.slug || "");
     };
     fetchSlug();
   }, [params]);
@@ -85,11 +83,10 @@ const ReviewPage: React.FC<ReviewPageProps> = ({ params }) => {
     }
   }, [eventId]);
 
-  // Cek apakah customer sudah membeli tiket untuk event ini
   const checkTicketStatus = async () => {
     try {
       const token = getJwtToken();
-      const response = await fetch(`${BASE_URL}/api/v1/user/details`, {
+      const response = await fetch(`${BASE_URL}/api/v1/tickets/past`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -97,10 +94,9 @@ const ReviewPage: React.FC<ReviewPageProps> = ({ params }) => {
       });
       const data = await response.json();
 
-      if (data.success && data.data.purchasedTickets) {
-        // Cek apakah event ini ada di dalam tiket yang sudah dibeli
-        const hasTicket = data.data.purchasedTickets.some(
-          (ticket: any) => ticket.eventId === eventId
+      if (data.success && data.data.content) {
+        const hasTicket = data.data.content.some(
+          (ticket: any) => ticket.eventId === eventId && ticket.status === "VALID"
         );
         setHasPurchasedTicket(hasTicket);
       } else {
@@ -114,13 +110,13 @@ const ReviewPage: React.FC<ReviewPageProps> = ({ params }) => {
 
   useEffect(() => {
     if (isLoggedIn && eventId) {
-      checkTicketStatus(); // Cek status tiket saat eventId sudah ada
+      checkTicketStatus();
     }
   }, [isLoggedIn, eventId]);
 
   const handleConfirmReview = async () => {
     if (!hasPurchasedTicket) {
-      alert("You must purchase a ticket for this event to leave a review.");
+      alert("You can only review events you have attended.");
       return;
     }
 
@@ -178,7 +174,6 @@ const ReviewPage: React.FC<ReviewPageProps> = ({ params }) => {
     <div>
       <Header />
       <div className="container mx-auto py-8 px-4 lg:px-8 bg-gray-50 shadow-lg rounded-lg">
-        {/* Title Section */}
         <h1 className="text-3xl font-extrabold text-center text-gray-800 mb-6">
           {event.title}
         </h1>
@@ -186,7 +181,6 @@ const ReviewPage: React.FC<ReviewPageProps> = ({ params }) => {
           We value your feedback! Please leave your thoughts below.
         </p>
 
-        {/* Rating Section */}
         <div className="flex flex-col items-center mb-8">
           <p className="text-gray-700 text-lg mb-3">Rate this event:</p>
           <div className="flex items-center gap-2">
@@ -209,7 +203,6 @@ const ReviewPage: React.FC<ReviewPageProps> = ({ params }) => {
           </p>
         </div>
 
-        {/* Review Form */}
         <div className="bg-white p-6 rounded-lg shadow-md mb-8">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Write Your Review</h2>
           <textarea
@@ -228,7 +221,6 @@ const ReviewPage: React.FC<ReviewPageProps> = ({ params }) => {
           />
         </div>
 
-        {/* Action Buttons */}
         <div className="flex justify-center gap-4">
           <button
             className="bg-blue-600 text-white px-6 py-3 rounded-md font-semibold hover:bg-blue-700 transition duration-200 shadow-md"
@@ -244,8 +236,6 @@ const ReviewPage: React.FC<ReviewPageProps> = ({ params }) => {
           </button>
         </div>
       </div>
-
-      {/* Footer */}
       <Footer />
     </div>
   );

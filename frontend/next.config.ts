@@ -1,7 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  reactStrictMode: true,  // Enable React Strict Mode for catching potential issues
+  reactStrictMode: true, // Enable React Strict Mode for catching potential issues
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'], // Specify file extensions for pages
   env: {
     CUSTOM_API_URL: process.env.CUSTOM_API_URL || 'http://localhost:3000/api', // Default API URL
@@ -10,21 +10,29 @@ const nextConfig: NextConfig = {
     styledComponents: true, // Enable styled-components SSR support
   },
   images: {
-    domains: ['example.com'], // External image domains
+    domains: [
+      'example.com', 
+      'img.icons8.com', 
+      'www.trumba.com', 
+      'usercontent.one',
+      'festivalsforall.s3.eu-west-1.amazonaws.com',
+      'cdn.britannica.com'
+
+    ], 
   },
   async redirects() {
     return [
       {
-        source: '/old-route',  // Redirect from old route to new route
+        source: '/old-route', // Redirect from old route to new route
         destination: '/new-route',
-        permanent: true,  // Permanent redirect (HTTP 301)
+        permanent: true, // Permanent redirect (HTTP 301)
       },
     ];
   },
   async rewrites() {
     return [
       {
-        source: '/api/:path*',  // Rewriting API URLs to external endpoints
+        source: '/api/:path*', // Rewriting API URLs to external endpoints
         destination: 'https://external-api.com/:path*',
       },
     ];
@@ -32,11 +40,11 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/:path*',  // Add headers for all requests
+        source: '/:path*', // Add headers for all requests
         headers: [
           {
             key: 'X-Content-Type-Options',
-            value: 'nosniff',  // Security header
+            value: 'nosniff', // Security header
           },
         ],
       },

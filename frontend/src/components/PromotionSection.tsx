@@ -17,12 +17,12 @@ type Promotion = {
 
 const promotions: Promotion[] = [
   {
-    id: 'promo1',
+    id: '18',
     title: 'Early Bird Access',
     description: 'Get 25% off our latest events. Limited spots!',
     discount: '25% OFF',
     imageUrl: discount1,  
-    link: '/events/early-bird',
+    link: '/events/yogyakarta-puppet-show',
   },
   {
     id: 'promo2',
@@ -30,7 +30,7 @@ const promotions: Promotion[] = [
     description: 'Special savings for our loyal members.',
     discount: '30% OFF',
     imageUrl: discount2,  
-    link: '/events/member-deal',
+    link: '/events/bandung-christmas-lights',
   },
   {
     id: 'promo3',
@@ -38,7 +38,7 @@ const promotions: Promotion[] = [
     description: 'First time? Enjoy this limited-time offer!',
     discount: 'Up to 35% OFF',
     imageUrl: discount3,  
-    link: '/events/newcomers-special',
+    link: '/events/surabaya-culinary-tour',
   },
 ];
 

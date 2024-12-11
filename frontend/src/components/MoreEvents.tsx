@@ -37,7 +37,7 @@ const MoreEventSection: React.FC = () => {
         const response = await fetch(`${BASE_URL}/api/v1/events`);
         const data = await response.json();
         if (data.success && data.data) {
-          setEvents(data.data.content); // Assuming data structure includes 'data.content'
+          setEvents(data.data.content); 
         }
       } catch (error) {
         console.error("Error fetching events:", error);
@@ -74,6 +74,13 @@ const MoreEventSection: React.FC = () => {
               href={`/events/${event.title.replace(/\s+/g, "-").toLowerCase()}`}
             >
               <div className="event-card bg-white border rounded-lg p-4 shadow-md transition-transform hover:scale-105">
+                {/* Image or Placeholder */}
+                <img
+                  src={event.imageUrl}
+                  alt={event.title || "Event Image"}
+                  className="w-full h-40 object-cover rounded-lg mb-4"
+                />
+                
                 <h3 className="font-bold">{event.title || "Untitled Event"}</h3>
                 <p>{formatDate(event.dateTimeStart) || "No Date Available"}</p>
                 <p className="text-sm text-gray-500">

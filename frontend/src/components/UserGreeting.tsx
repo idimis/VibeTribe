@@ -23,7 +23,7 @@ const UserGreeting: React.FC<UserGreetingProps> = ({ username, role, onLogout })
               </Link>
             )}
             {role === "organizer" && (
-              <Link href="/create-event" className="text-black hover:underline">
+              <Link href="/events/create" className="text-black hover:underline">
                 Create Event
               </Link>
             )}
@@ -36,7 +36,7 @@ const UserGreeting: React.FC<UserGreetingProps> = ({ username, role, onLogout })
           </>
         ) : (
           <>
-            <Link href="/create-event" className="text-black hover:underline">
+            <Link href="/events/create" className="text-black hover:underline">
               Create Event
             </Link>
             <Link href="/find-ticket" className="text-black hover:underline">

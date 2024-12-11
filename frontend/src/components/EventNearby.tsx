@@ -8,7 +8,6 @@ const EventSection: React.FC = () => {
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Format date function
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("id-ID", {
@@ -19,13 +18,12 @@ const EventSection: React.FC = () => {
     });
   };
 
-  // Format time function
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleTimeString("id-ID", {
       hour: "2-digit",
       minute: "2-digit",
-      hour12: true, // 12-hour format
+      hour12: true,
     });
   };
 
@@ -37,8 +35,8 @@ const EventSection: React.FC = () => {
           `http://localhost:8080/api/v1/events?location=${encodeURIComponent(location)}`
         );
         const data = await response.json();
-        console.log(data); // For debugging purposes
-        setEvents(data.data.content); // Assuming data structure includes 'data.content'
+        console.log(data);
+        setEvents(data.data.content);
       } catch (error) {
         console.error("Error fetching events:", error);
       } finally {
@@ -46,25 +44,23 @@ const EventSection: React.FC = () => {
       }
     };
 
-    // Fetch events initially based on the default location
     fetchEvents();
 
-    // Handle geolocation if supported by the browser
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setLocation("Bandung"); // Update location based on geolocation (for future use)
+          setLocation("Bandung");
         },
         (error) => {
           console.error("Geolocation error:", error);
-          setLocation("Bandung"); // Default location if geolocation fails
+          setLocation("Bandung");
         }
       );
     } else {
       console.error("Geolocation is not supported by this browser.");
-      setLocation("Bandung"); // Default to Bandung if geolocation isn't supported
+      setLocation("Bandung");
     }
-  }, [location]); // Runs when location changes
+  }, [location]);
 
   return (
     <section className="event-section p-6 max-w-[1440px] mx-auto">
@@ -86,13 +82,25 @@ const EventSection: React.FC = () => {
           ))
         ) : (
           events.map((event: any) => (
-            <Link key={event.id} href={`/events/${event.title.replace(/\s+/g, '-').toLowerCase()}`}>
+            <Link
+              key={event.id}
+              href={`/events/${event.title.replace(/\s+/g, "-").toLowerCase()}`}
+            >
               <div className="event-card bg-white border rounded-lg p-4 shadow-md transition-transform hover:scale-105">
+                <div className="relative mb-4">
+                  <img
+                    src={event.imageUrl || "https://via.placeholder.com/500x300.png?text=Event+Image"}
+                    alt={event.title}
+                    className="w-full h-48 object-cover rounded-lg shadow-md"
+                  />
+                </div>
                 <h3 className="font-bold">{event.title || "Untitled Event"}</h3>
                 <p>{formatDate(event.dateTimeStart) || "No Date Available"}</p>
                 <p className="text-sm text-gray-500">{event.locationDetails || "No Address Available"}</p>
                 {event.timeStart && (
-                  <p className="text-sm text-gray-500">{formatTime(event.timeStart) || "No Time Available"}</p>
+                  <p className="text-sm text-gray-500">
+                    {formatTime(event.timeStart) || "No Time Available"}
+                  </p>
                 )}
               </div>
             </Link>

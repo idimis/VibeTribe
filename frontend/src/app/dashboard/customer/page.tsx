@@ -22,6 +22,8 @@ interface Event {
 const CustomerDashboard: React.FC = () => {
   const [data, setData] = useState<any>({ upcomingEvents: [], pastEvents: [], profile: {} });
   const [activePanel, setActivePanel] = useState("overview");
+  
+  
 
   useEffect(() => {
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -73,6 +75,8 @@ const CustomerDashboard: React.FC = () => {
 
     fetchData();
   }, []);
+
+  const referralCode = data.profile?.referralCode || '';
 
   const { isLoggedIn, login, logout, loggedEmail, isAuthLoaded } = useAuth();
   useAuthRedirect();
@@ -219,173 +223,163 @@ const CustomerDashboard: React.FC = () => {
               </div>
             </section>
           )}
-          {activePanel === "events" && (
-            <section className="bg-white p-6 rounded-lg shadow-md">
-              <h2 className="text-2xl font-bold">My Events</h2>
-              <ul>
-                {data.events.length > 0 ? (
-                  data.events.map((event: Event) => (
-                    <li key={event.id} className="p-4 border-b">
-                      <h4 className="font-semibold">{event.productName}</h4>
-                      <p>{event.orderDate}</p>
-                      <p>{event.status}</p>
-                    </li>
-                  ))
-                ) : (
-                  <p>No events available.</p>
-                )}
-              </ul>
-            </section>
-  )}
 
-  {/* Event Panel */}
-  {activePanel === 'events' && (
-    <section className="event-section bg-gray-50 p-8 rounded-lg shadow-lg">
-      <header className="flex justify-between items-center mb-8">
-        <h2 className="text-3xl font-semibold text-purple-600">Your Upcoming Events</h2>
-      </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Upcoming Events */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-2xl font-semibold text-purple-600 mb-4">Upcoming Events</h3>
-          <table className="w-full table-auto">
-            <thead>
-              <tr>
-                <th className="text-left">Event Name</th>
-                <th className="text-left">Date</th>
-                <th className="text-left">Status</th>
-                <th className="text-left">Details</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.events.length > 0 ? (
-                data.events.map((event: Event) => (
-                  <tr key={event.id}>
-                    <td>{event.productName}</td>
-                    <td>{new Date(event.orderDate).toLocaleDateString()}</td>
-                    <td>{event.status}</td>
-                    <td>
+{activePanel === 'events' && (
+  <section className="event-section bg-gray-50 p-8 rounded-lg shadow-lg">
+    <header className="flex justify-between items-center mb-8">
+      <h2 className="text-3xl font-semibold text-purple-600">Your Upcoming Events</h2>
+    </header>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {/* Upcoming Events */}
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h3 className="text-2xl font-semibold text-purple-600 mb-4">Upcoming Events</h3>
+        <table className="w-full table-auto">
+          <thead>
+            <tr>
+              <th className="text-left">Event Name</th>
+              <th className="text-left">Date</th>
+              <th className="text-left">Status</th>
+              <th className="text-left">Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.upcomingEvents.length > 0 ? (
+              data.upcomingEvents.map((event: Event) => (
+                <tr key={event.id}>
+                  <td>{event.title}</td>
+                  <td>{new Date(event.dateTimeStart).toLocaleDateString()}</td>
+                  <td>{event.availableSeats - event.bookedSeats} Seats Available</td>
+                  <td>
+                    {/* Link to Event Details Page */}
+                    <Link
+                      key={event.id}
+                      href={`/events/${event.title.replace(/\s+/g, '-').toLowerCase()}`}
+                    >
                       <button className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105">
                         View Details
                       </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr><td colSpan={4} className="text-center">No upcoming events.</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                    </Link>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr><td colSpan={4} className="text-center">No upcoming events.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
-        {/* Event Statistics */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-2xl font-semibold text-purple-600 mb-4">Event Statistics</h3>
-          <div className="grid grid-cols-2 gap-6">
-            <div className="stat-box bg-purple-100 p-4 rounded-lg">
-              <h4 className="text-lg font-semibold">Total Attendees</h4>
-              <p className="text-2xl font-bold">1,200</p>
-            </div>
-            <div className="stat-box bg-purple-100 p-4 rounded-lg">
-              <h4 className="text-lg font-semibold">Total Events</h4>
-              <p className="text-2xl font-bold">{data.events.length}</p>
-            </div>
+      {/* Event Statistics */}
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h3 className="text-2xl font-semibold text-purple-600 mb-4">Event Statistics</h3>
+        <div className="grid grid-cols-2 gap-6">
+          <div className="stat-box bg-purple-100 p-4 rounded-lg">
+            <h4 className="text-lg font-semibold">Total Attendees</h4>
+            <p className="text-2xl font-bold">1,200</p>
+          </div>
+          <div className="stat-box bg-purple-100 p-4 rounded-lg">
+            <h4 className="text-lg font-semibold">Total Events</h4>
+            <p className="text-2xl font-bold">{data.upcomingEvents.length}</p>
           </div>
         </div>
       </div>
-    </section>
-  )}
-
-
-          {/* Simplified Referral Panel */}
-{activePanel === 'rewards' && (
- <section className="rewards-section bg-gray-50 p-6 rounded-lg shadow-md">
- <header className="flex justify-between items-center mb-4">
-   <h2 className="text-2xl font-semibold text-purple-600">Your Referral & Rewards</h2>
- </header>
-
- {/* Referral Code Display with Copy Button */}
- <div className="flex items-center bg-white p-4 rounded-lg shadow-sm mb-6">
-   <span className="text-lg text-gray-700 font-semibold">REF2024XYZ</span>
-   <button 
-     className="ml-4 bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-3 px-3 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105 flex items-center"
-     onClick={() => navigator.clipboard.writeText('REF2024XYZ')}>
-     <span>Copy</span>
-     <svg className="ml-2 w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16h8M8 12h8m-6-4h6" />
-     </svg>
-   </button>
- </div>
-
- {/* Points & Voucher List */}
- <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
-   <h3 className="text-xl font-semibold text-purple-600 mb-2">Your Rewards</h3>
-   <div className="flex justify-between mb-2">
-     <span className="text-gray-700">Points Balance:</span>
-     <span className="text-gray-800">350 Points</span>
-   </div>
-   <div className="flex justify-between mb-2">
-     <span className="text-gray-700">Voucher:</span>
-     <span className="text-gray-800">10% Off</span>
-   </div>
- </div>
-
- {/* Referral User List */}
- <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
-   <h3 className="text-xl font-semibold text-purple-600 mb-2">People Using Your Referral</h3>
-   <ul>
-     {/* List of referred users */}
-     <li className="flex justify-between text-gray-700 mb-2">
-       <span>John Doe</span> <span>2024-11-15</span>
-     </li>
-     <li className="flex justify-between text-gray-700 mb-2">
-       <span>Jane Smith</span> <span>2024-11-14</span>
-     </li>
-     <li className="flex justify-between text-gray-700 mb-2">
-       <span>Michael Brown</span> <span>2024-11-13</span>
-     </li>
-   </ul>
- </div>
-
- {/* Reward Chart */}
- <div className="bg-white p-4 rounded-lg shadow-sm">
-   <h3 className="text-xl font-semibold text-purple-600 mb-2">Referral Rewards</h3>
-   <table className="w-full table-auto">
-     <thead>
-       <tr>
-         <th className="text-left">Referrals</th>
-         <th className="text-left">Reward</th>
-       </tr>
-     </thead>
-     <tbody>
-       <tr>
-         <td>5 Referrals</td>
-         <td>10% Discount</td>
-       </tr>
-       <tr>
-         <td>100 Referrals</td>
-         <td>$50 Credit</td>
-       </tr>
-       <tr>
-         <td>1,000 Referrals</td>
-         <td>$500 Credit</td>
-       </tr>
-     </tbody>
-   </table>
- </div>
-</section>
-
-
+    </div>
+  </section>
 )}
 
+{activePanel === 'rewards' && (
+<section className="rewards-section bg-gray-50 p-6 rounded-lg shadow-md">
+  <header className="flex justify-between items-center mb-4">
+    <h2 className="text-2xl font-semibold text-purple-600">Your Referral & Rewards</h2>
+  </header>
 
-{/* Profile Panel */}
+  {/* Referral Code Display with Copy Button */}
+  <div className="flex items-center bg-white p-4 rounded-lg shadow-sm mb-6">
+    <span className="text-lg text-gray-700 font-semibold">{data.profile?.referralCode || "No Code Available"}</span>
+    <button
+      className="ml-4 bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-3 px-3 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105 flex items-center"
+      onClick={() => navigator.clipboard.writeText(data.profile?.referralCode || "")}
+    >
+      <span>Copy</span>
+      <svg
+        className="ml-2 w-5 h-5 text-white"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16h8M8 12h8m-6-4h6" />
+      </svg>
+    </button>
+  </div>
+
+  {/* Points & Voucher List */}
+  <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
+    <h3 className="text-xl font-semibold text-purple-600 mb-2">Your Rewards</h3>
+    <div className="flex justify-between mb-2">
+      <span className="text-gray-700">Points Balance:</span>
+      <span className="text-gray-800">{data.profile?.pointsBalance || 0} Points</span>
+    </div>
+    <div className="flex justify-between mb-2">
+      <span className="text-gray-700">Voucher:</span>
+      <span className="text-gray-800">10% Off</span>
+    </div>
+  </div>
+
+  {/* Referral User List */}
+  <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
+    <h3 className="text-xl font-semibold text-purple-600 mb-2">People Using Your Referral</h3>
+    <ul>
+      
+      <li className="flex justify-between text-gray-700 mb-2">
+        <span>John Doe</span> <span>2024-11-15</span>
+      </li>
+      <li className="flex justify-between text-gray-700 mb-2">
+        <span>Jane Smith</span> <span>2024-11-14</span>
+      </li>
+      <li className="flex justify-between text-gray-700 mb-2">
+        <span>Michael Brown</span> <span>2024-11-13</span>
+      </li>
+    </ul>
+  </div>
+
+  {/* Reward Chart */}
+  <div className="bg-white p-4 rounded-lg shadow-sm">
+    <h3 className="text-xl font-semibold text-purple-600 mb-2">Referral Rewards</h3>
+    <table className="w-full table-auto">
+      <thead>
+        <tr>
+          <th className="text-left">Referrals</th>
+          <th className="text-left">Reward</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>5 Referrals</td>
+          <td>10% Discount</td>
+        </tr>
+        <tr>
+          <td>100 Referrals</td>
+          <td>$50 Credit</td>
+        </tr>
+        <tr>
+          <td>1,000 Referrals</td>
+          <td>$500 Credit</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+   )}
+
+    {/* Profile Panel */}
 {activePanel === 'profile' && (
   <section className="profile-section bg-gray-50 p-8 rounded-lg shadow-lg">
     <header className="flex justify-between items-center mb-8">
       <h2 className="text-3xl font-semibold text-purple-600">Profile Settings</h2>
-     
     </header>
 
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -396,49 +390,80 @@ const CustomerDashboard: React.FC = () => {
           {/* Full Name */}
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-semibold mb-2">Full Name</label>
-            <input type="text" className="w-full px-4 py-2 border rounded-lg shadow-sm" />
+            <input
+              type="text"
+              className="w-full px-4 py-2 border rounded-lg shadow-sm"
+              defaultValue="gege"
+            />
           </div>
 
           {/* Username */}
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-semibold mb-2">Username</label>
-            <input type="text" className="w-full px-4 py-2 border rounded-lg shadow-sm" placeholder="Enter your username" />
+            <input
+              type="text"
+              className="w-full px-4 py-2 border rounded-lg shadow-sm"
+              defaultValue="gege"
+              placeholder="Enter your username"
+            />
           </div>
 
           {/* Email */}
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-semibold mb-2">Email</label>
-            <input type="email" className="w-full px-4 py-2 border rounded-lg shadow-sm" placeholder="Enter your email" />
+            <input
+              type="email"
+              className="w-full px-4 py-2 border rounded-lg shadow-sm"
+              defaultValue="gege@example.com"
+              placeholder="Enter your email"
+            />
           </div>
 
           {/* Phone Number */}
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-semibold mb-2">Phone Number</label>
-            <input type="text" className="w-full px-4 py-2 border rounded-lg shadow-sm" placeholder="Enter your phone number" />
+            <input
+              type="text"
+              className="w-full px-4 py-2 border rounded-lg shadow-sm"
+              placeholder="Enter your phone number"
+            />
           </div>
 
           {/* Bio */}
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-semibold mb-2">Bio</label>
-            <textarea className="w-full px-4 py-2 border rounded-lg shadow-sm" placeholder="Tell us about yourself" rows={4}>
-            
-            </textarea>
+            <textarea
+              className="w-full px-4 py-2 border rounded-lg shadow-sm"
+              placeholder="Tell us about yourself"
+              rows={4}
+            />
           </div>
 
           {/* Date of Birth */}
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-semibold mb-2">Date of Birth</label>
-            <input type="date" className="w-full px-4 py-2 border rounded-lg shadow-sm" />
+            <input
+              type="date"
+              className="w-full px-4 py-2 border rounded-lg shadow-sm"
+            />
           </div>
 
           {/* Profile Picture Upload */}
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-semibold mb-2">Profile Picture</label>
-            <input type="file" className="w-full px-4 py-2 border rounded-lg shadow-sm" />
+            <input
+              type="file"
+              className="w-full px-4 py-2 border rounded-lg shadow-sm"
+            />
           </div>
 
           {/* Save Button */}
-          <button type="submit" className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-3 px-3 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105">Save Changes</button>
+          <button
+            type="submit"
+            className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-3 px-3 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105"
+          >
+            Save Changes
+          </button>
         </form>
       </div>
 
@@ -449,14 +474,26 @@ const CustomerDashboard: React.FC = () => {
           {/* Password */}
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-semibold mb-2">Password</label>
-            <input type="password" className="w-full px-4 py-2 border rounded-lg shadow-sm" placeholder="Enter a new password" />
+            <input
+              type="password"
+              className="w-full px-4 py-2 border rounded-lg shadow-sm"
+              placeholder="Enter a new password"
+            />
           </div>
 
           {/* Social Media Links */}
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-semibold mb-2">Social Media</label>
-            <input type="text" className="w-full px-4 py-2 border rounded-lg shadow-sm mb-2" placeholder="Instagram Link" />
-            <input type="text" className="w-full px-4 py-2 border rounded-lg shadow-sm" placeholder="LinkedIn Link" />
+            <input
+              type="text"
+              className="w-full px-4 py-2 border rounded-lg shadow-sm mb-2"
+              placeholder="Instagram Link"
+            />
+            <input
+              type="text"
+              className="w-full px-4 py-2 border rounded-lg shadow-sm"
+              placeholder="LinkedIn Link"
+            />
           </div>
 
           {/* Language Preference */}
@@ -492,7 +529,12 @@ const CustomerDashboard: React.FC = () => {
           </div>
 
           {/* Save Button */}
-          <button type="submit" className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-3 px-3 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105">Save Changes</button>
+          <button
+            type="submit"
+            className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-3 px-3 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105"
+          >
+            Save Changes
+          </button>
         </form>
       </div>
     </div>
