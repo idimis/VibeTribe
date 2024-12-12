@@ -47,4 +47,10 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     Page<EventStatisticsDTO> findEventStatisticsByOrganizer(@Param("organizerId") Long organizerId, Pageable pageable);
 
     Optional<Event> findBySlug(String slug);
+
+    @Query("SELECT e FROM Event e JOIN Transaction t ON e.id = t.event.id " +
+            "WHERE e.dateTimeStart > :currentDateTime " +
+            "GROUP BY e.id " +
+            "ORDER BY COUNT(t.id) DESC")
+    Page<Event> findHottestUpcomingEvent(LocalDateTime currentDateTime, Pageable pageable);
 }

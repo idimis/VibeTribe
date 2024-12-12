@@ -175,4 +175,14 @@ public class EventController {
         PaginatedResponse<Event> paginatedEvents = PaginationUtil.toPaginatedResponse(events);
         return ApiResponse.successfulResponse("Get upcoming events success", paginatedEvents);
     }
+
+    @GetMapping("/hottest")
+    public ResponseEntity<?> getHottestUpcomingEvent(@PageableDefault(size = 10) Pageable pageable) {
+        Page<Event> hottestEvents = eventService.getHottestUpcomingEvent(pageable);
+        if (hottestEvents.isEmpty()) {
+            return ApiResponse.failedResponse(HttpStatus.NOT_FOUND.value(), "No upcoming events found");
+        }
+        PaginatedResponse<Event> paginatedHottestEvents = PaginationUtil.toPaginatedResponse(hottestEvents);
+        return ApiResponse.successfulResponse("Get hottest upcoming events success", paginatedHottestEvents);
+    }
 }

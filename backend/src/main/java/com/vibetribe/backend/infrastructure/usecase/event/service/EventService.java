@@ -206,4 +206,9 @@ public class EventService {
         return eventRepository.findBySlug(slug)
                 .orElseThrow(() -> new IllegalArgumentException("Event not found"));
     }
+
+    public Page<Event> getHottestUpcomingEvent(Pageable pageable) {
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        return eventRepository.findHottestUpcomingEvent(currentDateTime, pageable);
+    }
 }
