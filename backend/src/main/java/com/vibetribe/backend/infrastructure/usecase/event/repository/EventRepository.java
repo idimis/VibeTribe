@@ -32,6 +32,14 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "ORDER BY e.createdAt DESC")
     Page<Event> findUpcomingEventsSortedByNewest(Pageable pageable, LocalDateTime currentDateTime, String location, String category, String search);
 
+    @Query("SELECT e FROM Event e LEFT JOIN Review r ON e.id = r.eventId WHERE e.dateTimeStart > :currentDateTime AND " +
+            "(LOWER(e.location) = LOWER(:location) OR :location IS NULL) AND " +
+            "(LOWER(e.category) = LOWER(:category) OR :category IS NULL) AND " +
+            "(LOWER(e.title) LIKE LOWER(CONCAT('%', :search, '%')) OR :search IS NULL) " +
+            "GROUP BY e.id " +
+            "ORDER BY AVG(r.rating) DESC")
+    Page<Event> findUpcomingEventsSortedByHighestRating(Pageable pageable, LocalDateTime currentDateTime, String location, String category, String search);
+
     @Query("SELECT e FROM Event e JOIN Transaction t ON e.id = t.event.id WHERE t.customer.id = :customerId AND e.dateTimeEnd < :currentDateTime")
     Page<Event> findPastEventsByCustomer(Long customerId, LocalDateTime currentDateTime, Pageable pageable);
 

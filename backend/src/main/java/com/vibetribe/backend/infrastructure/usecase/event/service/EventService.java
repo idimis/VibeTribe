@@ -152,6 +152,17 @@ public class EventService {
         }
     }
 
+    public Page<Event> getUpcomingEvents(Pageable pageable, String location, String category, String search, boolean sortByNewest, boolean sortByHighestRating) {
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        if (sortByHighestRating) {
+            return eventRepository.findUpcomingEventsSortedByHighestRating(pageable, currentDateTime, location, category, search);
+        } else if (sortByNewest) {
+            return eventRepository.findUpcomingEventsSortedByNewest(pageable, currentDateTime, location, category, search);
+        } else {
+            return eventRepository.findUpcomingEvents(pageable, currentDateTime, location, category, search);
+        }
+    }
+
     @Transactional
     public ReviewResponseDTO submitReview(Long customerId, ReviewRequestDTO reviewRequest) {
         if (!ticketRepository.existsByCustomerIdAndEventId(customerId, reviewRequest.getEventId())) {

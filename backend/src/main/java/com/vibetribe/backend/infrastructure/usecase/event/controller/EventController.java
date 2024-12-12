@@ -86,13 +86,15 @@ public class EventController {
                                        @RequestParam(required = false) String category,
                                        @RequestParam(required = false) String search,
                                        @RequestParam(required = false, defaultValue = "false") boolean sortByNewest,
+                                       @RequestParam(required = false, defaultValue = "false") boolean sortByHighestRating,
                                        @PageableDefault(size = 10) Pageable pageable) {
 
         Page<Event> events = eventService.getUpcomingEvents(pageable,
                 location != null ? location.toLowerCase() : null,
                 category != null ? category.toLowerCase() : null,
                 search != null ? search.toLowerCase() : null,
-                sortByNewest);
+                sortByNewest,
+                sortByHighestRating);
 
         if (events.isEmpty()) {
             return ApiResponse.failedResponse(HttpStatus.NOT_FOUND.value(), "Events not found");
