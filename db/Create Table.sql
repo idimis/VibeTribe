@@ -1,6 +1,12 @@
 -- Ensure the schema 'vibetribe' exists
 CREATE SCHEMA IF NOT EXISTS vibetribe;
 
+-- Table: location
+CREATE TABLE vibetribe.location (
+    id SERIAL PRIMARY KEY,
+    city_name VARCHAR(100) NOT NULL UNIQUE
+);
+
 -- Table: user
 CREATE TABLE vibetribe."user" (
   id bigserial PRIMARY KEY NOT NULL,
