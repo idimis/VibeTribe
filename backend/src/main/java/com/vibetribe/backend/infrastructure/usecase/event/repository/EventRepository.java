@@ -18,11 +18,19 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     Page<Event> findByLocationNot(Pageable pageable, String location);
     Page<Event> findByOrganizerId(Pageable pageable, Long organizerId);
 
-    @Query("SELECT e FROM Event e WHERE (e.dateTimeStart > :#{#currentDateTime} OR (e.dateTimeStart = :#{#currentDateTime} AND e.dateTimeEnd >= :#{#currentDateTime})) " +
-            "AND (:location IS NULL OR LOWER(e.location) LIKE %:location%) " +
-            "AND (:category IS NULL OR LOWER(e.category) = :category) " +
-            "AND (:search IS NULL OR LOWER(e.title) LIKE %:search%)")
+    @Query("SELECT e FROM Event e WHERE e.dateTimeStart > :currentDateTime AND " +
+            "(e.location = :location OR :location IS NULL) AND " +
+            "(e.category = :category OR :category IS NULL) AND " +
+            "(e.title LIKE %:search% OR :search IS NULL) " +
+            "ORDER BY e.dateTimeStart ASC")
     Page<Event> findUpcomingEvents(Pageable pageable, LocalDateTime currentDateTime, String location, String category, String search);
+
+    @Query("SELECT e FROM Event e WHERE e.dateTimeStart > :currentDateTime AND " +
+            "(e.location = :location OR :location IS NULL) AND " +
+            "(e.category = :category OR :category IS NULL) AND " +
+            "(e.title LIKE %:search% OR :search IS NULL) " +
+            "ORDER BY e.createdAt DESC")
+    Page<Event> findUpcomingEventsSortedByNewest(Pageable pageable, LocalDateTime currentDateTime, String location, String category, String search);
 
     @Query("SELECT e FROM Event e JOIN Transaction t ON e.id = t.event.id WHERE t.customer.id = :customerId AND e.dateTimeEnd < :currentDateTime")
     Page<Event> findPastEventsByCustomer(Long customerId, LocalDateTime currentDateTime, Pageable pageable);

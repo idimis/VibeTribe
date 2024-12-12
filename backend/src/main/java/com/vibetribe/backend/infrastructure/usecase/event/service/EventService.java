@@ -143,9 +143,13 @@ public class EventService {
         return eventRepository.findByLocationNot(pageable, location);
     }
 
-    public Page<Event> getUpcomingEvents(Pageable pageable, String location, String category, String search) {
+    public Page<Event> getUpcomingEvents(Pageable pageable, String location, String category, String search, boolean sortByNewest) {
         LocalDateTime currentDateTime = LocalDateTime.now();
-        return eventRepository.findUpcomingEvents(pageable, currentDateTime, location, category, search);
+        if (sortByNewest) {
+            return eventRepository.findUpcomingEventsSortedByNewest(pageable, currentDateTime, location, category, search);
+        } else {
+            return eventRepository.findUpcomingEvents(pageable, currentDateTime, location, category, search);
+        }
     }
 
     @Transactional
