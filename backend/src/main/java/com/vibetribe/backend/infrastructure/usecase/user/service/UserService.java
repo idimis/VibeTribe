@@ -1,10 +1,19 @@
 package com.vibetribe.backend.infrastructure.usecase.user.service;
 
+import com.vibetribe.backend.common.response.PaginatedResponse;
+import com.vibetribe.backend.common.util.PaginationUtil;
 import com.vibetribe.backend.common.util.ReferralCodeGenerator;
+import com.vibetribe.backend.entity.Event;
 import com.vibetribe.backend.entity.User;
+import com.vibetribe.backend.infrastructure.usecase.event.repository.EventRepository;
 import com.vibetribe.backend.infrastructure.usecase.user.dto.CreateUserRequestDTO;
 import com.vibetribe.backend.infrastructure.usecase.user.dto.UpdateUserRequestDTO;
+import com.vibetribe.backend.infrastructure.usecase.user.dto.UserPublicDetailsDTO;
 import com.vibetribe.backend.infrastructure.usecase.user.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,13 +24,18 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ReferralService referralService;
+    private final EventRepository eventRepository;
 
     private static final String DEFAULT_PROFILE_ICON_URL = "https://img.icons8.com/?size=100&id=tZuAOUGm9AuS&format=png&color=000000";
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ReferralService referralService) {
+    public UserService(UserRepository userRepository,
+                       PasswordEncoder passwordEncoder,
+                       ReferralService referralService,
+                       EventRepository eventRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.referralService = referralService;
+        this.eventRepository = eventRepository;
     }
 
     @Transactional
@@ -110,5 +124,25 @@ public class UserService {
         user.setAddress(updateUserRequestDTO.getAddress());
 
         return userRepository.save(user);
+    }
+
+    public UserPublicDetailsDTO getUserDetails(Long userId, Pageable pageable) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        UserPublicDetailsDTO userDetails = new UserPublicDetailsDTO();
+        userDetails.setPhotoProfileUrl(user.getPhotoProfileUrl());
+        userDetails.setFullName(user.getName());
+        userDetails.setEmail(user.getEmail());
+
+        if (user.getRole().equals("ORGANIZER")) {
+            userDetails.setWebsite(user.getWebsite());
+            Pageable page = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
+            Page<Event> events = eventRepository.findByOrganizerId(pageable, userId);
+            PaginatedResponse<Event> paginatedEvents = PaginationUtil.toPaginatedResponse(events);
+            userDetails.setEvents(paginatedEvents);
+        }
+
+        return userDetails;
     }
 }
