@@ -19,16 +19,16 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     Page<Event> findByOrganizerId(Pageable pageable, Long organizerId);
 
     @Query("SELECT e FROM Event e WHERE e.dateTimeStart > :currentDateTime AND " +
-            "(e.location = :location OR :location IS NULL) AND " +
-            "(e.category = :category OR :category IS NULL) AND " +
-            "(e.title LIKE %:search% OR :search IS NULL) " +
+            "(LOWER(e.location) = LOWER(:location) OR :location IS NULL) AND " +
+            "(LOWER(e.category) = LOWER(:category) OR :category IS NULL) AND " +
+            "(LOWER(e.title) LIKE LOWER(CONCAT('%', :search, '%')) OR :search IS NULL) " +
             "ORDER BY e.dateTimeStart ASC")
     Page<Event> findUpcomingEvents(Pageable pageable, LocalDateTime currentDateTime, String location, String category, String search);
 
     @Query("SELECT e FROM Event e WHERE e.dateTimeStart > :currentDateTime AND " +
-            "(e.location = :location OR :location IS NULL) AND " +
-            "(e.category = :category OR :category IS NULL) AND " +
-            "(e.title LIKE %:search% OR :search IS NULL) " +
+            "(LOWER(e.location) = LOWER(:location) OR :location IS NULL) AND " +
+            "(LOWER(e.category) = LOWER(:category) OR :category IS NULL) AND " +
+            "(LOWER(e.title) LIKE LOWER(CONCAT('%', :search, '%')) OR :search IS NULL) " +
             "ORDER BY e.createdAt DESC")
     Page<Event> findUpcomingEventsSortedByNewest(Pageable pageable, LocalDateTime currentDateTime, String location, String category, String search);
 
