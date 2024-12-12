@@ -7,12 +7,14 @@ import lombok.Setter;
 @Setter
 public class ReviewSummaryDTO {
     private String eventName;
+    private String photoProfileUrl;
     private String customerName;
     private Integer rating;
     private String review;
 
-    public ReviewSummaryDTO(String title, String name, Integer rating, String review) {
+    public ReviewSummaryDTO(String title, String photoProfileUrl, String name, Integer rating, String review) {
         this.eventName = title;
+        this.photoProfileUrl = photoProfileUrl;
         this.customerName = name;
         this.rating = rating;
         this.review = review;
