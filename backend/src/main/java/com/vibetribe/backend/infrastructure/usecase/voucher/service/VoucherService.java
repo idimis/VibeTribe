@@ -3,7 +3,9 @@ package com.vibetribe.backend.infrastructure.usecase.voucher.service;
 import com.vibetribe.backend.common.util.VoucherCodeGenerator;
 import com.vibetribe.backend.entity.*;
 import com.vibetribe.backend.infrastructure.usecase.event.repository.EventRepository;
+import com.vibetribe.backend.infrastructure.usecase.user.repository.UserRepository;
 import com.vibetribe.backend.infrastructure.usecase.voucher.dto.CreateVoucherRequestDTO;
+import com.vibetribe.backend.infrastructure.usecase.voucher.dto.VoucherDTO;
 import com.vibetribe.backend.infrastructure.usecase.voucher.dto.VoucherDetailsDTO;
 import com.vibetribe.backend.infrastructure.usecase.voucher.dto.VoucherSummaryDTO;
 import com.vibetribe.backend.infrastructure.usecase.voucher.repository.DateRangeBasedVoucherRepository;
@@ -22,15 +24,18 @@ public class VoucherService {
     private final EventRepository eventRepository;
     private final DateRangeBasedVoucherRepository dateRangeBasedVoucherRepository;
     private final QuantityBasedVoucherRepository quantityBasedVoucherRepository;
+    private final UserRepository userRepository;
 
     public VoucherService(VoucherRepository voucherRepository,
                           EventRepository eventRepository,
                           DateRangeBasedVoucherRepository dateRangeBasedVoucherRepository,
-                          QuantityBasedVoucherRepository quantityBasedVoucherRepository) {
+                          QuantityBasedVoucherRepository quantityBasedVoucherRepository,
+                          UserRepository userRepository) {
         this.voucherRepository = voucherRepository;
         this.eventRepository = eventRepository;
         this.dateRangeBasedVoucherRepository = dateRangeBasedVoucherRepository;
         this.quantityBasedVoucherRepository = quantityBasedVoucherRepository;
+        this.userRepository = userRepository;
     }
 
     public Voucher createEventVoucher(CreateVoucherRequestDTO request, Long organizerId) {
@@ -92,5 +97,22 @@ public class VoucherService {
 
     public Page<Voucher> getVouchersByEventId(Long eventId, Pageable pageable) {
         return voucherRepository.findByEventId(eventId, pageable);
+    }
+
+    public Page<VoucherDTO> getVouchersForCustomer(Long customerId, Pageable pageable) {
+        User customer = userRepository.findById(customerId)
+                .orElseThrow(() -> new IllegalArgumentException("Customer not found"));
+
+        Page<Voucher> vouchers = voucherRepository.findByUserId(customerId, pageable);
+
+        return vouchers.map(voucher -> {
+            VoucherDTO dto = new VoucherDTO();
+            dto.setId(voucher.getId());
+            dto.setCode(voucher.getVoucherCode());
+            dto.setDescription(voucher.getDescription());
+            dto.setExpiryDate(voucher.getExpiresAt());
+            dto.setUsed(voucher.isUsed());
+            return dto;
+        });
     }
 }

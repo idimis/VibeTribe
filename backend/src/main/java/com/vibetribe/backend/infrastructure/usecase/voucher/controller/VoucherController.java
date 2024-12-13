@@ -6,6 +6,7 @@ import com.vibetribe.backend.common.util.PaginationUtil;
 import com.vibetribe.backend.entity.Voucher;
 import com.vibetribe.backend.infrastructure.system.security.Claims;
 import com.vibetribe.backend.infrastructure.usecase.voucher.dto.CreateVoucherRequestDTO;
+import com.vibetribe.backend.infrastructure.usecase.voucher.dto.VoucherDTO;
 import com.vibetribe.backend.infrastructure.usecase.voucher.dto.VoucherDetailsDTO;
 import com.vibetribe.backend.infrastructure.usecase.voucher.dto.VoucherSummaryDTO;
 import com.vibetribe.backend.infrastructure.usecase.voucher.service.VoucherService;
@@ -58,5 +59,16 @@ public class VoucherController {
         Page<Voucher> vouchers = voucherService.getVouchersByEventId(eventId, pageable);
         PaginatedResponse paginatedVouchers = PaginationUtil.toPaginatedResponse(vouchers);
         return ApiResponse.successfulResponse("Get all vouchers by event success", paginatedVouchers);
+    }
+
+    @PreAuthorize("hasRole('CUSTOMER')")
+    @GetMapping("/my-vouchers")
+    public ResponseEntity<?> getMyVouchers(@PageableDefault(size = 10) Pageable pageable) {
+        Long customerId = Claims.getUserIdFromJwt();
+
+        Page<VoucherDTO> vouchers = voucherService.getVouchersForCustomer(customerId, pageable);
+        PaginatedResponse<VoucherDTO> paginatedVouchers = PaginationUtil.toPaginatedResponse(vouchers);
+
+        return ApiResponse.successfulResponse("Get vouchers success", paginatedVouchers);
     }
 }
