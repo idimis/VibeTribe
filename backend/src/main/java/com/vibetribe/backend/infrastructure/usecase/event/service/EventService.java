@@ -12,6 +12,7 @@ import com.vibetribe.backend.infrastructure.usecase.review.dto.ReviewRequestDTO;
 import com.vibetribe.backend.infrastructure.usecase.review.dto.ReviewResponseDTO;
 import com.vibetribe.backend.infrastructure.usecase.review.repository.ReviewRepository;
 import com.vibetribe.backend.infrastructure.usecase.ticket.repository.TicketRepository;
+import com.vibetribe.backend.infrastructure.usecase.transaction.dto.TransactionHistoryDTO;
 import com.vibetribe.backend.infrastructure.usecase.transaction.repository.TransactionRepository;
 import com.vibetribe.backend.infrastructure.usecase.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -218,5 +219,9 @@ public class EventService {
     public Page<Event> getHottestUpcomingEvent(Pageable pageable) {
         LocalDateTime currentDateTime = LocalDateTime.now();
         return eventRepository.findHottestUpcomingEvent(currentDateTime, pageable);
+    }
+
+    public Page<TransactionHistoryDTO> getTransactionHistoryByOrganizer(Long organizerId, Pageable pageable) {
+        return transactionRepository.findTransactionHistoryByOrganizer(organizerId, pageable);
     }
 }

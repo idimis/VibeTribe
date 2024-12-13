@@ -13,6 +13,7 @@ import com.vibetribe.backend.infrastructure.usecase.event.service.EventService;
 import com.vibetribe.backend.infrastructure.usecase.review.dto.ReviewRequestDTO;
 import com.vibetribe.backend.infrastructure.usecase.review.dto.ReviewResponseDTO;
 import com.vibetribe.backend.infrastructure.usecase.review.service.ReviewService;
+import com.vibetribe.backend.infrastructure.usecase.transaction.dto.TransactionHistoryDTO;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -80,6 +81,20 @@ public class EventController {
         Page<EventStatisticsDTO> statistics = eventService.getEventStatisticsByOrganizer(organizerId, pageable);
         PaginatedResponse<EventStatisticsDTO> paginatedStatistics = PaginationUtil.toPaginatedResponse(statistics);
         return ApiResponse.successfulResponse("Get event statistics success", paginatedStatistics);
+    }
+
+    @PreAuthorize("hasRole('ORGANIZER')")
+    @GetMapping("/transaction-history")
+    public ResponseEntity<?> getTransactionHistoryByOrganizer(@PageableDefault(size = 10) Pageable pageable) {
+        Long organizerId = Claims.getUserIdFromJwt();
+        Page<TransactionHistoryDTO> transactionHistory = eventService.getTransactionHistoryByOrganizer(organizerId, pageable);
+
+        if (transactionHistory.isEmpty()) {
+            return ApiResponse.failedResponse(HttpStatus.NOT_FOUND.value(), "Transaction history not found");
+        }
+
+        PaginatedResponse<TransactionHistoryDTO> paginatedTransactionHistory = PaginationUtil.toPaginatedResponse(transactionHistory);
+        return ApiResponse.successfulResponse("Get transaction history success", paginatedTransactionHistory);
     }
 
     @GetMapping
