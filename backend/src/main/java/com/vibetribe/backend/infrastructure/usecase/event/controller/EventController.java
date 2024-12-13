@@ -6,6 +6,7 @@ import com.vibetribe.backend.common.util.PaginationUtil;
 import com.vibetribe.backend.entity.Event;
 import com.vibetribe.backend.infrastructure.system.security.Claims;
 import com.vibetribe.backend.infrastructure.usecase.event.dto.CreateEventRequestDTO;
+import com.vibetribe.backend.infrastructure.usecase.event.dto.EventDTO;
 import com.vibetribe.backend.infrastructure.usecase.event.dto.EventStatisticsDTO;
 import com.vibetribe.backend.infrastructure.usecase.event.dto.UpdateEventRequestDTO;
 import com.vibetribe.backend.infrastructure.usecase.event.service.EventService;
@@ -106,7 +107,7 @@ public class EventController {
 
     @GetMapping("/{slug}")
     public ResponseEntity<?> getEventBySlug(@PathVariable String slug) {
-        Event event = eventService.getEventBySlug(slug);
+        EventDTO event = eventService.getEventBySlug(slug);
         return ApiResponse.successfulResponse("Get event by slug success", event);
     }
 
