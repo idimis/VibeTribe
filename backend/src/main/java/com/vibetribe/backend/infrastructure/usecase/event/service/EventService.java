@@ -209,9 +209,10 @@ public class EventService {
         return eventRepository.findEventStatisticsByOrganizer(organizerId, pageable);
     }
 
-    public Event getEventBySlug(String slug) {
-        return eventRepository.findBySlug(slug)
+    public EventDTO getEventBySlug(String slug) {
+        Event event = eventRepository.findBySlug(slug)
                 .orElseThrow(() -> new IllegalArgumentException("Event not found"));
+        return convertToDTO(event);
     }
 
     public Page<Event> getHottestUpcomingEvent(Pageable pageable) {
