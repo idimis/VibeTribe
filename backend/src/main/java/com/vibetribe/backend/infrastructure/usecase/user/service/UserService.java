@@ -131,6 +131,7 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         UserPublicDetailsDTO userDetails = new UserPublicDetailsDTO();
+        userDetails.setUserId(user.getId());
         userDetails.setPhotoProfileUrl(user.getPhotoProfileUrl());
         userDetails.setFullName(user.getName());
         userDetails.setEmail(user.getEmail());

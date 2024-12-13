@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 public class UserPublicDetailsDTO {
 
+    private Long userId;
     private String photoProfileUrl;
     private String fullName;
     private String email;
