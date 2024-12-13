@@ -7,15 +7,15 @@ import lombok.Setter;
 @Setter
 public class ReviewSummaryDTO {
     private String eventName;
-    private Long customerId;
+    private Long userId;
     private String photoProfileUrl;
     private String customerName;
     private Integer rating;
     private String review;
 
-    public ReviewSummaryDTO(String title, Long customerId, String photoProfileUrl, String name, Integer rating, String review) {
+    public ReviewSummaryDTO(String title, Long userId, String photoProfileUrl, String name, Integer rating, String review) {
         this.eventName = title;
-        this.customerId = customerId;
+        this.userId = userId;
         this.photoProfileUrl = photoProfileUrl;
         this.customerName = name;
         this.rating = rating;
