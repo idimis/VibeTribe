@@ -122,6 +122,7 @@ public class EventService {
     private EventDTO convertToDTO(Event event) {
         return new EventDTO(
                 event.getId(),
+                event.getOrganizer().getId(),
                 event.getImageUrl(),
                 event.getTitle(),
                 event.getDescription(),
