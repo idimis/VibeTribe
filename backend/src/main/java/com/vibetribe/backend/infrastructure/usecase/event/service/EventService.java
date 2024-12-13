@@ -143,15 +143,6 @@ public class EventService {
         return eventRepository.findByLocationNot(pageable, location);
     }
 
-    public Page<Event> getUpcomingEvents(Pageable pageable, String location, String category, String search, boolean sortByNewest) {
-        LocalDateTime currentDateTime = LocalDateTime.now();
-        if (sortByNewest) {
-            return eventRepository.findUpcomingEventsSortedByNewest(pageable, currentDateTime, location, category, search);
-        } else {
-            return eventRepository.findUpcomingEvents(pageable, currentDateTime, location, category, search);
-        }
-    }
-
     public Page<Event> getUpcomingEvents(Pageable pageable, String location, String category, String search, boolean sortByNewest, boolean sortByHighestRating) {
         LocalDateTime currentDateTime = LocalDateTime.now();
         if (sortByHighestRating) {
@@ -174,6 +165,10 @@ public class EventService {
 
         if (event.getDateTimeEnd().isAfter(LocalDateTime.now())) {
             throw new IllegalArgumentException("Event has not ended yet");
+        }
+
+        if (reviewRepository.existsByCustomerIdAndEventId(customerId, reviewRequest.getEventId())) {
+            throw new IllegalArgumentException("Customer has already submitted a review for this event");
         }
 
         User customer = userRepository.findById(customerId)

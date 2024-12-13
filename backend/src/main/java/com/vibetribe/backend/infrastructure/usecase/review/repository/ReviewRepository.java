@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
     Page<Review> findByEventId(Long eventId, Pageable pageable);
+    boolean existsByCustomerIdAndEventId(Long customerId, Long eventId);
 
     @Query("SELECT new com.vibetribe.backend.infrastructure.usecase.review.dto.ReviewSummaryDTO(e.title, c.id, c.photoProfileUrl, c.name, r.rating, r.review) " +
             "FROM Review r " +
