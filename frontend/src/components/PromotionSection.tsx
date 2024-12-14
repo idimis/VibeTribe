@@ -38,14 +38,14 @@ const promotions: Promotion[] = [
     description: 'First time? Enjoy this limited-time offer!',
     discount: 'Up to 35% OFF',
     imageUrl: discount3,  
-    link: '/events/surabaya-culinary-tour',
+    link: '/events/jakarta-food-festival',
   },
 ];
 
 const PromotionSection: React.FC = () => {
   return (
     <div className="w-full max-w-[1440px] mx-auto px-4 py-12">
-      <h2 className="text-4xl font-bold text-purple-600 text-center mb-8">
+      <h2 className="text-3xl font-bold text-purple-600 text-center mb-8">
         Hot Promotions
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">

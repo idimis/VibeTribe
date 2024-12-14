@@ -10,116 +10,110 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080"
 const ConfirmationPage: React.FC = () => {
   const searchParams = useSearchParams();
   const eventSlug = searchParams.get("id");
-  const quantity = parseInt(searchParams.get("quantity") || "");
+  const quantity = parseInt(searchParams.get("quantity") || "0");
   const transactionId = searchParams.get("transactionId");
-  const voucher = parseInt(searchParams.get("voucher") || "");
-  const points = parseInt(searchParams.get("points") || "");
-  const fee = parseFloat(searchParams.get("fee") || "");
-  
-  const [event, setEvent] = useState<any>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const voucher = parseInt(searchParams.get("voucher") || "0");
+  const points = parseInt(searchParams.get("points") || "0");
+  const fee = parseFloat(searchParams.get("fee") || "0");
+
+  const [eventDetails, setEventDetails] = useState<any>(null);
+  const [userDetails, setUserDetails] = useState<any>(null);
 
   useEffect(() => {
     const fetchEventDetails = async () => {
-      setLoading(true);
       try {
-        const response = await fetch(`${BASE_URL}/api/v1/events/${eventSlug}`);
-        const data = await response.json();
+        const response = await fetch(`${BASE_URL}/api/v1/events/${eventSlug}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
 
-        if (data.success && data.data) {
-          setEvent(data.data);
-        } else {
-          console.error("Event not found or API error");
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
         }
+
+        const data = await response.json();
+        setEventDetails(data.data); // Update to access 'data' from the response JSON
       } catch (error) {
-        console.error("Error fetching event details:", error);
-      } finally {
-        setLoading(false);
+        console.error("Failed to fetch event details", error);
       }
     };
 
-    if (eventSlug) {
-      fetchEventDetails();
-    }
+    const fetchUserDetails = async () => {
+      try {
+        const response = await fetch(`${BASE_URL}/api/v1/user/details`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const data = await response.json();
+        setUserDetails(data);
+      } catch (error) {
+        console.error("Failed to fetch user details", error);
+      }
+    };
+
+    fetchEventDetails();
+    fetchUserDetails();
   }, [eventSlug]);
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('id-ID', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
+  const calculateTotal = () => {
+    const discountedPrice = (fee - points) * (1 - voucher / 100);
+    return Math.max(0, discountedPrice);
   };
-
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('id-ID', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!event) {
-    return <div>Event not found</div>;
-  }
-  
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow max-w-[1440px] mx-auto p-6">
         <div className="receipt max-w-4xl mx-auto space-y-8">
-          {/* Confirmation Page Header */}
+          {/* Invoice Header */}
           <div className="text-center my-8">
-            <h1 className="text-4xl font-bold text-blue-600">Payment Success!</h1>
-            <p className="mt-4 text-lg text-gray-700">Thank you for your payment! Here are your ticket details:</p>
+            <h1 className="text-4xl font-bold text-blue-600">Payment Confirmation</h1>
+            <p className="mt-4 text-lg text-gray-700">Thank you for your payment! Below are your transaction details:</p>
           </div>
 
-          {/* Event Title */}
-          <div className="text-center my-4">
-            <h2 className="text-3xl font-semibold text-gray-800">{event.title}</h2>
-          </div>
-
-          {/* Event Details */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-gray-800">Event Details</h3>
-            <p className="text-gray-500 text-sm">
-              <span className="font-medium">Category: </span>
-              {event.category}
-            </p>
-            <div className="flex flex-col md:flex-row md:justify-between md:items-center text-gray-600">
-              <p>
-                <span className="font-medium">Date: </span>
-                {formatDate(event.dateTimeStart)}
-              </p>
-              <p>
-                <span className="font-medium">Time: </span>
-                {formatTime(event.dateTimeStart)} - {formatTime(event.dateTimeEnd)}
-              </p>
+          {/* Invoice Details */}
+          <div className="bg-white shadow-lg p-6 rounded-lg">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-semibold text-gray-800">Invoice</h2>
+                <p className="text-sm text-gray-500">Transaction ID: {transactionId}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-xl font-semibold text-gray-800">{eventDetails ? eventDetails.title : "Loading..."}</p>
+                <p className="text-sm text-gray-500">{eventDetails ? eventDetails.dateTimeStart : "Loading..."}</p>
+              </div>
             </div>
-            <div className="text-gray-600">
-              <p>
-                <span className="font-medium">Location: </span>
-                {event.location} ({event.locationDetails})
-              </p>
-            </div>
-          </div>
 
-          {/* Transaction Details */}
-          <div className="bg-gray-100 p-4 rounded-lg space-y-4 my-4">
+            {/* Event & User Information */}
+            <div className="mt-6 grid grid-cols-2 gap-4">
+              <div>
+                <h3 className="text-lg font-medium text-gray-700">Event Details</h3>
+                <p><strong>Event Name:</strong> {eventDetails ? eventDetails.title : "Loading..."}</p>
+                <p><strong>Event Date:</strong> {eventDetails ? eventDetails.dateTimeStart : "Loading..."}</p>
+                <p><strong>Quantity:</strong> {quantity}</p>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-medium text-gray-700">User Information</h3>
+                <p><strong>Name:</strong> {userDetails ? userDetails.name : "Loading..."}</p>
+                <p><strong>Email:</strong> {userDetails ? userDetails.email : "Loading..."}</p>
+              </div>
+            </div>
+
+            {/* Transaction Details */}
+            <div className="bg-gray-100 p-4 rounded-lg space-y-4 my-4">
+              <div className="flex justify-between">
+                <span>Quantity:</span>
+                <span>{quantity}</span>
+              </div>
+            </div>
             <div className="flex justify-between">
-              <span>Quantity:</span>
-              <span>{quantity}</span>
-            </div>
-            <div className="flex justify-between">
-            <span>Voucher Applied:</span>
-            <span>{voucher ? `${voucher}% Off` : '0% Off'}</span>
+              <span>Voucher Applied:</span>
+              <span>{voucher ? `${voucher}% Off` : '0% Off'}</span>
             </div>
             <div className="flex justify-between">
               <span>Points Used:</span>
@@ -130,37 +124,31 @@ const ConfirmationPage: React.FC = () => {
               <span>{fee ? fee : 'N/A'}</span>
             </div>
             <div className="flex justify-between font-semibold">
-  <span>Total:</span>
-  <span>
-    {Number(fee) * Number(quantity) - (points ? Number(points) : 0)}
-  </span>
-</div>
+              <span>Total:</span>
+              <span>{Number(fee) * Number(quantity) - (points ? Number(points) : 0)}</span>
+            </div>
 
+            {/* Payment Confirmation */}
+            <div className="mt-8 text-center">
+              <p className="text-lg text-gray-700 mt-4">
+                <span className="font-bold text-xl">Thank you for your purchase!</span><br />
+                We appreciate your support and look forward to seeing you at the event!<br /><br />
+                <span className="text-lg font-medium">Transaction ID:</span> <strong>{transactionId}</strong><br /><br />
+                <span className="text-sm text-gray-600">
+                  You can use this Transaction ID for tracking, future references, or customer support inquiries.<br />
+                  Please keep this information safe, as it may be helpful in case of any issues related to your booking.
+                </span>
+              </p>
+              <div className="mt-6">
+                <a href="/" className="text-blue-600 font-semibold hover:underline">Return to Homepage</a>
+              </div>
+            </div>
           </div>
-
-          {/* Payment Confirmation */}
-<div className="text-center mt-8">
-  <p className="text-lg text-gray-700 mt-4">
-    <span className="font-bold text-xl">Thank you for trusting us!</span><br />
-    We appreciate your support and are excited to have you as part of this event!<br /><br />
-
-    <span className="text-lg font-medium">Transaction ID:</span> <strong>{transactionId}</strong><br /><br />
-
-    <span className="text-sm text-gray-600">
-      You can use this Transaction ID for tracking, future references, or customer support inquiries.<br />
-      Please keep this information safe, as it may be helpful in case of any issues related to your booking.
-    </span>
-  </p>
-
-  <div className="mt-6">
-    <a href="/" className="text-blue-600 font-semibold hover:underline">Return to Homepage</a>
-  </div>
-</div>
-</div>
-</main>
-<Footer />
-</div>
-);
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
 };
 
 export default ConfirmationPage;

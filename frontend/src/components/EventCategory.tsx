@@ -25,29 +25,31 @@ const categories: Category[] = [
 
 const CategorySection: React.FC = () => {
   return (
-    <div className="max-w-[1440px] mx-auto p-6">
+    <section className="max-w-[1440px] mx-auto px-8 py-12 my-8">
       <div className="flex flex-wrap justify-center md:justify-around">
         {categories.map((category) => (
           <Link
             href={`/category/${category.slug}`}
             key={category.slug}
-            className="flex flex-col items-center cursor-pointer mb-4 w-1/2 md:w-1/5"
+            className="flex flex-col items-center cursor-pointer w-1/2 md:w-1/5"
           >
-            <div className="w-20 h-20 md:w-24 md:h-24 border-2 border-gray-200 bg-transparent rounded-full flex items-center justify-center mb-2">
+            <div className="w-24 h-24 md:w-28 md:h-28 border-2 border-gray-200 bg-transparent rounded-full flex items-center justify-center mb-4">
               <Image
                 src={category.icon}
                 alt={category.name}
-                width={64}
-                height={64}
+                width={72}
+                height={72}
                 className="object-contain"
                 priority
               />
             </div>
-            <span className="mt-2 text-sm md:text-lg text-center">{category.name}</span>
+            <span className="text-sm md:text-lg text-center font-medium">
+              {category.name}
+            </span>
           </Link>
         ))}
       </div>
-    </div>
+    </section>
   );
 };
 

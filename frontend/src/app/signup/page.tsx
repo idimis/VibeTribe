@@ -16,6 +16,8 @@ const Signup: React.FC = () => {
   const [website, setWebsite] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [address, setAddress] = useState('');
+  const [referralCode, setReferralCode] = useState('');
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   useEffect(() => {
     setEmail('');
@@ -24,6 +26,7 @@ const Signup: React.FC = () => {
     setWebsite('');
     setPhoneNumber('');
     setAddress('');
+    setReferralCode('');
   }, []);
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -32,7 +35,16 @@ const Signup: React.FC = () => {
       const response = await fetch('http://localhost:8080/api/v1/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, role, website, phoneNumber, address }),
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          role,
+          website,
+          phoneNumber,
+          address,
+          referralCode: referralCode || undefined,
+        }),
       });
 
       if (!response.ok) {
@@ -45,7 +57,11 @@ const Signup: React.FC = () => {
       if (contentType && contentType.includes('application/json')) {
         const data = await response.json();
         localStorage.setItem('user', JSON.stringify(data));
-        window.location.href = '/login';
+        setShowSuccessPopup(true); // Show success popup
+        setTimeout(() => {
+          setShowSuccessPopup(false);
+          window.location.href = '/login'; // Redirect after 3 seconds
+        }, 3000);
       } else {
         throw new Error('Server did not return JSON');
       }
@@ -96,6 +112,14 @@ const Signup: React.FC = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+            />
+
+            <input
+              type="text"
+              placeholder="Referral Code (optional)"
+              className="border border-gray-300 rounded-lg p-2 w-full mb-4"
+              value={referralCode}
+              onChange={(e) => setReferralCode(e.target.value)}
             />
 
             <div className="flex justify-between mb-4">
@@ -156,21 +180,18 @@ const Signup: React.FC = () => {
               Sign Up
             </button>
           </form>
-
-          <p className="text-gray-600 mb-4 text-center">or</p>
-          <div className="flex justify-center w-full max-w-xs mb-4">
-            <button className="flex items-center bg-white border border-gray-300 rounded-full py-2 px-4 hover:bg-gray-100 transition duration-300 w-full">
-              <Image src={GoogleIcon} alt="Google" width={20} height={20} className="mr-2" />
-              Sign up with Google
-            </button>
-          </div>
-
-          <p className="mt-4 text-gray-700 text-center">
-            Already have an account?{' '}
-            <Link href="/login" className="text-purple-600 underline">Login</Link>
-          </p>
         </div>
       </div>
+
+      {showSuccessPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+            <h2 className="text-xl font-semibold mb-2">Account Created Successfully!</h2>
+            <p className="text-gray-600">You will be redirected to the login page shortly.</p>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </>
   );
