@@ -36,7 +36,6 @@ interface CategoryPageProps {
 }
 
 const CategoryPage: React.FC<CategoryPageProps> = ({ params }) => {
-  const [slug, setSlug] = useState<string | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -48,14 +47,8 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ params }) => {
     "food-drink": "Food & Drink",
   };
 
-  useEffect(() => {
-    const fetchSlug = async () => {
-      const paramsData = await params; 
-      setSlug(paramsData.slug || null);
-    };
-
-    fetchSlug();
-  }, [params]);
+  // Access slug directly from params prop
+  const slug = params.slug;
 
   useEffect(() => {
     const fetchCategoryEvents = async () => {

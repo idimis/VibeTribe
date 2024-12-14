@@ -30,12 +30,20 @@ interface Review {
   photoProfileUrl?: string; 
 }
 
+interface Voucher {
+  voucherId: number;
+  eventName: string;
+  voucherCode: string;
+  status: string;
+}
+
 interface VoucherResponse {
   success: boolean;
   data: {
-    content: Voucher[]; 
+    content: Voucher[];
   };
 }
+
 
 const OrganizerDashboard: React.FC = () => {
   const [data, setData] = useState<any>({ events: [], profile: {} });
@@ -43,7 +51,8 @@ const OrganizerDashboard: React.FC = () => {
   const [statistics, setStatistics] = useState<any>(null);
   const [chartType, setChartType] = useState<"monthly" | "yearly">("monthly");
   const [review, setReview] = useState<Review | null>(null);
-  const [voucherData, setVoucherData] = useState<VoucherResponse | null>(null);
+
+  const [voucherData, setVoucherData] = useState<Voucher[]>([]); 
   const [loading, setLoading] = useState(true);
   const [voucherCode, setVoucherCode] = useState("");
   const [eventId, setEventId] = useState("");
@@ -53,6 +62,9 @@ const OrganizerDashboard: React.FC = () => {
   const [endDate, setEndDate] = useState("");
   const [voucherSuccess, setVoucherSuccess] = useState<string | null>(null);
   const [voucherError, setVoucherError] = useState<string | null>(null);
+  const [voucherType, setVoucherType] = useState<"quantity" | "dateRange">("quantity"); 
+  const [quantityLimit, setQuantityLimit] = useState<number>(50); 
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [website, setWebsite] = useState("");
@@ -61,6 +73,15 @@ const OrganizerDashboard: React.FC = () => {
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
+
+
+  useEffect(() => {
+    fetchData();
+    fetchStatistics();
+    fetchTransactionHistory();
+    fetchReviewsByOrganizer();
+    fetchVouchers();
+  }, []);
 
   const fetchData = async () => {
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -216,10 +237,8 @@ const OrganizerDashboard: React.FC = () => {
       const vouchersData = await response.json();
   
       if (vouchersData.success) {
-        
-        setVoucherData(vouchersData.data || {});
+        setVoucherData(vouchersData.data.content || []);
       } else {
-       
         console.error("Failed to load vouchers.");
       }
     } catch (error) {
@@ -227,47 +246,51 @@ const OrganizerDashboard: React.FC = () => {
     }
   };
   
-  useEffect(() => {
-    fetchData();
-    fetchStatistics();
-    fetchTransactionHistory();
-    fetchReviewsByOrganizer();
-    fetchVouchers();
-  }, []);
   
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userDetails");
-    sessionStorage.clear();
-    window.location.href = "/logout";
-  };
-
-  const handleHomepage = () => {
-    window.location.href = "/";
-  };
 
   const handleVoucherSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+  
+    // Get the token from localStorage or sessionStorage
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
     if (!token) {
       alert("You are not logged in!");
       return;
     }
-
-    const voucherData = {
+  
+    // Create the voucher data based on the selected voucher type
+    let voucherData: any = {
       eventId,
       voucherCode,
       voucherValue,
       description,
-      voucherType: "dateRange",
-      dateRangeBasedVoucher: {
-        startDate,
-        endDate,
-      },
+      voucherType,
     };
-
+  
+    // If voucher type is "quantity", include the quantity limit data
+    if (voucherType === "quantity") {
+      voucherData = {
+        ...voucherData,
+        quantityBasedVoucher: {
+          quantityLimit: quantityLimit, // Adjust this based on your form field for quantity
+        },
+      };
+    }
+  
+    // If voucher type is "dateRange", include the date range data
+    if (voucherType === "dateRange") {
+      voucherData = {
+        ...voucherData,
+        dateRangeBasedVoucher: {
+          startDate,
+          endDate,
+        },
+      };
+    }
+  
     try {
+      // Make the API request to create the voucher
       const response = await fetch("http://localhost:8080/api/v1/vouchers/create", {
         method: "POST",
         headers: {
@@ -276,22 +299,32 @@ const OrganizerDashboard: React.FC = () => {
         },
         body: JSON.stringify(voucherData),
       });
-
-      const responseData = await response.json();
-
-      if (responseData.success) {
-        setVoucherSuccess(responseData.message);
+  
+      const result = await response.json();
+  
+      if (response.ok && result.success) {
+        // Success, reset the form
+        setVoucherSuccess(result.message);
         setVoucherError(null);
-        fetchVouchers();
+        setEventId("");
+        setVoucherCode("");
+        setVoucherValue(0);
+        setDescription("");
+        setStartDate("");
+        setEndDate("");
+        setQuantityLimit(0);  // Reset quantity limit if needed
       } else {
-        setVoucherError(responseData.message);
+        // Error handling
+        setVoucherError(result.message || "Failed to create voucher.");
         setVoucherSuccess(null);
       }
     } catch (error) {
       console.error("Error creating voucher:", error);
       setVoucherError("An error occurred while creating the voucher.");
+      setVoucherSuccess(null);
     }
   };
+  
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -331,6 +364,17 @@ const OrganizerDashboard: React.FC = () => {
       console.error("Error updating profile:", error);
       alert("An error occurred while updating your profile.");
     }
+  };
+
+    const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userDetails");
+    sessionStorage.clear();
+    window.location.href = "/logout";
+  };
+
+  const handleHomepage = () => {
+    window.location.href = "/";
   };
 
   return (
@@ -722,28 +766,84 @@ const OrganizerDashboard: React.FC = () => {
               required
             />
           </div>
+
+
+          <div className="flex items-center space-x-4">
+  <label className="flex items-center space-x-2">
+    <input
+      type="radio"
+      name="voucherType"
+      value="quantity"
+      checked={voucherType === "quantity"}
+      onChange={() => setVoucherType("quantity")}
+      className="accent-purple-600"
+    />
+    <span>Quantity</span>
+  </label>
+  <label className="flex items-center space-x-2">
+    <input
+      type="radio"
+      name="voucherType"
+      value="dateRange"
+      checked={voucherType === "dateRange"}
+      onChange={() => setVoucherType("dateRange")}
+      className="accent-purple-600"
+    />
+    <span>Date Range</span>
+  </label>
+</div>
+
+
+      {/* Form for quantity voucher */}
+      {voucherType === "quantity" && (
+        <div className="mb-4">
+          <label htmlFor="quantityLimit" className="block text-gray-700 font-medium">
+            Quantity Limit
+          </label>
+          <input
+            type="number"
+            id="quantityLimit"
+            value={quantityLimit}
+            onChange={(e) => setQuantityLimit(Number(e.target.value))}
+            className="w-full px-4 py-2 border rounded-md"
+            placeholder="Enter Quantity Limit"
+            max="50"
+            min="1"
+          />
+        </div>
+      )}
+
+      {/* Form for date range voucher */}
+      {voucherType === "dateRange" && (
+        <>
           <div className="mb-4">
-            <label htmlFor="startDate" className="block text-gray-700 font-medium">Start Date</label>
+            <label htmlFor="startDate" className="block text-gray-700 font-medium">
+              Start Date
+            </label>
             <input
               type="date"
               id="startDate"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
               className="w-full px-4 py-2 border rounded-md"
-              required
             />
           </div>
+
           <div className="mb-4">
-            <label htmlFor="endDate" className="block text-gray-700 font-medium">End Date</label>
+            <label htmlFor="endDate" className="block text-gray-700 font-medium">
+              End Date
+            </label>
             <input
               type="date"
               id="endDate"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
               className="w-full px-4 py-2 border rounded-md"
-              required
             />
           </div>
+        </>
+      )}
+
           <button
             type="submit"
             className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105"
@@ -754,39 +854,38 @@ const OrganizerDashboard: React.FC = () => {
       </div>
 
          {/* Voucher List */}
-         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-2xl font-semibold text-purple-600 mb-4">Voucher List</h3>
-          <div className="overflow-x-auto">
-            {voucherData && voucherData.data && voucherData.data.content ? (
-              <table className="w-full table-auto">
-                <thead>
-                  <tr className="bg-purple-100">
-                    <th className="px-4 py-2 text-left text-purple-600">Event Name</th>
-                    <th className="px-4 py-2 text-left text-purple-600">Voucher Code</th>
-                    <th className="px-4 py-2 text-left text-purple-600">Status</th>
-                    
-                  </tr>
-                </thead>
-                <tbody>
-                  {voucherData.data.content.map((voucher) => (
-                    <tr key={voucher.voucherId} className="border-b border-gray-200 hover:bg-gray-50">
-                      <td className="px-4 py-3">{voucher.eventName}</td>
-                      <td className="px-4 py-3">{voucher.voucherCode}</td>
-                      <td className="px-4 py-3">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          voucher.status === 'available' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                        }`}>
-                          {voucher.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-            ) : (
-              <p>No voucher data available</p>
+<div className="bg-white p-6 rounded-lg shadow-md">
+  <h3 className="text-2xl font-semibold text-purple-600 mb-4">Voucher List</h3>
+  <div className="overflow-x-auto">
+    {voucherData && voucherData.length > 0 ? (
+      <table className="w-full table-auto">
+        <thead>
+          <tr className="bg-purple-100">
+            <th className="px-4 py-2 text-left text-purple-600">Event Name</th>
+            <th className="px-4 py-2 text-left text-purple-600">Voucher Code</th>
+            <th className="px-4 py-2 text-left text-purple-600">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {voucherData.map((voucher) => (
+            <tr key={voucher.voucherId} className="border-b border-gray-200 hover:bg-gray-50">
+              <td className="px-4 py-3">{voucher.eventName}</td>
+              <td className="px-4 py-3">{voucher.voucherCode}</td>
+              <td className="px-4 py-3">
+                <span
+                  className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                    voucher.status === "available" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                  }`}
+                >
+                  {voucher.status}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    ) : (
+      <p>No voucher data available</p>
             )}
         </div>
       </div>

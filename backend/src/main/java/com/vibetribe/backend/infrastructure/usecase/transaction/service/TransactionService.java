@@ -45,9 +45,8 @@ public class TransactionService {
     public TransactionResponseDTO createTransaction(TransactionRequestDTO request, Long customerId) {
         Event event = eventRepository.findById(request.getEventId())
                 .orElseThrow(() -> new IllegalArgumentException("Event not found"));
-
         if (event.getDateTimeEnd().isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("Cannot buy tickets for past events");
+          throw new IllegalStateException("Cannot buy tickets for past events");
         }
 
         if (event.getBookedSeats() + request.getQuantity() > event.getAvailableSeats()) {
