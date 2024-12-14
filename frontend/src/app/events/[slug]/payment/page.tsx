@@ -35,7 +35,12 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
     quantity: '',
   });
 
+  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [userAddress, setUserAddress] = useState("");
+  
   const [fee, setFee] = useState<number>(0);
+  const [totalFee, setTotalFee] = useState(0);
  
 
   useEffect(() => {
@@ -90,11 +95,18 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
       const response = await fetch("http://localhost:8080/api/v1/user/details", {
         method: "GET",
         headers: { Authorization: `Bearer ${token}` },
+        
       });
-
+  
       const data = await response.json();
-
+  
       if (data.success && data.data) {
+       
+        const { name, email, address } = data.data;
+
+        setUserName(name);
+        setUserEmail(email);
+        setUserAddress(address || "Alamat tidak tersedia"); 
         setUserPoints(data.data.pointsBalance || 0);
       }
     } catch (error) {
@@ -105,26 +117,31 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
   const fetchEventVoucherDetails = async () => {
     try {
       const token = getJwtToken();
-      if (!eventId) return; 
+      if (!eventId) return;
+  
       const response = await fetch(`${BASE_URL}/api/v1/vouchers/by-event?eventId=${eventId}`, {
         method: "GET",
         headers: { Authorization: `Bearer ${token}` },
+        
       });
   
       const data = await response.json();
-      
-      if (data.success && data.data.content.length > 0) {
+  
+      console.log("API Response:", data);
+  
+      if (data.success && data.data.content && data.data.content.length > 0) {
         const voucherCodes = data.data.content.map((voucher: any) => voucher.voucherCode);
-        setEventVouchers(voucherCodes); 
-        setVoucherValue(data.data.voucherValue || 0); 
-      } else {
-        setEventVouchers([]); 
-        setVoucherValue(0);
+        const voucherValue = data.data.content[0].voucherValue || 0;
+        setEventVouchers(voucherCodes);
+        setVoucherValue(voucherValue);
+  
+        console.log("Voucher Value from API:", voucherValue); 
       }
     } catch (error) {
       console.error("Error fetching event voucher details:", error);
     }
   };
+  
   
   const fetchCustomerVoucherDetails = async () => {
     try {
@@ -132,6 +149,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
       const response = await fetch(`${BASE_URL}/api/v1/vouchers/my-vouchers`, {
         method: "GET",
         headers: { Authorization: `Bearer ${token}` },
+        
       });
   
       const data = await response.json();
@@ -139,8 +157,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
       if (data.success && data.data.content.length > 0) {
         const voucherCodes = data.data.content.map((voucher: any) => voucher.code);
         setCustomerVouchers(voucherCodes); 
-      } else {
-        setCustomerVouchers([]); 
+        
       }
     } catch (error) {
       console.error("Error fetching customer voucher details:", error);
@@ -148,13 +165,79 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
   };
   
 
- 
+  useEffect(() => {
+    const quantityFee = fee * Number(formData.quantity);
+    let discount = 0;
+  
+    console.log("Voucher Value for Discount Calculation:", voucherValue);
+    console.log("Quantity Fee:", quantityFee);
+  
+    // Cek apakah ada points dan tambahkan ke diskon
+    if (formData.points) {
+      discount += Number(formData.points); 
+    }
+  
+    console.log("form data voucher  = " + formData.voucher)
+    console.log("customer vouchers = " + customerVouchers)
+    console.log("event vouchers = " + eventVouchers)
 
-  const calculateTotal = () => {
-    const total = event?.price || 0;
-    const discountedPrice = (fee - userPoints) * (1 - (voucherValue / 100));
-    return Math.max(0, discountedPrice);
-  };
+    
+    if (eventVouchers.includes(formData.voucher) && voucherValue > 0) {
+      const eventVoucherDiscount = quantityFee * (voucherValue / 100);
+      discount += eventVoucherDiscount;
+      console.log("Applied Event Voucher Discount:", eventVoucherDiscount);
+    
+    }
+    
+    // Cek voucher tipe 'customer' dan beri diskon 10%
+    else if (customerVouchers.includes(formData.voucher) ) {
+      const customerVoucherDiscount = quantityFee * 0.1;  
+      discount += customerVoucherDiscount;
+      console.log("Applied Customer Voucher Discount:", customerVoucherDiscount);
+    }
+
+    // Debugging tambahan untuk nilai discount
+    console.log("Total Discount Applied:", discount);
+  
+    // Hitung fee akhir setelah diskon
+    const finalFee = Math.max(0, quantityFee - discount);
+    console.log("Final Fee after Discount:", finalFee);
+    
+    // Update total fee
+    setTotalFee(finalFee);
+}, [formData, fee, voucherValue]);
+
+
+
+  
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => { 
+  const { name, value } = e.target;
+
+  setFormData(prevState => {
+    let updatedValue;
+
+    
+    if (name === "quantity" || name === "points") {
+      updatedValue = Number(value);
+    } 
+    
+    else if (name === "voucher") {
+      updatedValue = value;
+    } 
+    
+    else {
+      updatedValue = value;
+    }
+
+    return {
+      ...prevState,
+      [name]: updatedValue,  
+    };
+  });
+};
+  
+  
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -174,23 +257,28 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
     });
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-
   const handleConfirm = async () => {
     console.log("Event object before submitting:", event);
   
+    
+    const quantity = Number(formData.quantity);  
+    const points = Number(formData.points);      
   
-    if (formData.voucher === 'event' && formData.points > 0) {
+    if (formData.voucher === 'event' && points > 0) {
       alert("You cannot use both event voucher and individual points at the same time.");
       return;
     }
   
+    if (quantity <= 0) {
+      alert("Quantity must be greater than 0.");
+      return;
+    }
+  
+    if (points < 0) {
+      alert("Points cannot be negative.");
+      return;
+    }
+
     try {
       const token = getJwtToken();
       const response = await fetch(`${BASE_URL}/api/v1/transactions`, {
@@ -211,27 +299,25 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
           isUsePoints: !!formData.points,
         }),
       });
-  
-      
+
       if (!response.ok) {
         throw new Error(`Request failed with status: ${response.status}`);
       }
-  
-      
+
       const responseText = await response.text();
       console.log("Raw response:", responseText);
-  
+
       if (!responseText) {
         throw new Error("Empty response from server");
       }
-  
+
       const data = JSON.parse(responseText);
-  
+
       if (data.success) {
         const transactionId = data.data.id;
         const pointsApplied = data.data.pointsApplied;
         const voucher = data.data.voucher;
-  
+
         if (transactionId) {
           setTransactionId(transactionId);
           window.location.href = `/find-ticket/receipt?id=${event.slug}&voucher=${voucher}&points=${pointsApplied}&quantity=${formData.quantity}&transactionId=${transactionId}&fee=${fee}`;
@@ -248,7 +334,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
       alert("An error occurred while creating the transaction.");
     }
   };
-  
+
   const handleCancel = () => {
     window.history.back();
   };
@@ -260,6 +346,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
   if (!event) {
     return <div>Event not found</div>;
   }
+
 
   
   return (
@@ -313,6 +400,48 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
             </div>
           </div>
 
+            {/* User Information */}
+<div className="space-y-4">
+  {/* Name Input */}
+  <div>
+    <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
+    <input
+      type="text"
+      name="name"
+      id="name"
+      value={userName}
+      readOnly
+      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+    />
+  </div>
+
+  {/* Email Input */}
+  <div>
+    <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+    <input
+      type="email"
+      name="email"
+      id="email"
+      value={userEmail}
+      readOnly
+      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+    />
+  </div>
+
+  {/* Address Input */}
+  <div>
+    <label htmlFor="address" className="block text-sm font-medium text-gray-700">Address</label>
+    <input
+      type="text"
+      name="address"
+      id="address"
+      value={userAddress}
+      readOnly
+      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+    />
+  </div>
+</div>
+
           {/* Quantity Input */}
           <div className="space-y-4">
             <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">Quantity</label>
@@ -327,28 +456,30 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
             />
           </div>
 
-          {/* Points Input */}
+          {/* Referral Points Input */}
+<div className="space-y-4">
+  {userPoints > 0 ? (
+    <div>
+      <label htmlFor="points" className="block text-sm font-medium text-gray-700">Use Points</label>
+      <select
+        name="points"
+        id="points"
+        value={formData.points || ""}
+        onChange={handleInputChange}
+        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+      >
+        {/* Option to not use points */}
+        <option value="">{`Use 0 points`}</option>
+        
+        {/* Option to use points */}
+        <option value={userPoints}>{`Use ${userPoints} Points`}</option>
+      </select>
+    </div>
+  ) : (
+    <p className="text-gray-500 text-sm">You don't have any points available.</p>
+  )}
+</div>
           <div className="space-y-4">
-            {userPoints > 0 ? (
-              <div>
-                <label htmlFor="points" className="block text-sm font-medium text-gray-700">Use Points</label>
-                <select
-                  name="points"
-                  id="points"
-                  value={formData.points}
-                  onChange={handleInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value={userPoints}>{`Use ${userPoints} Points`}</option>
-                </select>
-              </div>
-            ) : (
-              <p className="text-gray-500 text-sm">You don't have any points available.</p>
-            )}
-          </div>
-
-          <div className="space-y-4">
-
 
 
           <div className="space-y-4">
@@ -361,13 +492,12 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
   <select
     name="voucher"
     id="voucher"
-    value={formData.voucher}
+    value={formData.voucher}  
     onChange={handleInputChange}
     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
   >
-    <option value="">{`Use Voucher (${voucherValue}% Off)`}</option>
-    
-   
+    <option value="">{`No Voucher (0% Off)`}</option>
+
     {eventVouchers.length > 0 && (
       <optgroup label="Event Vouchers">
         {eventVouchers.map((voucherCode, index) => (
@@ -378,17 +508,15 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
       </optgroup>
     )}
 
-    
     {customerVouchers.length > 0 && (
       <optgroup label="Customer Vouchers">
         {customerVouchers.map((code, index) => (
           <option key={`customer-${index}`} value={code}>
-            {code} 
+            {code} 10% Off 
           </option>
         ))}
       </optgroup>
     )}
-
   </select>
 ) : (
   <button
@@ -399,26 +527,32 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
   </button>
 )}
 
+       {/* Fee and Total Calculation */}
+<div className="bg-gray-100 p-4 rounded-lg space-y-4 my-4">
+  <div className="flex justify-between">
+    <span>Event Fee:</span>
+    <span>{fee.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</span>
+  </div>
+  <div className="flex justify-between">
+    <span>Voucher Discount:</span>
+    <span>
+      {formData.voucher === "event" 
+        ? `${voucherValue} %` 
+        : formData.voucher === "customer" 
+        ? "10%" 
+        : "None"}
+    </span>
+  </div>
+  <div className="flex justify-between">
+    <span>Points Discount:</span>
+    <span>{formData.points ? `Rp. ${formData.points.toLocaleString('id-ID')}` : "Rp. 0"}</span>
+  </div>
+  <div className="flex justify-between font-semibold">
+    <span>Total:</span>
+    <span>{totalFee.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</span>
+  </div>
+</div>
 
-          {/* Fee and Total Calculation */}
-          <div className="bg-gray-100 p-4 rounded-lg space-y-4 my-4">
-            <div className="flex justify-between">
-              <span>Event Fee:</span>
-              <span>{fee.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Voucher:</span>
-              <span>{voucherValue} %</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Points:</span>
-              <span>Rp. {userPoints}</span>
-            </div>
-            <div className="flex justify-between font-semibold">
-              <span>Total:</span>
-              <span>{calculateTotal().toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</span>
-            </div>
-          </div>
 
           {/* Confirmation Button */}
           <div className="flex justify-between space-x-4">

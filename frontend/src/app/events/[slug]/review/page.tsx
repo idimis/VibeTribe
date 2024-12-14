@@ -13,7 +13,7 @@ interface ReviewPageProps {
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
 
 const ReviewPage: React.FC<ReviewPageProps> = ({ params }) => {
-  const { isLoggedIn, getJwtToken, isAuthLoaded } = useAuth();
+  const { isLoggedIn, getJwtToken } = useAuth();
   const [slug, setSlug] = useState<string>("");
   const [event, setEvent] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);

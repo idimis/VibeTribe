@@ -47,8 +47,8 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ params }) => {
     "food-drink": "Food & Drink",
   };
 
-  // Access slug directly from params prop
-  const slug = params.slug;
+  
+  const { slug } = React.use(params);
 
   useEffect(() => {
     const fetchCategoryEvents = async () => {

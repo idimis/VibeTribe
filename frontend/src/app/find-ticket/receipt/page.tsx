@@ -18,6 +18,7 @@ const ConfirmationPage: React.FC = () => {
 
   const [eventDetails, setEventDetails] = useState<any>(null);
   const [userDetails, setUserDetails] = useState<any>(null);
+  const [paymentDetails, setPaymentDetails] = useState<any>(null); // Add state for payment details
 
   useEffect(() => {
     const fetchEventDetails = async () => {
@@ -55,9 +56,30 @@ const ConfirmationPage: React.FC = () => {
       }
     };
 
+    const fetchPaymentDetails = async () => {
+      try {
+        const response = await fetch(`${BASE_URL}/api/v1/payment/${transactionId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setPaymentDetails(data.data); // Assuming the payment details are in 'data'
+      } catch (error) {
+        console.error("Failed to fetch payment details", error);
+      }
+    };
+
     fetchEventDetails();
     fetchUserDetails();
-  }, [eventSlug]);
+    fetchPaymentDetails();
+  }, [eventSlug, transactionId]);
 
   const calculateTotal = () => {
     const discountedPrice = (fee - points) * (1 - voucher / 100);
@@ -110,23 +132,46 @@ const ConfirmationPage: React.FC = () => {
                 <span>Quantity:</span>
                 <span>{quantity}</span>
               </div>
+              <div className="flex justify-between">
+                <span>Voucher Applied:</span>
+                <span>{voucher ? `${voucher}% Off` : '0% Off'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Points Used:</span>
+                <span>{points ? `${points} Points` : 'No Points Used'}</span>
+              </div>
+              <div className="flex justify-between font-semibold">
+                <span>Event Fee:</span>
+                <span>{fee ? fee : 'N/A'}</span>
+              </div>
+              <div className="flex justify-between font-semibold">
+                <span>Total:</span>
+                <span>{Number(fee) * Number(quantity) - (points ? Number(points) : 0)}</span>
+              </div>
             </div>
-            <div className="flex justify-between">
-              <span>Voucher Applied:</span>
-              <span>{voucher ? `${voucher}% Off` : '0% Off'}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Points Used:</span>
-              <span>{points ? `${points} Points` : 'No Points Used'}</span>
-            </div>
-            <div className="flex justify-between font-semibold">
-              <span>Event Fee:</span>
-              <span>{fee ? fee : 'N/A'}</span>
-            </div>
-            <div className="flex justify-between font-semibold">
-              <span>Total:</span>
-              <span>{Number(fee) * Number(quantity) - (points ? Number(points) : 0)}</span>
-            </div>
+
+            {/* Payment Details */}
+            {paymentDetails && (
+              <div className="mt-6 bg-white p-4 rounded-lg shadow-lg">
+                <h3 className="text-lg font-medium text-gray-700">Payment Details</h3>
+                <div className="flex justify-between">
+                  <span>Payment Status:</span>
+                  <span>{paymentDetails.status}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Payment Method:</span>
+                  <span>{paymentDetails.method}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Amount Paid:</span>
+                  <span>{paymentDetails.amountPaid}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Payment Date:</span>
+                  <span>{paymentDetails.paymentDate}</span>
+                </div>
+              </div>
+            )}
 
             {/* Payment Confirmation */}
             <div className="mt-8 text-center">
