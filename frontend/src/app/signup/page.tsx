@@ -20,13 +20,21 @@ const Signup: React.FC = () => {
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   useEffect(() => {
+    // Get referral code from URL if available
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlReferralCode = urlParams.get('referralCode');
+    
+    if (urlReferralCode) {
+      setReferralCode(urlReferralCode);  // Set referralCode if found in the URL
+    }
+
+    // Reset form fields
     setEmail('');
     setPassword('');
     setRole('customer');
     setWebsite('');
     setPhoneNumber('');
     setAddress('');
-    setReferralCode('');
   }, []);
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -43,7 +51,7 @@ const Signup: React.FC = () => {
           website,
           phoneNumber,
           address,
-          referralCode: referralCode || undefined,
+          referralCode: referralCode || undefined,  // Send referralCode if it's set
         }),
       });
 
@@ -119,7 +127,7 @@ const Signup: React.FC = () => {
               placeholder="Referral Code (optional)"
               className="border border-gray-300 rounded-lg p-2 w-full mb-4"
               value={referralCode}
-              onChange={(e) => setReferralCode(e.target.value)}
+              onChange={(e) => setReferralCode(e.target.value)}  // Allow manual entry
             />
 
             <div className="flex justify-between mb-4">
