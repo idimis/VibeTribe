@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Logo from "@/public/logo2.png";
-import Link from "next/link";
 import Image from "next/image";
 
 
@@ -27,6 +26,7 @@ const CreateEvent: React.FC = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setEventData((prevData) => ({
@@ -34,6 +34,7 @@ const CreateEvent: React.FC = () => {
       [name]: value,
     }));
   };
+
   const handleConfirm = async () => {
     setIsLoading(true);
     setError(null);
@@ -54,8 +55,6 @@ const CreateEvent: React.FC = () => {
   
       if (response.ok) {
         alert("Event created successfully!");
-        
-        const eventSlug = eventData.title.replace(/\s+/g, '-').toLowerCase();
         router.push(`/dashboard/organizer`);
       } else {
         setError(result.message || "An error occurred while creating the event.");
@@ -66,8 +65,9 @@ const CreateEvent: React.FC = () => {
       setIsLoading(false);
     }
   };
- 
+
   const handleNextStep = () => setStep(2);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-gray-100">
       <header className="mb-8 text-center">
@@ -80,21 +80,21 @@ const CreateEvent: React.FC = () => {
           <p className="text-gray-700 text-center mb-6">
             The all-in-one ticketing and discovery platform trusted by millions of organizers and attendees worldwide.
           </p>
-  
+
           <h2 className="text-2xl md:text-3xl font-semibold text-purple-500 mb-4 text-center">You Are Free To Grow</h2>
           <p className="text-gray-700 mb-6 text-center">
             It’s free to publish unlimited events and sell unlimited tickets.
           </p>
-  
+
           <h3 className="text-xl md:text-2xl font-semibold text-purple-500 mb-4 text-center">Launch Your Next Event</h3>
           <p className="text-gray-700 text-center mb-6">
             Event hosting made easy. Easily create events for free on a platform that attendees love and trust.
           </p>
-  
+
           <div className="relative mb-6 w-full">
             <Image src={EventImage} alt="Event Example" layout="responsive" width={500} height={300} className="rounded-lg" />
           </div>
-  
+
           <button
             onClick={handleNextStep}
             className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-3 px-6 rounded-full shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105"
@@ -103,7 +103,6 @@ const CreateEvent: React.FC = () => {
           </button>
         </section>
       ) : (
-       
         <div className="w-full max-w-xl p-6 bg-white shadow-lg rounded-lg space-y-6">
           <div className="space-y-4">
             <div className="form-group">
@@ -208,7 +207,7 @@ const CreateEvent: React.FC = () => {
                 name="availableSeats"
                 value={eventData.availableSeats}
                 onChange={handleInputChange}
-                placeholder="Enter available seats"
+                placeholder="Enter number of available seats"
                 className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
@@ -220,22 +219,25 @@ const CreateEvent: React.FC = () => {
                 name="imageUrl"
                 value={eventData.imageUrl}
                 onChange={handleInputChange}
-                placeholder="Enter event image URL"
+                placeholder="Enter image URL"
                 className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
           </div>
+
           {error && <p className="text-red-500">{error}</p>}
+
           <button
             onClick={handleConfirm}
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-3 px-6 rounded-full shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105"
+            className="w-full py-3 px-6 bg-indigo-500 text-white rounded-lg disabled:bg-gray-400"
           >
-            {isLoading ? "Creating..." : "Create Event"}
+            {isLoading ? "Creating..." : "Confirm"}
           </button>
         </div>
       )}
     </div>
   );
 };
+
 export default CreateEvent;

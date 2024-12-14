@@ -4,8 +4,27 @@ import React, { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useSearchParams } from "next/navigation";
+import Link from 'next/link';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+
+// Define types based on the structure of your data
+interface EventDetails {
+  title: string;
+  dateTimeStart: string;
+}
+
+interface UserDetails {
+  name: string;
+  email: string;
+}
+
+interface PaymentDetails {
+  status: string;
+  method: string;
+  amountPaid: string;
+  paymentDate: string;
+}
 
 const ConfirmationPage: React.FC = () => {
   const searchParams = useSearchParams();
@@ -16,9 +35,9 @@ const ConfirmationPage: React.FC = () => {
   const points = parseInt(searchParams.get("points") || "0");
   const fee = parseFloat(searchParams.get("fee") || "0");
 
-  const [eventDetails, setEventDetails] = useState<any>(null);
-  const [userDetails, setUserDetails] = useState<any>(null);
-  const [paymentDetails, setPaymentDetails] = useState<any>(null); // Add state for payment details
+  const [eventDetails, setEventDetails] = useState<EventDetails | null>(null);
+  const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
+  const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
 
   useEffect(() => {
     const fetchEventDetails = async () => {
@@ -35,7 +54,7 @@ const ConfirmationPage: React.FC = () => {
         }
 
         const data = await response.json();
-        setEventDetails(data.data); // Update to access 'data' from the response JSON
+        setEventDetails(data.data);
       } catch (error) {
         console.error("Failed to fetch event details", error);
       }
@@ -70,7 +89,7 @@ const ConfirmationPage: React.FC = () => {
         }
 
         const data = await response.json();
-        setPaymentDetails(data.data); // Assuming the payment details are in 'data'
+        setPaymentDetails(data.data);
       } catch (error) {
         console.error("Failed to fetch payment details", error);
       }
@@ -91,13 +110,11 @@ const ConfirmationPage: React.FC = () => {
       <Header />
       <main className="flex-grow max-w-[1440px] mx-auto p-6">
         <div className="receipt max-w-4xl mx-auto space-y-8">
-          {/* Invoice Header */}
           <div className="text-center my-8">
             <h1 className="text-4xl font-bold text-blue-600">Payment Confirmation</h1>
             <p className="mt-4 text-lg text-gray-700">Thank you for your payment! Below are your transaction details:</p>
           </div>
 
-          {/* Invoice Details */}
           <div className="bg-white shadow-lg p-6 rounded-lg">
             <div className="flex justify-between items-center">
               <div>
@@ -110,7 +127,6 @@ const ConfirmationPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Event & User Information */}
             <div className="mt-6 grid grid-cols-2 gap-4">
               <div>
                 <h3 className="text-lg font-medium text-gray-700">Event Details</h3>
@@ -126,7 +142,6 @@ const ConfirmationPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Transaction Details */}
             <div className="bg-gray-100 p-4 rounded-lg space-y-4 my-4">
               <div className="flex justify-between">
                 <span>Quantity:</span>
@@ -150,7 +165,6 @@ const ConfirmationPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Payment Details */}
             {paymentDetails && (
               <div className="mt-6 bg-white p-4 rounded-lg shadow-lg">
                 <h3 className="text-lg font-medium text-gray-700">Payment Details</h3>
@@ -172,22 +186,10 @@ const ConfirmationPage: React.FC = () => {
                 </div>
               </div>
             )}
+          </div>
 
-            {/* Payment Confirmation */}
-            <div className="mt-8 text-center">
-              <p className="text-lg text-gray-700 mt-4">
-                <span className="font-bold text-xl">Thank you for your purchase!</span><br />
-                We appreciate your support and look forward to seeing you at the event!<br /><br />
-                <span className="text-lg font-medium">Transaction ID:</span> <strong>{transactionId}</strong><br /><br />
-                <span className="text-sm text-gray-600">
-                  You can use this Transaction ID for tracking, future references, or customer support inquiries.<br />
-                  Please keep this information safe, as it may be helpful in case of any issues related to your booking.
-                </span>
-              </p>
-              <div className="mt-6">
-                <a href="/" className="text-blue-600 font-semibold hover:underline">Return to Homepage</a>
-              </div>
-            </div>
+          <div className="text-center mt-8">
+            <Link href="/" className="text-blue-600 font-semibold hover:underline">Return to Homepage</Link>
           </div>
         </div>
       </main>

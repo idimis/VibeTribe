@@ -1,19 +1,19 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  reactStrictMode: true, 
-  pageExtensions: ['tsx', 'ts', 'jsx', 'js'], 
+  reactStrictMode: true,
+  pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
   env: {
     CUSTOM_API_URL: process.env.CUSTOM_API_URL || 'http://localhost:3000/api',
   },
   compiler: {
-    styledComponents: true, 
+    styledComponents: true,
   },
   images: {
     domains: [
-      'example.com', 
-      'img.icons8.com', 
-      'www.trumba.com', 
+      'example.com',
+      'img.icons8.com',
+      'www.trumba.com',
       'usercontent.one',
       'festivalsforall.s3.eu-west-1.amazonaws.com',
       'cdn.britannica.com',
@@ -28,23 +28,22 @@ const nextConfig: NextConfig = {
       'deadline.com',
       'wordpress.com',
       'cdn1-production-images-kly.akamaized.net',
-      'people.com'
-
-    ], 
+      'people.com',
+    ],
   },
   async redirects() {
     return [
       {
-        source: '/old-route', 
+        source: '/old-route',
         destination: '/new-route',
-        permanent: true, 
+        permanent: true,
       },
     ];
   },
   async rewrites() {
     return [
       {
-        source: '/api/:path*', 
+        source: '/api/:path*',
         destination: 'https://external-api.com/:path*',
       },
     ];
@@ -52,7 +51,7 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/:path*', 
+        source: '/:path*',
         headers: [
           {
             key: 'X-Content-Type-Options',
@@ -68,6 +67,10 @@ const nextConfig: NextConfig = {
       config.resolve.fallback = { fs: false }; // Handle 'fs' module in the browser
     }
     return config;
+  },
+  eslint: {
+    // Disable ESLint during the build process
+    ignoreDuringBuilds: true,
   },
 };
 

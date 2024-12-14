@@ -3,10 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import Footer from '@/components/Footer';
 import Image from 'next/image';
-import GoogleIcon from '@/public/icons/google.png';
 import Logo from '@/public/logo2.png';
 import danceImage from '@/public/dance.jpg';
-import Link from 'next/link';
+
 
 const Signup: React.FC = () => {
   const [name, setName] = useState('');

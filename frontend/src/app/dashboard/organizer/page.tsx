@@ -4,12 +4,8 @@ import React, { useState, useEffect } from "react";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Image from "next/image";
-import userProfileImage from "@/public/dance.jpg";
 import EventStatisticsWidget from '@/components/EventStatisticsWidget';
-import { useAuth } from '@/context/AuthContext';
 import Link from "next/link";
-import useAuthRedirect from '@/hooks/useAuthRedirect';
-import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -37,19 +33,11 @@ interface Voucher {
   status: string;
 }
 
-interface VoucherResponse {
-  success: boolean;
-  data: {
-    content: Voucher[];
-  };
-}
-
 
 const OrganizerDashboard: React.FC = () => {
   const [data, setData] = useState<any>({ events: [], profile: {} });
   const [activePanel, setActivePanel] = useState("overview");
   const [statistics, setStatistics] = useState<any>(null);
-  const [chartType, setChartType] = useState<"monthly" | "yearly">("monthly");
   const [review, setReview] = useState<Review | null>(null);
 
   const [voucherData, setVoucherData] = useState<Voucher[]>([]); 
@@ -645,7 +633,7 @@ const OrganizerDashboard: React.FC = () => {
                   </div>
                 )}
                 <div className="flex flex-col space-y-2">
-                  <p className="text-lg font-semibold">"{review.review}"</p>
+                  <p className="text-lg font-semibold">{review.review}</p>
                   <p className="text-sm text-gray-600">- {review.customerName}</p>
                   <p className="text-sm text-gray-500">Rating: {review.rating}/5</p>
                 </div>
@@ -1096,7 +1084,7 @@ const OrganizerDashboard: React.FC = () => {
           
                 <h3 className="text-2xl font-semibold text-purple-600 mt-8 mb-4">Troubleshooting</h3>
                 <ul className="space-y-4">
-                  <li className="text-gray-700 hover:underline cursor-pointer">What to do if your event doesn't load</li>
+                  <li className="text-gray-700 hover:underline cursor-pointer">What to do if your event does not load</li>
                   <li className="text-gray-700 hover:underline cursor-pointer">Fixing payment errors</li>
                   <li className="text-gray-700 hover:underline cursor-pointer">How to recover a lost password</li>
                 </ul>

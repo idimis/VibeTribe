@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useAuth } from "@/context/AuthContext";
+
 
 const EventsPage = () => {
   const [events, setEvents] = useState<any[]>([]);
@@ -31,7 +31,7 @@ const EventsPage = () => {
         } else {
           setError(result.message || "Failed to load events.");
         }
-      } catch (err) {
+      } catch (error) {
         setError("Error fetching events.");
       } finally {
         setIsLoading(false);

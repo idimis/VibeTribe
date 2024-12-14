@@ -4,9 +4,8 @@ import React, { useState, useEffect } from "react";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Image from "next/image";
-import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
-import useAuthRedirect from "@/hooks/useAuthRedirect";
+
 
 interface Event {
   id: string;
@@ -41,7 +40,7 @@ const CustomerDashboard: React.FC = () => {
   const [address, setAddress] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
-  const [error, setError] = useState<string | null>(null);
+ 
 
   useEffect(() => {
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -169,7 +168,6 @@ const CustomerDashboard: React.FC = () => {
     });
   };
 
-  const referralCode = data.profile?.referralCode || '';
 
  
 
@@ -800,7 +798,7 @@ const CustomerDashboard: React.FC = () => {
         
         <h3 className="text-2xl font-semibold text-purple-600 mt-8 mb-4">Troubleshooting</h3>
         <ul className="space-y-4">
-          <li className="text-gray-700 hover:underline cursor-pointer">Can't Login?</li>
+          <li className="text-gray-700 hover:underline cursor-pointer">Can not Login?</li>
           <li className="text-gray-700 hover:underline cursor-pointer">Payment Issues</li>
           <li className="text-gray-700 hover:underline cursor-pointer">Subscription Billing Questions</li>
         </ul>

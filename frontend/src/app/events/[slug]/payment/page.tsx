@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { notFound } from "next/navigation";
-import Link from 'next/link';
 import { useAuth } from "@/context/AuthContext";
 
 interface PaymentPageProps {
@@ -476,7 +475,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
       </select>
     </div>
   ) : (
-    <p className="text-gray-500 text-sm">You don't have any points available.</p>
+    <p className="text-gray-500 text-sm">You don&apos;t have any points available.</p>
   )}
 </div>
           <div className="space-y-4">

@@ -81,7 +81,7 @@ const ReviewPopup: React.FC = () => {
                   </div>
                 </div> 
               </Link>
-              <p className="text-gray-600 text-sm italic mb-3">"{review.review}"</p>
+              <p className="text-gray-600 text-sm italic mb-3">&quot;{review.review}&quot;</p>
               <p className="text-yellow-500 text-sm font-bold">
                 Rating: {review.rating} / 5
               </p>
