@@ -171,8 +171,7 @@ const CustomerDashboard: React.FC = () => {
 
   const referralCode = data.profile?.referralCode || '';
 
-  const {} = useAuth();
-  useAuthRedirect();
+ 
 
   const handleLogout = () => {
     localStorage.removeItem("token");

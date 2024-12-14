@@ -19,8 +19,11 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
   const [event, setEvent] = useState<any>(null);
   const [eventId, setEventId] = useState<number | null>(null);
   const [userPoints, setUserPoints] = useState<number>(0);
+
+  const [eventVouchers, setEventVouchers] = useState<any[]>([]); 
+  const [customerVouchers, setCustomerVouchers] = useState<any[]>([]); 
   const [voucherValue, setVoucherValue] = useState<number>(0);
-  const [availableVouchers, setAvailableVouchers] = useState<any[]>([]);
+
   const [loading, setLoading] = useState<boolean>(true);
   const [transactionId, setTransactionId] = useState<number | null>(null); 
   const [formData, setFormData] = useState({
@@ -74,6 +77,12 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
   }, [slug]);
   
   
+  useEffect(() => {
+    fetchUserDetails();
+    fetchEventVoucherDetails();
+    fetchCustomerVoucherDetails();
+  }, [slug, getJwtToken]);
+
   
   const fetchUserDetails = async () => {
     try {
@@ -93,42 +102,53 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
     }
   };
 
-  const fetchVoucherDetails = async () => {
+  const fetchEventVoucherDetails = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/api/v1/vouchers/by-event`, {
+      const token = getJwtToken();
+      if (!eventId) return; 
+      const response = await fetch(`${BASE_URL}/api/v1/vouchers/by-event?eventId=${eventId}`, {
         method: "GET",
-        headers: { "Content-Type": "application/json" },
+        headers: { Authorization: `Bearer ${token}` },
       });
+  
       const data = await response.json();
-      if (data.success && data.voucher) {
-        setVoucherValue(data.voucher.discount || 0);
+      
+      if (data.success && data.data.content.length > 0) {
+        const voucherCodes = data.data.content.map((voucher: any) => voucher.voucherCode);
+        setEventVouchers(voucherCodes); 
+        setVoucherValue(data.data.voucherValue || 0); 
+      } else {
+        setEventVouchers([]); 
+        setVoucherValue(0);
       }
     } catch (error) {
-      console.error("Error fetching voucher details:", error);
+      console.error("Error fetching event voucher details:", error);
+    }
+  };
+  
+  const fetchCustomerVoucherDetails = async () => {
+    try {
+      const token = getJwtToken();
+      const response = await fetch(`${BASE_URL}/api/v1/vouchers/my-vouchers`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
+      const data = await response.json();
+  
+      if (data.success && data.data.content.length > 0) {
+        const voucherCodes = data.data.content.map((voucher: any) => voucher.code);
+        setCustomerVouchers(voucherCodes); 
+      } else {
+        setCustomerVouchers([]); 
+      }
+    } catch (error) {
+      console.error("Error fetching customer voucher details:", error);
     }
   };
   
 
-  const fetchUserVouchers = async () => {
-    try {
-      const token = getJwtToken();
-      const response = await fetch(`${BASE_URL}/api/v1/vouchers/my-vouchers`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await response.json();
-      if (data.success && data.vouchers) {
-        setAvailableVouchers(data.vouchers);
-      }
-    } catch (error) {
-      console.error("Error fetching user vouchers:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchUserDetails();
-    fetchVoucherDetails();
-    fetchUserVouchers();
-  }, [slug, getJwtToken]);
+ 
 
   const calculateTotal = () => {
     const total = event?.price || 0;
@@ -327,30 +347,58 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
             )}
           </div>
 
-          {/* Voucher Input */}
           <div className="space-y-4">
-            {voucherValue > 0 ? (
-              <div>
-                <label htmlFor="voucher" className="block text-sm font-medium text-gray-700">Apply Voucher</label>
-                <select
-                  name="voucher"
-                  id="voucher"
-                  value={formData.voucher}
-                  onChange={handleInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">{`Use Voucher (${voucherValue}% Off)`}</option>
-                </select>
-              </div>
-            ) : (
-              <button
-                onClick={() => alert("You don't have any vouchers available.")}
-                className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-500"
-              >
-                Apply Voucher
-              </button>
-            )}
-          </div>
+
+
+
+          <div className="space-y-4">
+    {/* Voucher Input */}
+<div>
+  <label htmlFor="voucher" className="block text-sm font-medium text-gray-700">Apply Voucher</label>
+</div>
+
+{(eventVouchers.length > 0 || customerVouchers.length > 0) ? (
+  <select
+    name="voucher"
+    id="voucher"
+    value={formData.voucher}
+    onChange={handleInputChange}
+    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+  >
+    <option value="">{`Use Voucher (${voucherValue}% Off)`}</option>
+    
+   
+    {eventVouchers.length > 0 && (
+      <optgroup label="Event Vouchers">
+        {eventVouchers.map((voucherCode, index) => (
+          <option key={`event-${index}`} value={voucherCode}>
+            {voucherCode} 
+          </option>
+        ))}
+      </optgroup>
+    )}
+
+    
+    {customerVouchers.length > 0 && (
+      <optgroup label="Customer Vouchers">
+        {customerVouchers.map((code, index) => (
+          <option key={`customer-${index}`} value={code}>
+            {code} 
+          </option>
+        ))}
+      </optgroup>
+    )}
+
+  </select>
+) : (
+  <button
+    onClick={() => alert("No vouchers available for this event or your account.")}
+    className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-500"
+  >
+    Apply Voucher
+  </button>
+)}
+
 
           {/* Fee and Total Calculation */}
           <div className="bg-gray-100 p-4 rounded-lg space-y-4 my-4">
@@ -386,6 +434,8 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
             >
               Cancel
             </button>
+          </div>
+          </div>
           </div>
         </div>
       </main>
