@@ -44,23 +44,12 @@ const EventSection: React.FC = () => {
       }
     };
 
+    
     fetchEvents();
 
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setLocation("Bandung");
-        },
-        (error) => {
-          console.error("Geolocation error:", error);
-          setLocation("Bandung");
-        }
-      );
-    } else {
-      console.error("Geolocation is not supported by this browser.");
-      setLocation("Bandung");
-    }
-  }, [location]);
+   
+    setLocation("Bandung");
+  }, []);  
 
   return (
     <section className="event-section p-6 max-w-[1440px] mx-auto">

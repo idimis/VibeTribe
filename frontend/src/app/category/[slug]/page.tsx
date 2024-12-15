@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import EventCard from "@/components/EventCard";
@@ -33,8 +35,9 @@ interface CategoryPageProps {
   };
 }
 
-const CategoryPage = async ({ params }: CategoryPageProps) => {
-  const { slug } = params;
+const CategoryPage: React.FC<CategoryPageProps> = ({ params }) => {
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const slugToCategoryMap: { [key: string]: string } = {
     music: "Music",
@@ -44,20 +47,45 @@ const CategoryPage = async ({ params }: CategoryPageProps) => {
     "food-drink": "Food & Drink",
   };
 
-  const categoryName = slugToCategoryMap[slug];
+  
+  const { slug } = React.use(params);
 
-  if (!categoryName) {
-    console.error(`Invalid slug: ${slug}`);
-    return notFound();
+  useEffect(() => {
+    const fetchCategoryEvents = async () => {
+      if (!slug) return;
+      const categoryName = slugToCategoryMap[slug];
+
+      if (!categoryName) {
+        notFound();
+        return;
+      }
+
+      try {
+        const fetchedEvents = await fetchEventsByCategory(categoryName);
+        setEvents(fetchedEvents);
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategoryEvents();
+  }, [slug]);
+
+  if (loading) {
+    return <div>Loading...</div>;
   }
 
-  const events = await fetchEventsByCategory(categoryName);
+  if (!slug || !events.length) {
+    return <div>No events found for this category.</div>;
+  }
 
   return (
     <div>
       <Header />
       <main className="max-w-[1440px] mx-auto p-6">
-        <h1 className="text-2xl font-bold mb-4">{categoryName} Events</h1>
+        <h1 className="text-2xl font-bold mb-4">{slugToCategoryMap[slug]} Events</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {events.map((event: Event) => {
             const eventSlug = event.title.toLowerCase().replace(/\s+/g, "-");

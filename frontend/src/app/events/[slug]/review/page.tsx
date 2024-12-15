@@ -13,7 +13,7 @@ interface ReviewPageProps {
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
 
 const ReviewPage: React.FC<ReviewPageProps> = ({ params }) => {
-  const { isLoggedIn, getJwtToken, isAuthLoaded } = useAuth();
+  const { isLoggedIn, getJwtToken } = useAuth();
   const [slug, setSlug] = useState<string>("");
   const [event, setEvent] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -26,62 +26,38 @@ const ReviewPage: React.FC<ReviewPageProps> = ({ params }) => {
 
   useEffect(() => {
     const fetchSlug = async () => {
-      setSlug(params.slug || "");
+      const paramsData = await params;
+      setSlug(paramsData.slug || '');
     };
     fetchSlug();
   }, [params]);
-
+  
   useEffect(() => {
-    const fetchEventIdFromTitle = async () => {
+    const fetchEventFromSlug = async () => {
       setLoading(true);
       try {
-        const foundEvent = events.find(
-          (event) => event.title.toLowerCase().replace(/\s+/g, "-") === slug
-        );
+        const response = await fetch(`${BASE_URL}/api/v1/events/${slug}`);
+        const data = await response.json();
 
-        if (foundEvent) {
-          const eventIndex = events.indexOf(foundEvent);
-          const eventId = eventIndex + 1;
-          setEventId(eventId);
+        if (data.success && data.data) {
+          setEvent(data.data);
+          setEventId(data.data.id); 
         } else {
           notFound();
         }
       } catch (error) {
-        console.error("Error fetching events:", error);
+        console.error("Error fetching event details:", error);
         notFound();
       } finally {
         setLoading(false);
       }
     };
-    fetchEventIdFromTitle();
+
+    if (slug) {
+      fetchEventFromSlug();
+    }
   }, [slug]);
 
-  useEffect(() => {
-    const fetchEventDetails = async () => {
-      if (eventId !== null) {
-        setLoading(true);
-        try {
-          const response = await fetch(`${BASE_URL}/api/v1/events/${eventId}`);
-          const data = await response.json();
-
-          if (data.success && data.data) {
-            setEvent(data.data);
-          } else {
-            notFound();
-          }
-        } catch (error) {
-          console.error("Error fetching event details:", error);
-          notFound();
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-
-    if (eventId !== null) {
-      fetchEventDetails();
-    }
-  }, [eventId]);
 
   const checkTicketStatus = async () => {
     try {

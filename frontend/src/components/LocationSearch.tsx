@@ -1,6 +1,4 @@
 import React from "react";
-import { FaMapMarkerAlt } from "react-icons/fa";
-import Link from "next/link";
 
 interface LocationSearchProps {
   location: string;

@@ -1,20 +1,17 @@
 "use client";
-
 import EventImage from "@/public/concert.jpg";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Logo from "@/public/logo2.png";
-import Link from "next/link";
 import Image from "next/image";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
 
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
 const CreateEvent: React.FC = () => {
   const router = useRouter();
   const { getJwtToken } = useAuth();
-  const [step, setStep] = useState(1); // To manage the step state
-
+  const [step, setStep] = useState(1); 
   const [eventData, setEventData] = useState({
     title: "",
     description: "",
@@ -27,7 +24,6 @@ const CreateEvent: React.FC = () => {
     availableSeats: "",
     imageUrl: "", 
   });
-
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -59,8 +55,6 @@ const CreateEvent: React.FC = () => {
   
       if (response.ok) {
         alert("Event created successfully!");
-        
-        const eventSlug = eventData.title.replace(/\s+/g, '-').toLowerCase();
         router.push(`/dashboard/organizer`);
       } else {
         setError(result.message || "An error occurred while creating the event.");
@@ -72,7 +66,6 @@ const CreateEvent: React.FC = () => {
     }
   };
 
-  // Step 1: Intro Section
   const handleNextStep = () => setStep(2);
 
   return (
@@ -81,28 +74,27 @@ const CreateEvent: React.FC = () => {
         <Image src={Logo} alt="Logo" width={120} height={60} className="mx-auto mb-4" />
         <h1 className="text-2xl font-semibold">Create Event</h1>
       </header>
-
       {step === 1 ? (
         <section className="flex flex-col items-center bg-white rounded-lg p-6 w-full max-w-full md:max-w-[90%] lg:max-w-[80%] xl:max-w-[70%]">
           <h1 className="text-3xl md:text-4xl font-bold text-purple-600 mb-4 text-center">Where Event Organizers Grow</h1>
           <p className="text-gray-700 text-center mb-6">
             The all-in-one ticketing and discovery platform trusted by millions of organizers and attendees worldwide.
           </p>
-  
+
           <h2 className="text-2xl md:text-3xl font-semibold text-purple-500 mb-4 text-center">You Are Free To Grow</h2>
           <p className="text-gray-700 mb-6 text-center">
             It’s free to publish unlimited events and sell unlimited tickets.
           </p>
-  
+
           <h3 className="text-xl md:text-2xl font-semibold text-purple-500 mb-4 text-center">Launch Your Next Event</h3>
           <p className="text-gray-700 text-center mb-6">
             Event hosting made easy. Easily create events for free on a platform that attendees love and trust.
           </p>
-  
+
           <div className="relative mb-6 w-full">
             <Image src={EventImage} alt="Event Example" layout="responsive" width={500} height={300} className="rounded-lg" />
           </div>
-  
+
           <button
             onClick={handleNextStep}
             className="bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-3 px-6 rounded-full shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105"
@@ -111,7 +103,6 @@ const CreateEvent: React.FC = () => {
           </button>
         </section>
       ) : (
-        // Step 2: Event Creation Form
         <div className="w-full max-w-xl p-6 bg-white shadow-lg rounded-lg space-y-6">
           <div className="space-y-4">
             <div className="form-group">
@@ -126,7 +117,6 @@ const CreateEvent: React.FC = () => {
                 className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
-
             <div className="form-group">
               <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
               <input
@@ -139,7 +129,6 @@ const CreateEvent: React.FC = () => {
                 className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
-
             <div className="form-group">
               <label htmlFor="dateTimeStart" className="block text-sm font-medium text-gray-700">Start Date & Time</label>
               <input
@@ -151,7 +140,6 @@ const CreateEvent: React.FC = () => {
                 className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
-
             <div className="form-group">
               <label htmlFor="dateTimeEnd" className="block text-sm font-medium text-gray-700">End Date & Time</label>
               <input
@@ -163,7 +151,6 @@ const CreateEvent: React.FC = () => {
                 className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
-
             <div className="form-group">
               <label htmlFor="location" className="block text-sm font-medium text-gray-700">Location</label>
               <input
@@ -176,7 +163,6 @@ const CreateEvent: React.FC = () => {
                 className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
-
             <div className="form-group">
               <label htmlFor="locationDetails" className="block text-sm font-medium text-gray-700">Location Details</label>
               <input
@@ -189,7 +175,6 @@ const CreateEvent: React.FC = () => {
                 className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
-
             <div className="form-group">
               <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
               <input
@@ -202,7 +187,6 @@ const CreateEvent: React.FC = () => {
                 className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
-
             <div className="form-group">
               <label htmlFor="fee" className="block text-sm font-medium text-gray-700">Fee</label>
               <input
@@ -215,7 +199,6 @@ const CreateEvent: React.FC = () => {
                 className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
-
             <div className="form-group">
               <label htmlFor="availableSeats" className="block text-sm font-medium text-gray-700">Available Seats</label>
               <input
@@ -224,11 +207,10 @@ const CreateEvent: React.FC = () => {
                 name="availableSeats"
                 value={eventData.availableSeats}
                 onChange={handleInputChange}
-                placeholder="Enter available seats"
+                placeholder="Enter number of available seats"
                 className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
-
             <div className="form-group">
               <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700">Event Image URL</label>
               <input
@@ -237,7 +219,7 @@ const CreateEvent: React.FC = () => {
                 name="imageUrl"
                 value={eventData.imageUrl}
                 onChange={handleInputChange}
-                placeholder="Enter event image URL"
+                placeholder="Enter image URL"
                 className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
@@ -248,9 +230,9 @@ const CreateEvent: React.FC = () => {
           <button
             onClick={handleConfirm}
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-[#FF5A5A] to-[#FF9A9A] text-white font-semibold py-3 px-6 rounded-full shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-105"
+            className="w-full py-3 px-6 bg-indigo-500 text-white rounded-lg disabled:bg-gray-400"
           >
-            {isLoading ? "Creating..." : "Create Event"}
+            {isLoading ? "Creating..." : "Confirm"}
           </button>
         </div>
       )}

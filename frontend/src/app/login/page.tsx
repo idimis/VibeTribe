@@ -17,7 +17,7 @@ const LoginContent: React.FC = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { isLoggedIn, getJwtToken, login } = useAuth();
+  const { login } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -152,7 +152,7 @@ const LoginContent: React.FC = () => {
             Login with Google
           </button>
           <p className="mt-4 text-gray-700 text-center">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link href="/signup" className="text-purple-600 underline">
               Sign up
             </Link>

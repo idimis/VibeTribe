@@ -1,19 +1,23 @@
 "use client";
-import { createContext, useContext, useEffect, useState } from "react";
 
-const AuthContext = createContext();
+import React, { createContext, useContext, useEffect, useState } from "react";
 
-export function AuthProvider({ children }) {
+const AuthContext = createContext<any>(null); 
+
+interface AuthProviderProps {
+  children: React.ReactNode;
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [loggedEmail, setLoggedEmail] = useState(null);
-  const [isAuthLoaded, setAuthLoaded]  = useState(false);
+  const [loggedEmail, setLoggedEmail] = useState<string | null>(null);
+  const [isAuthLoaded, setAuthLoaded] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     const email = localStorage.getItem("email");
 
     if (token) {
-     
       fetch("http://localhost:8080/api/v1/user/details", {
         method: "GET",
         headers: {
@@ -30,7 +34,7 @@ export function AuthProvider({ children }) {
           }
         })
         .catch(() => {
-          handleLogout(); 
+          handleLogout();
         });
     } else {
       setAuthLoaded(true);
@@ -44,7 +48,7 @@ export function AuthProvider({ children }) {
     setLoggedEmail(null);
   };
 
-  const login = (token, email) => {
+  const login = (token: string, email: string) => {
     localStorage.setItem("token", token);
     localStorage.setItem("email", email);
     setIsLoggedIn(true);
