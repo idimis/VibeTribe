@@ -2,14 +2,14 @@
 CREATE SCHEMA IF NOT EXISTS vibetribe;
 
 -- Table: location
-CREATE TABLE vibetribe.location
+CREATE TABLE IF NOT EXISTS vibetribe.location
 (
     id        SERIAL PRIMARY KEY,
     city_name VARCHAR(100) NOT NULL UNIQUE
 );
 
 -- Table: user
-CREATE TABLE vibetribe."user"
+CREATE TABLE IF NOT EXISTS vibetribe."user"
 (
     id                bigserial PRIMARY KEY NOT NULL,
     name              varchar               NOT NULL,
@@ -28,7 +28,7 @@ CREATE TABLE vibetribe."user"
 );
 
 -- Table: point
-CREATE TABLE vibetribe.point
+CREATE TABLE IF NOT EXISTS vibetribe.point
 (
     id               bigserial PRIMARY KEY NOT NULL,
     customer_id      integer               NOT NULL REFERENCES vibetribe."user" (id),
@@ -40,7 +40,7 @@ CREATE TABLE vibetribe.point
 );
 
 -- Table: event
-CREATE TABLE vibetribe.event
+CREATE TABLE IF NOT EXISTS vibetribe.event
 (
     id               bigserial PRIMARY KEY    NOT NULL,
     organizer_id     integer                  NOT NULL REFERENCES vibetribe."user" (id),
@@ -62,7 +62,7 @@ CREATE TABLE vibetribe.event
 );
 
 -- Table: review
-CREATE TABLE vibetribe.review
+CREATE TABLE IF NOT EXISTS vibetribe.review
 (
     id          bigserial PRIMARY KEY NOT NULL,
     customer_id integer               NOT NULL REFERENCES vibetribe."user" (id),
@@ -73,7 +73,7 @@ CREATE TABLE vibetribe.review
 );
 
 -- Table: referral
-CREATE TABLE vibetribe.referral
+CREATE TABLE IF NOT EXISTS vibetribe.referral
 (
     id            bigserial PRIMARY KEY NOT NULL,
     referral_code varchar REFERENCES vibetribe."user" (referral_code),
@@ -83,7 +83,7 @@ CREATE TABLE vibetribe.referral
 );
 
 -- Table: voucher
-CREATE TABLE vibetribe.voucher
+CREATE TABLE IF NOT EXISTS vibetribe.voucher
 (
     id            bigserial PRIMARY KEY NOT NULL,
     event_id      integer REFERENCES vibetribe.event (id),
@@ -99,7 +99,7 @@ CREATE TABLE vibetribe.voucher
 );
 
 -- Table: quantity_based_voucher
-CREATE TABLE vibetribe.quantity_based_voucher
+CREATE TABLE IF NOT EXISTS vibetribe.quantity_based_voucher
 (
     voucher_id     integer PRIMARY KEY REFERENCES vibetribe.voucher (id),
     quantity_limit int,
@@ -107,7 +107,7 @@ CREATE TABLE vibetribe.quantity_based_voucher
 );
 
 -- Table: date_range_based_voucher
-CREATE TABLE vibetribe.date_range_based_voucher
+CREATE TABLE IF NOT EXISTS vibetribe.date_range_based_voucher
 (
     voucher_id integer PRIMARY KEY REFERENCES vibetribe.voucher (id),
     start_date timestamp with time zone,
@@ -115,7 +115,7 @@ CREATE TABLE vibetribe.date_range_based_voucher
 );
 
 -- Table: voucher_usage
-CREATE TABLE vibetribe.voucher_usage
+CREATE TABLE IF NOT EXISTS vibetribe.voucher_usage
 (
     id          bigserial PRIMARY KEY NOT NULL,
     voucher_id  integer REFERENCES vibetribe.voucher (id),
@@ -124,7 +124,7 @@ CREATE TABLE vibetribe.voucher_usage
 );
 
 -- Table: transaction
-CREATE TABLE vibetribe.transaction
+CREATE TABLE IF NOT EXISTS vibetribe.transaction
 (
     id               bigserial PRIMARY KEY NOT NULL,
     customer_id      integer               NOT NULL REFERENCES vibetribe."user" (id),
@@ -139,7 +139,7 @@ CREATE TABLE vibetribe.transaction
 );
 
 -- Table: ticket
-CREATE TABLE vibetribe.ticket
+CREATE TABLE IF NOT EXISTS vibetribe.ticket
 (
     id             bigserial PRIMARY KEY    NOT NULL,
     transaction_id integer                  NOT NULL REFERENCES vibetribe.transaction (id),
@@ -157,46 +157,46 @@ CREATE TABLE vibetribe.ticket
 );
 
 -- Indexes for the "user" table
-CREATE INDEX idx_user_email ON vibetribe."user" (email);
-CREATE INDEX idx_user_referral_code ON vibetribe."user" (referral_code);
-CREATE INDEX idx_user_role ON vibetribe."user" (role);
+CREATE INDEX IF NOT EXISTS idx_user_email ON vibetribe."user" (email);
+CREATE INDEX IF NOT EXISTS idx_user_referral_code ON vibetribe."user" (referral_code);
+CREATE INDEX IF NOT EXISTS idx_user_role ON vibetribe."user" (role);
 
 -- Indexes for the "point" table
-CREATE INDEX idx_point_customer_id ON vibetribe.point (customer_id);
-CREATE INDEX idx_point_is_used ON vibetribe.point (is_used);
+CREATE INDEX IF NOT EXISTS idx_point_customer_id ON vibetribe.point (customer_id);
+CREATE INDEX IF NOT EXISTS idx_point_is_used ON vibetribe.point (is_used);
 
 -- Indexes for the "event" table
-CREATE INDEX idx_event_organizer_id ON vibetribe.event (organizer_id);
-CREATE INDEX idx_event_date_time_start ON vibetribe.event (date_time_start);
-CREATE INDEX idx_event_date_time_end ON vibetribe.event (date_time_end);
+CREATE INDEX IF NOT EXISTS idx_event_organizer_id ON vibetribe.event (organizer_id);
+CREATE INDEX IF NOT EXISTS idx_event_date_time_start ON vibetribe.event (date_time_start);
+CREATE INDEX IF NOT EXISTS idx_event_date_time_end ON vibetribe.event (date_time_end);
 
 -- Indexes for the "review" table
-CREATE INDEX idx_review_customer_id ON vibetribe.review (customer_id);
-CREATE INDEX idx_review_event_id ON vibetribe.review (event_id);
+CREATE INDEX IF NOT EXISTS idx_review_customer_id ON vibetribe.review (customer_id);
+CREATE INDEX IF NOT EXISTS idx_review_event_id ON vibetribe.review (event_id);
 
 -- Indexes for the "referral" table
-CREATE INDEX idx_referral_referral_code ON vibetribe.referral (referral_code);
-CREATE INDEX idx_referral_referrer_id ON vibetribe.referral (referrer_id);
-CREATE INDEX idx_referral_referred_id ON vibetribe.referral (referred_id);
+CREATE INDEX IF NOT EXISTS idx_referral_referral_code ON vibetribe.referral (referral_code);
+CREATE INDEX IF NOT EXISTS idx_referral_referrer_id ON vibetribe.referral (referrer_id);
+CREATE INDEX IF NOT EXISTS idx_referral_referred_id ON vibetribe.referral (referred_id);
 
 -- Indexes for the "voucher" table
-CREATE INDEX idx_voucher_event_id ON vibetribe.voucher (event_id);
-CREATE INDEX idx_voucher_customer_id ON vibetribe.voucher (customer_id);
-CREATE INDEX idx_voucher_is_used ON vibetribe.voucher (is_used);
+CREATE INDEX IF NOT EXISTS idx_voucher_event_id ON vibetribe.voucher (event_id);
+CREATE INDEX IF NOT EXISTS idx_voucher_customer_id ON vibetribe.voucher (customer_id);
+CREATE INDEX IF NOT EXISTS idx_voucher_is_used ON vibetribe.voucher (is_used);
 
 -- Indexes for the "voucher_usage" table
-CREATE INDEX idx_voucher_usage_voucher_id ON vibetribe.voucher_usage (voucher_id);
-CREATE INDEX idx_voucher_usage_customer_id ON vibetribe.voucher_usage (customer_id);
-CREATE INDEX idx_voucher_usage_used_at ON vibetribe.voucher_usage (used_at);
+CREATE INDEX IF NOT EXISTS idx_voucher_usage_voucher_id ON vibetribe.voucher_usage (voucher_id);
+CREATE INDEX IF NOT EXISTS idx_voucher_usage_customer_id ON vibetribe.voucher_usage (customer_id);
+CREATE INDEX IF NOT EXISTS idx_voucher_usage_used_at ON vibetribe.voucher_usage (used_at);
 
 -- Indexes for the "transaction" table
-CREATE INDEX idx_transaction_customer_id ON vibetribe.transaction (customer_id);
-CREATE INDEX idx_transaction_event_id ON vibetribe.transaction (event_id);
-CREATE INDEX idx_transaction_voucher_id ON vibetribe.transaction (voucher_id);
-CREATE INDEX idx_transaction_point_id ON vibetribe.transaction (point_id);
+CREATE INDEX IF NOT EXISTS idx_transaction_customer_id ON vibetribe.transaction (customer_id);
+CREATE INDEX IF NOT EXISTS idx_transaction_event_id ON vibetribe.transaction (event_id);
+CREATE INDEX IF NOT EXISTS idx_transaction_voucher_id ON vibetribe.transaction (voucher_id);
+CREATE INDEX IF NOT EXISTS idx_transaction_point_id ON vibetribe.transaction (point_id);
 
 -- Indexes for the "ticket" table
-CREATE INDEX idx_ticket_transaction_id ON vibetribe.ticket (transaction_id);
-CREATE INDEX idx_ticket_event_id ON vibetribe.ticket (event_id);
-CREATE INDEX idx_ticket_customer_id ON vibetribe.ticket (customer_id);
-CREATE INDEX idx_ticket_status ON vibetribe.ticket (status);
+CREATE INDEX IF NOT EXISTS idx_ticket_transaction_id ON vibetribe.ticket (transaction_id);
+CREATE INDEX IF NOT EXISTS idx_ticket_event_id ON vibetribe.ticket (event_id);
+CREATE INDEX IF NOT EXISTS idx_ticket_customer_id ON vibetribe.ticket (customer_id);
+CREATE INDEX IF NOT EXISTS idx_ticket_status ON vibetribe.ticket (status);
