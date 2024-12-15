@@ -10,6 +10,7 @@ import com.vibetribe.backend.infrastructure.usecase.transaction.dto.TransactionR
 import com.vibetribe.backend.infrastructure.usecase.transaction.repository.TransactionRepository;
 import com.vibetribe.backend.infrastructure.usecase.user.repository.UserRepository;
 import com.vibetribe.backend.infrastructure.usecase.voucher.repository.VoucherRepository;
+import com.vibetribe.backend.infrastructure.usecase.voucher.repository.VoucherUsageRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -26,17 +27,20 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final EventRepository eventRepository;
     private final VoucherRepository voucherRepository;
+    private final VoucherUsageRepository voucherUsageRepository;
     private final UserRepository userRepository;
     private final TicketService ticketService;
 
     public TransactionService(TransactionRepository transactionRepository,
                               EventRepository eventRepository,
                               VoucherRepository voucherRepository,
+                              VoucherUsageRepository voucherUsageRepository,
                               TicketService ticketService,
                               UserRepository userRepository) {
         this.transactionRepository = transactionRepository;
         this.eventRepository = eventRepository;
         this.voucherRepository = voucherRepository;
+        this.voucherUsageRepository = voucherUsageRepository;
         this.userRepository = userRepository;
         this.ticketService = ticketService;
     }
@@ -58,9 +62,34 @@ public class TransactionService {
         if (request.getVoucherId() != null) {
             voucher = voucherRepository.findById(request.getVoucherId())
                     .orElseThrow(() -> new IllegalArgumentException("Voucher not found"));
+        } else if (request.getVoucherCode() != null) {
+            voucher = voucherRepository.findByVoucherCode(request.getVoucherCode())
+                    .orElseThrow(() -> new IllegalArgumentException("Voucher not found"));
+        }
 
+        if (voucher != null) {
             if (!voucher.getEvent().getId().equals(event.getId())) {
                 throw new IllegalArgumentException("Voucher is not valid for this event");
+            }
+
+            if ("DISCOUNT".equalsIgnoreCase(voucher.getVoucherType())) {
+                if (voucher.isUsed()) {
+                    throw new IllegalArgumentException("Voucher has already been used");
+                }
+
+                if (voucher.getExpiresAt().isBefore(LocalDateTime.now())) {
+                    throw new IllegalArgumentException("Voucher has expired");
+                }
+
+                voucher.setUsed(true);
+                voucherRepository.save(voucher);
+
+                VoucherUsage voucherUsage = new VoucherUsage();
+                voucherUsage.setVoucher(voucher);
+                voucherUsage.setCustomer(userRepository.findById(customerId)
+                        .orElseThrow(() -> new IllegalArgumentException("User not found")));
+                voucherUsage.setUsedAt(LocalDateTime.now());
+                voucherUsageRepository.save(voucherUsage);
             }
 
             if (voucher.getQuantityBasedVoucher() != null) {

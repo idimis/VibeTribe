@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -13,7 +13,8 @@ import java.time.OffsetDateTime;
 @Table(name = "voucher_usage", schema = "vibetribe")
 public class VoucherUsage {
     @Id
-    @ColumnDefault("nextval('vibetribe.voucher_usage_id_seq')")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "voucher_usage_id_gen")
+    @SequenceGenerator(name = "voucher_usage_id_gen", sequenceName = "voucher_usage_id_seq", schema = "vibetribe", allocationSize = 1)
     @Column(name = "id", nullable = false)
     private Long id;
 
@@ -27,6 +28,6 @@ public class VoucherUsage {
 
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "used_at")
-    private OffsetDateTime usedAt;
+    private LocalDateTime usedAt;
 
 }

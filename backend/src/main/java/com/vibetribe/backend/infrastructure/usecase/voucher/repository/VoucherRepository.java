@@ -38,4 +38,7 @@ public interface VoucherRepository extends JpaRepository<Voucher, Long> {
     Page<Voucher> findByEventId(@Param("eventId") Long eventId, Pageable pageable);
 
     Page<Voucher> findByUserId(Long customerId, Pageable pageable);
+
+    Optional<Voucher> findByUserIdAndId(Long userId, Long id);
+    Optional<Voucher> findByVoucherCode(String voucherCode);
 }
