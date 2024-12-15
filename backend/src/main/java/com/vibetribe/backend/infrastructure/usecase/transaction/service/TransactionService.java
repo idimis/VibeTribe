@@ -145,7 +145,7 @@ public class TransactionService {
         }
 
         BigDecimal voucherDiscount = voucher != null ? voucher.getVoucherValue() : BigDecimal.ZERO;
-        BigDecimal amountPaid = (totalAmount.subtract(points)).multiply(BigDecimal.ONE.subtract(voucherDiscount));
+        BigDecimal amountPaid = (totalAmount.subtract(points)).multiply(voucherDiscount.divide(BigDecimal.valueOf(100)));
 
         Transaction transaction = new Transaction();
         transaction.setCustomer(customer);
