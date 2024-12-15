@@ -21,6 +21,7 @@ interface Event {
   availableSeats: number;
   bookedSeats: number;
   slug: string;
+  date: string;
 }
 
 const fetchEventsByLocation = async (location: string): Promise<Event[]> => {

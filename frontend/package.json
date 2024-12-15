@@ -38,9 +38,10 @@
     "tailwindcss": "^3.4.1",
     "typescript": "^5.2.2"
   },
+  
   "eslintConfig": {
-    "rules": {
-      "no-unused-vars": "warn"
-    }
+  "rules": {
+    "no-unused-vars": "off",
+    "no-console": "off"
   }
-}
+}}

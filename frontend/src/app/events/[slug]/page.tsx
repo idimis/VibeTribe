@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -30,7 +32,7 @@ const EventPage: React.FC<EventPageProps> = ({ params }) => {
   const [event, setEvent] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [organizer, setOrganizer] = useState<Organizer | null>(null);
-  const { user } = useAuth() as { user: User | null }; // Properly type the context
+  const { user } = useAuth() as { user: User | null }; 
 
   useEffect(() => {
     const fetchSlug = async () => {

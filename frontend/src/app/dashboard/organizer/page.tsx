@@ -91,6 +91,7 @@ const OrganizerDashboard: React.FC = () => {
         }),
       ]);
   
+      console.log("status dari events adalah " + responseEvents.status)
       
       if (!responseProfile.ok) {
         throw new Error("Failed to fetch profile data");

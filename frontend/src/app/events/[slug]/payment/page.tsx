@@ -5,6 +5,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { notFound } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import Link from 'next/link';
+
 
 interface PaymentPageProps {
   params: { slug: string };
@@ -40,6 +42,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
   
   const [fee, setFee] = useState<number>(0);
   const [totalFee, setTotalFee] = useState(0);
+  const [isPaymentSuccess, setIsPaymentSuccess] = useState(false); 
  
 
   useEffect(() => {
@@ -171,7 +174,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
     console.log("Voucher Value for Discount Calculation:", voucherValue);
     console.log("Quantity Fee:", quantityFee);
   
-    // Cek apakah ada points dan tambahkan ke diskon
+    
     if (formData.points) {
       discount += Number(formData.points); 
     }
@@ -188,27 +191,25 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
     
     }
     
-    // Cek voucher tipe 'customer' dan beri diskon 10%
+    
     else if (customerVouchers.includes(formData.voucher) ) {
       const customerVoucherDiscount = quantityFee * 0.1;  
       discount += customerVoucherDiscount;
       console.log("Applied Customer Voucher Discount:", customerVoucherDiscount);
     }
 
-    // Debugging tambahan untuk nilai discount
+  
     console.log("Total Discount Applied:", discount);
   
-    // Hitung fee akhir setelah diskon
+    
     const finalFee = Math.max(0, quantityFee - discount);
     console.log("Final Fee after Discount:", finalFee);
     
-    // Update total fee
+    
     setTotalFee(finalFee);
 }, [formData, fee, voucherValue]);
 
 
-
-  
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => { 
   const { name, value } = e.target;
@@ -256,18 +257,19 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
     });
   };
 
-  const handleConfirm = async () => {
+  const handleConfirm = async () => { 
     console.log("Event object before submitting:", event);
   
-    
     const quantity = Number(formData.quantity);  
     const points = Number(formData.points);      
   
+    
     if (formData.voucher === 'event' && points > 0) {
       alert("You cannot use both event voucher and individual points at the same time.");
       return;
     }
   
+   
     if (quantity <= 0) {
       alert("Quantity must be greater than 0.");
       return;
@@ -278,6 +280,16 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
       return;
     }
 
+    
+  let discount = 0;
+  let voucherId = null;
+  const quantityFee = fee * quantity;
+
+  
+  if (points > 0) {
+    discount += points;
+  }
+  
     try {
       const token = getJwtToken();
       const response = await fetch(`${BASE_URL}/api/v1/transactions`, {
@@ -291,35 +303,37 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
           eventId: eventId,  
           fullName: formData.fullName,
           email: formData.email,
-          voucher: formData.voucher,
-          points: Number(formData.points),
+          // voucherId: formData.voucherId,
+          voucherCode: formData.voucher,
+          points: points,
           paymentMethod: formData.paymentMethod,
-          quantity: Number(formData.quantity),
+          quantity: quantity,
           isUsePoints: !!formData.points,
+          discountApplied: discount, 
         }),
       });
-
+  
       if (!response.ok) {
         throw new Error(`Request failed with status: ${response.status}`);
       }
-
+  
       const responseText = await response.text();
       console.log("Raw response:", responseText);
-
+  
       if (!responseText) {
         throw new Error("Empty response from server");
       }
-
+  
       const data = JSON.parse(responseText);
-
+  
       if (data.success) {
         const transactionId = data.data.id;
         const pointsApplied = data.data.pointsApplied;
         const voucher = data.data.voucher;
-
+  
         if (transactionId) {
           setTransactionId(transactionId);
-          window.location.href = `/find-ticket/receipt?id=${event.slug}&voucher=${voucher}&points=${pointsApplied}&quantity=${formData.quantity}&transactionId=${transactionId}&fee=${fee}`;
+          setIsPaymentSuccess(true);  
         } else {
           console.error("Transaction creation failed: Transaction ID is null");
           alert("Failed to create transaction. Please try again.");
@@ -333,19 +347,34 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
       alert("An error occurred while creating the transaction.");
     }
   };
-
+  
   const handleCancel = () => {
     window.history.back();
   };
-
+  
+  
+  const PaymentSuccessPopUp = () => (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg">
+        <h2 className="text-xl font-semibold text-green-600">Payment Successful!</h2>
+        <p className="text-lg text-gray-800 mt-4">Your transaction was completed successfully.</p>
+        <button
+          onClick={() => setIsPaymentSuccess(false)} 
+          className="mt-4 py-2 px-6 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  );
+  
   if (loading) {
     return <div>Loading...</div>;
   }
-
+  
   if (!event) {
     return <div>Event not found</div>;
   }
-
 
   
   return (
@@ -544,7 +573,11 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
   </div>
   <div className="flex justify-between">
     <span>Points Discount:</span>
-    <span>{formData.points ? `Rp. ${formData.points.toLocaleString('id-ID')}` : "Rp. 0"}</span>
+    <span>
+  {formData.points && !isNaN(Number(formData.points)) 
+    ? `Rp. ${Number(formData.points).toLocaleString('id-ID')}` 
+    : "Rp. 0"}
+</span>
   </div>
   <div className="flex justify-between font-semibold">
     <span>Total:</span>
@@ -552,26 +585,55 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
   </div>
 </div>
 
+ {/* Payment Method */}
+ <div className="space-y-4">
+          <label htmlFor="paymentMethod" className="block text-sm font-medium text-gray-700">Payment Method</label>
+          <select
+            name="paymentMethod"
+            id="paymentMethod"
+            value={formData.paymentMethod}
+            onChange={handleInputChange}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="bank_transfer">Bank Transfer</option>
+            <option value="credit_card">Credit Card</option>
+            <option value="exposure">Exposure</option>
+            <option value="hasil_judol">Hasil Judol</option>
+            <option value="ginjal">Ginjal</option>
+          </select>
+        </div>
+
 
           {/* Confirmation Button */}
           <div className="flex justify-between space-x-4">
-            <button
-              onClick={handleConfirm}
-              className="bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300"
-            >
-              Confirm Payment
-            </button>
+            
             <button
               onClick={handleCancel}
               className="bg-red-600 text-white py-3 px-6 rounded-lg hover:bg-red-700 transition duration-300"
             >
               Cancel
             </button>
+            <button
+              onClick={handleConfirm}
+              className="bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300"
+            >
+              Confirm Payment
+            </button>
+            </div>
+
+            {/* Return to Homepage link */}
+          <div className="text-center mt-8">
+            <Link href="/" className="text-blue-600 font-semibold hover:underline">
+              Return to Homepage
+            </Link>
           </div>
           </div>
           </div>
         </div>
       </main>
+    {/* Payment Success Pop-up */}
+    {isPaymentSuccess && <PaymentSuccessPopUp />}
+
       <Footer />
     </div>
   );
