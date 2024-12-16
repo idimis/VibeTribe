@@ -61,7 +61,7 @@ const Header: React.FC = () => {
   };
 
   const handleLocationChange = useCallback(
-    debounce(async (query: string) => {  // specify 'string' for query here
+    debounce(async (query: string) => {  
       setLocation(query);
   
       if (query.trim() === '') {
@@ -75,7 +75,7 @@ const Header: React.FC = () => {
         const data = await response.json();
         if (data.success && data.data) { 
           const lowercaseQuery = query.toLowerCase();
-          setFilteredLocations(data.data.filter((location) => {
+          setFilteredLocations(data.data.filter((location : any) => {
             const lowerCaseCityName = location.cityName.toLowerCase();
             
             if (lowerCaseCityName === lowercaseQuery) {

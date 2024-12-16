@@ -9,9 +9,6 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 
-interface EventPageProps {
-  params: { slug: string };
-}
 
 interface User {
   role: string;
@@ -27,7 +24,7 @@ interface Organizer {
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
 
-const EventPage: React.FC<EventPageProps> = ({ params }) => {
+const EventPage = ({ params } : any ) => {
   const [slug, setSlug] = useState<string>("");
   const [event, setEvent] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);

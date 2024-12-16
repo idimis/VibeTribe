@@ -38,13 +38,8 @@ const fetchEventsByLocation = async (location: string): Promise<Event[]> => {
   return data.data.content;
 };
 
-interface LocationPageProps {
-  params: {
-    slug: string;
-  };
-}
 
-const LocationPage: React.FC<LocationPageProps> = ({ params }) => {
+const LocationPage = ({ params } : any ) => {
   const [slug, setSlug] = useState<string | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState<boolean>(true);

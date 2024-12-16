@@ -19,7 +19,7 @@ const EventStatisticsWidget: React.FC<EventStatisticsProps> = ({ statistics }) =
     0
   );
 
-  // Filter events that have ratings and calculate the average rating based on those events
+ 
   const eventsWithRatings = statistics.filter(event => event.averageRating !== undefined && event.averageRating !== null);
   const averageRating = (eventsWithRatings.reduce(
     (sum: number, event: { averageRating: number }) => sum + event.averageRating,
@@ -150,9 +150,12 @@ const EventStatisticsWidget: React.FC<EventStatisticsProps> = ({ statistics }) =
           </button>
         </div>
 
+
+        
         {/* Chart Display */}
-        <div className="chart-container mb-5">
-          <Bar data={data} options={chartType === 'monthly' ? monthlyChartOptions : yearlyChartOptions} />
+        <div>
+           {/* // eslint-disable-next-line */}
+          {/* <Bar data={data} options={chartType === 'monthly' ? monthlyChartOptions : yearlyChartOptions} /> */}
         </div>
       </div>
     </div>

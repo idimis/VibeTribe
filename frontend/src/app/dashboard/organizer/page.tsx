@@ -81,7 +81,7 @@ const OrganizerDashboard: React.FC = () => {
   
     try {
       const [responseEvents, responseProfile] = await Promise.all([
-        fetch("http://localhost:8080/api/v1/events/organizer?size=100", {
+        fetch("http://localhost:8080/api/v1/events/organizer", {
           method: "GET",
           headers: { Authorization: `Bearer ${token}` },
         }),
@@ -241,14 +241,14 @@ const OrganizerDashboard: React.FC = () => {
   const handleVoucherSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
   
-    // Get the token from localStorage or sessionStorage
+    
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
     if (!token) {
       alert("You are not logged in!");
       return;
     }
   
-    // Create the voucher data based on the selected voucher type
+    
     let voucherData: any = {
       eventId,
       voucherCode,
@@ -257,17 +257,17 @@ const OrganizerDashboard: React.FC = () => {
       voucherType,
     };
   
-    // If voucher type is "quantity", include the quantity limit data
+    
     if (voucherType === "quantity") {
       voucherData = {
         ...voucherData,
         quantityBasedVoucher: {
-          quantityLimit: quantityLimit, // Adjust this based on your form field for quantity
+          quantityLimit: quantityLimit, 
         },
       };
     }
   
-    // If voucher type is "dateRange", include the date range data
+   
     if (voucherType === "dateRange") {
       voucherData = {
         ...voucherData,
@@ -279,7 +279,7 @@ const OrganizerDashboard: React.FC = () => {
     }
   
     try {
-      // Make the API request to create the voucher
+     
       const response = await fetch("http://localhost:8080/api/v1/vouchers/create", {
         method: "POST",
         headers: {
@@ -292,7 +292,7 @@ const OrganizerDashboard: React.FC = () => {
       const result = await response.json();
   
       if (response.ok && result.success) {
-        // Success, reset the form
+        
         setVoucherSuccess(result.message);
         setVoucherError(null);
         setEventId("");
@@ -301,9 +301,9 @@ const OrganizerDashboard: React.FC = () => {
         setDescription("");
         setStartDate("");
         setEndDate("");
-        setQuantityLimit(0);  // Reset quantity limit if needed
+        setQuantityLimit(0);  
       } else {
-        // Error handling
+      
         setVoucherError(result.message || "Failed to create voucher.");
         setVoucherSuccess(null);
       }

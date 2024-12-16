@@ -6,13 +6,10 @@ import Footer from "@/components/Footer";
 import { notFound } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
-interface ReviewPageProps {
-  params: { slug: string };
-}
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
 
-const ReviewPage: React.FC<ReviewPageProps> = ({ params }) => {
+const ReviewPage= ({ params } : any) => {
   const { isLoggedIn, getJwtToken } = useAuth();
   const [slug, setSlug] = useState<string>("");
   const [event, setEvent] = useState<any>(null);

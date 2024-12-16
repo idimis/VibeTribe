@@ -8,13 +8,9 @@ import { useAuth } from "@/context/AuthContext";
 import Link from 'next/link';
 
 
-interface PaymentPageProps {
-  params: { slug: string };
-}
-
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
 
-const PaymentPage: React.FC<PaymentPageProps> = ({ params }) => {
+const PaymentPage = ({ params } : any ) => {
   const { getJwtToken } = useAuth();
   const [slug, setSlug] = useState<string>('');
   const [event, setEvent] = useState<any>(null);

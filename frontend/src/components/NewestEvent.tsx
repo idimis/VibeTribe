@@ -9,8 +9,8 @@ const EventPage: React.FC = () => {
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [filter, setFilter] = useState("newest");
-  const [currentPage, setCurrentPage] = useState(1); // Track the current page
-  const [totalPages, setTotalPages] = useState(1); // Track the total number of pages
+  const [currentPage, setCurrentPage] = useState(1); 
+  const [totalPages, setTotalPages] = useState(1); 
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);

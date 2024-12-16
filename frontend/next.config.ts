@@ -29,6 +29,8 @@ const nextConfig: NextConfig = {
       'wordpress.com',
       'cdn1-production-images-kly.akamaized.net',
       'people.com',
+      'cdnb.artstation.com',
+      'akcdn.detik.net.id'
     ],
   },
   async redirects() {
